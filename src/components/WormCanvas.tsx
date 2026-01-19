@@ -18,6 +18,16 @@ interface Neuron {
   active: boolean;
 }
 
+// Canvas-compatible colors (must use comma-separated format)
+const COLORS = {
+  primary: { h: 200, s: 98, l: 39 },
+  accent: { h: 142, s: 76, l: 36 },
+};
+
+const hslToString = (color: typeof COLORS.primary, alpha: number = 1) => {
+  return `hsla(${color.h}, ${color.s}%, ${color.l}%, ${alpha})`;
+};
+
 export function WormCanvas({ className, neuronCount = 50, animated = true }: WormCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const neuronsRef = useRef<Neuron[]>([]);
@@ -66,9 +76,6 @@ export function WormCanvas({ className, neuronCount = 50, animated = true }: Wor
     }
     neuronsRef.current = neurons;
 
-    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue("--primary").trim();
-    const accentColor = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim();
-
     const draw = () => {
       if (!ctx || !canvas) return;
 
@@ -77,7 +84,7 @@ export function WormCanvas({ className, neuronCount = 50, animated = true }: Wor
       const neurons = neuronsRef.current;
 
       // Draw connections
-      neurons.forEach((neuron, i) => {
+      neurons.forEach((neuron) => {
         neuron.connections.forEach((targetIdx) => {
           if (targetIdx < neurons.length) {
             const target = neurons[targetIdx];
@@ -90,7 +97,7 @@ export function WormCanvas({ className, neuronCount = 50, animated = true }: Wor
               ctx.beginPath();
               ctx.moveTo(neuron.x, neuron.y);
               ctx.lineTo(target.x, target.y);
-              ctx.strokeStyle = `hsla(${primaryColor}, ${opacity})`;
+              ctx.strokeStyle = hslToString(COLORS.primary, opacity);
               ctx.lineWidth = 1;
               ctx.stroke();
 
@@ -102,7 +109,7 @@ export function WormCanvas({ className, neuronCount = 50, animated = true }: Wor
 
                 ctx.beginPath();
                 ctx.arc(pulseX, pulseY, 2, 0, Math.PI * 2);
-                ctx.fillStyle = `hsla(${accentColor}, 0.8)`;
+                ctx.fillStyle = hslToString(COLORS.accent, 0.8);
                 ctx.fill();
               }
             }
@@ -114,14 +121,14 @@ export function WormCanvas({ className, neuronCount = 50, animated = true }: Wor
       neurons.forEach((neuron) => {
         const glowIntensity = neuron.active ? 0.6 + Math.sin(neuron.pulsePhase) * 0.4 : 0.3;
 
-        // Glow
+        // Glow for active neurons
         if (neuron.active) {
           const gradient = ctx.createRadialGradient(
             neuron.x, neuron.y, 0,
             neuron.x, neuron.y, neuron.radius * 3
           );
-          gradient.addColorStop(0, `hsla(${accentColor}, ${glowIntensity})`);
-          gradient.addColorStop(1, `hsla(${accentColor}, 0)`);
+          gradient.addColorStop(0, hslToString(COLORS.accent, glowIntensity));
+          gradient.addColorStop(1, hslToString(COLORS.accent, 0));
           ctx.beginPath();
           ctx.arc(neuron.x, neuron.y, neuron.radius * 3, 0, Math.PI * 2);
           ctx.fillStyle = gradient;
@@ -132,12 +139,12 @@ export function WormCanvas({ className, neuronCount = 50, animated = true }: Wor
         ctx.beginPath();
         ctx.arc(neuron.x, neuron.y, neuron.radius, 0, Math.PI * 2);
         ctx.fillStyle = neuron.active 
-          ? `hsla(${accentColor}, 1)` 
-          : `hsla(${primaryColor}, 0.5)`;
+          ? hslToString(COLORS.accent, 1) 
+          : hslToString(COLORS.primary, 0.5);
         ctx.fill();
 
         // Border
-        ctx.strokeStyle = `hsla(${primaryColor}, 0.8)`;
+        ctx.strokeStyle = hslToString(COLORS.primary, 0.8);
         ctx.lineWidth = 1;
         ctx.stroke();
       });
