@@ -1,14 +1,320 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Header } from "@/components/Header";
+import DisplayCards from "@/components/DisplayCards";
+import { BentoCard, BentoGrid } from "@/components/BentoGrid";
+import { ExpandableTabs } from "@/components/ExpandableTabs";
+import { WormCanvas } from "@/components/WormCanvas";
+import { 
+  Brain, 
+  Sparkles, 
+  Rocket, 
+  GraduationCap, 
+  Users, 
+  Trophy,
+  ArrowRight,
+  Play,
+  BookOpen,
+  Zap,
+  Target
+} from "lucide-react";
 
-const Index = () => {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+const navTabs = [
+  { title: "Learn", icon: BookOpen },
+  { title: "Play", icon: Play },
+  { title: "Compete", icon: Trophy },
+  { title: "Community", icon: Users },
+];
+
+const features = [
+  {
+    Icon: Brain,
+    name: "302 Neurons, Infinite Possibilities",
+    description: "Explore the complete C. elegans connectome — the only fully mapped brain in existence. Build, simulate, and understand neural networks.",
+    href: "/learn",
+    cta: "Start Learning",
+    className: "lg:row-start-1 lg:row-end-4 lg:col-start-2 lg:col-end-3",
+    background: (
+      <div className="absolute inset-0 opacity-30">
+        <WormCanvas neuronCount={30} animated={true} />
       </div>
+    ),
+  },
+  {
+    Icon: Sparkles,
+    name: "AI-Powered Learning",
+    description: "Grok AI adapts to your pace, generates challenges, and validates your simulations in real-time.",
+    href: "/play",
+    cta: "Experience AI",
+    className: "lg:col-start-1 lg:col-end-2 lg:row-start-1 lg:row-end-3",
+    background: (
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5" />
+    ),
+  },
+  {
+    Icon: Trophy,
+    name: "Gamified Mastery",
+    description: "Earn badges, climb leaderboards, and unlock new neural tools as you progress.",
+    href: "/leaderboard",
+    cta: "View Achievements",
+    className: "lg:col-start-1 lg:col-end-2 lg:row-start-3 lg:row-end-4",
+    background: (
+      <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent" />
+    ),
+  },
+  {
+    Icon: GraduationCap,
+    name: "All Ages Welcome",
+    description: "Pre-K to PhD — adaptive content for every learner. Teachers get zero-prep lesson scripts.",
+    href: "/play",
+    cta: "Choose Your Level",
+    className: "lg:col-start-3 lg:col-end-3 lg:row-start-1 lg:row-end-2",
+    background: (
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
+    ),
+  },
+  {
+    Icon: Users,
+    name: "OpenWorm Community",
+    description: "Join the global open-source neuroscience movement. Share simulations, contribute data, inspire discovery.",
+    href: "/community",
+    cta: "Join Community",
+    className: "lg:col-start-3 lg:col-end-3 lg:row-start-2 lg:row-end-4",
+    background: (
+      <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-primary/5" />
+    ),
+  },
+];
+
+const stats = [
+  { value: "302", label: "Neurons", icon: Brain },
+  { value: "7000+", label: "Connections", icon: Zap },
+  { value: "100%", label: "Mapped", icon: Target },
+  { value: "∞", label: "Possibilities", icon: Rocket },
+];
+
+export default function Index() {
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+
+      {/* Hero Section */}
+      <section className="relative pt-24 pb-20 px-4 overflow-hidden">
+        {/* Background canvas */}
+        <div className="absolute inset-0 opacity-20">
+          <WormCanvas neuronCount={80} />
+        </div>
+
+        <div className="container mx-auto relative z-10">
+          <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[70vh]">
+            {/* Left: Content */}
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              {/* Menu Bar */}
+              <div className="mb-8">
+                <ExpandableTabs tabs={navTabs} className="inline-flex" />
+              </div>
+
+              <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-6 leading-[0.9]">
+                <span className="block">Ignite</span>
+                <span className="block text-primary">Humanity's</span>
+                <span className="block">Future</span>
+              </h1>
+
+              <p className="text-xl text-muted-foreground mb-8 max-w-lg">
+                A lowly worm with 302 neurons sparks your journey into AI & neuroscience. 
+                The complete C. elegans brain — gamified, AI-powered, and addictively fun.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link to="/play">
+                  <Button variant="hero" size="xl" className="w-full sm:w-auto">
+                    <Rocket className="w-5 h-5 mr-2" />
+                    Start Your Quest
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </Link>
+                <Link to="/learn">
+                  <Button variant="brutal" size="xl" className="w-full sm:w-auto">
+                    <BookOpen className="w-5 h-5 mr-2" />
+                    Learn First
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Stats */}
+              <div className="grid grid-cols-4 gap-4 mt-12">
+                {stats.map((stat, i) => (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 + i * 0.1 }}
+                    className="text-center"
+                  >
+                    <stat.icon className="w-5 h-5 mx-auto mb-1 text-primary" />
+                    <p className="text-2xl font-bold">{stat.value}</p>
+                    <p className="text-xs font-mono text-muted-foreground uppercase">{stat.label}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Right: Display Cards */}
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="hidden lg:block"
+            >
+              <DisplayCards />
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Bento Grid Features */}
+      <section className="py-20 px-4 bg-muted/30">
+        <div className="container mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-4">
+              Master the <span className="text-primary">Neural Network</span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              From watching worms wiggle to training AI models — there's a journey for everyone.
+            </p>
+          </motion.div>
+
+          <BentoGrid className="lg:grid-rows-3">
+            {features.map((feature) => (
+              <BentoCard key={feature.name} {...feature} />
+            ))}
+          </BentoGrid>
+        </div>
+      </section>
+
+      {/* Game Modes Preview */}
+      <section className="py-20 px-4">
+        <div className="container mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-4">
+              Choose Your <span className="text-accent">Level</span>
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Adaptive learning for every age and skill level.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { title: "Pre-K", desc: "Watch worms wiggle!", color: "bg-[hsl(45_100%_50%)]" },
+              { title: "K-5", desc: "Build simple brains", color: "bg-primary" },
+              { title: "Middle", desc: "Tweak neural weights", color: "bg-accent" },
+              { title: "High+", desc: "Train AI models", color: "bg-[hsl(280_65%_50%)]" },
+            ].map((mode, i) => (
+              <motion.div
+                key={mode.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <Link to="/play">
+                  <div className="group bg-card border-2 border-foreground p-6 shadow-[4px_4px_0px_hsl(var(--foreground))] hover:shadow-[8px_8px_0px_hsl(var(--foreground))] hover:translate-x-[-4px] hover:translate-y-[-4px] transition-all">
+                    <div className={`w-12 h-12 ${mode.color} border-2 border-foreground mb-4 flex items-center justify-center`}>
+                      <span className="text-2xl font-black text-primary-foreground">{i + 1}</span>
+                    </div>
+                    <h3 className="text-xl font-bold uppercase mb-2">{mode.title}</h3>
+                    <p className="text-muted-foreground">{mode.desc}</p>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Link to="/play">
+              <Button variant="hero" size="xl">
+                <Play className="w-5 h-5 mr-2" />
+                Begin Your Adventure
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* OpenWorm CTA */}
+      <section className="py-20 px-4 bg-foreground text-background">
+        <div className="container mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+          >
+            <Brain className="w-16 h-16 mx-auto mb-6 text-primary" />
+            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-4">
+              Powered by OpenWorm
+            </h2>
+            <p className="text-lg opacity-80 max-w-2xl mx-auto mb-8">
+              WormQuest is built on open-source neuroscience data from the OpenWorm project — 
+              a global community creating the world's first digital organism.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a href="https://openworm.org" target="_blank" rel="noopener noreferrer">
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="bg-transparent border-background text-background hover:bg-background hover:text-foreground"
+                >
+                  Visit OpenWorm
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </a>
+              <a href="https://github.com/openworm" target="_blank" rel="noopener noreferrer">
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="bg-transparent border-background text-background hover:bg-background hover:text-foreground"
+                >
+                  GitHub Repository
+                </Button>
+              </a>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-8 px-4 border-t-2 border-foreground">
+        <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Brain className="w-6 h-6 text-primary" />
+            <span className="font-bold uppercase">WormQuest</span>
+          </div>
+          <p className="text-sm text-muted-foreground font-mono">
+            © 2024 WormQuest. Built with OpenWorm data. Open-source education for all.
+          </p>
+          <div className="flex gap-4 text-sm font-bold uppercase">
+            <Link to="/learn" className="hover:text-primary transition-colors">Learn</Link>
+            <Link to="/play" className="hover:text-primary transition-colors">Play</Link>
+            <Link to="/community" className="hover:text-primary transition-colors">Community</Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
-};
-
-export default Index;
+}
