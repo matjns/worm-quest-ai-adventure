@@ -126,6 +126,64 @@ export function useStudentProgress() {
     fetchData();
   }, [fetchData]);
 
+  // Subscribe to real-time updates for the student's record
+  useEffect(() => {
+    if (!studentRecord?.id) return;
+
+    const channel = supabase
+      .channel(`student-progress-${studentRecord.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'students',
+          filter: `id=eq.${studentRecord.id}`
+        },
+        (payload) => {
+          console.log('Real-time progress update:', payload);
+          const newData = payload.new as { progress_data: StudentProgress };
+          if (newData.progress_data) {
+            setStudentRecord(prev => prev ? {
+              ...prev,
+              progress_data: newData.progress_data
+            } : null);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [studentRecord?.id]);
+
+  // Subscribe to classmate updates for live leaderboard
+  useEffect(() => {
+    if (!studentRecord?.classroom_id) return;
+
+    const channel = supabase
+      .channel(`classroom-leaderboard-${studentRecord.classroom_id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'students',
+          filter: `classroom_id=eq.${studentRecord.classroom_id}`
+        },
+        () => {
+          // Refetch classmates when any student in the classroom updates
+          fetchData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [studentRecord?.classroom_id, fetchData]);
+
   // Calculate level from XP (100 XP per level)
   const level = studentRecord 
     ? Math.floor(studentRecord.progress_data.total_xp / 100) + 1 
