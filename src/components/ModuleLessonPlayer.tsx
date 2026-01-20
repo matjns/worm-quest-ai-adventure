@@ -258,9 +258,6 @@ export function ModuleLessonPlayer({
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back
                   </Button>
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back
-                  </Button>
 
                   <Button
                     variant="ghost"
