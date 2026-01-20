@@ -815,14 +815,35 @@ export function VisualCircuitDesigner() {
                   <Redo2 className="w-4 h-4" />
                 </Button>
                 <HistoryTimelinePanel
-                  entries={[]}
-                  onJumpTo={() => {}}
+                  entries={history.getAllStates().map((s, i) => ({
+                    id: s.id,
+                    index: i,
+                    action: s.label || `State ${i + 1}`,
+                    timestamp: s.timestamp,
+                    neuronCount: s.neurons.length,
+                    connectionCount: s.connections.length,
+                    isCurrent: s.isCurrent,
+                    neurons: s.neurons,
+                    connections: s.connections,
+                    isBookmarked: s.isBookmarked,
+                    bookmarkName: s.bookmarkName,
+                  }))}
+                  onJumpTo={(index) => {
+                    const state = history.jumpToState(index);
+                    if (state) {
+                      setLocalNeurons(state.neurons);
+                      setLocalConnections(state.connections);
+                      toast.info("Restored state");
+                    }
+                  }}
                   onUndo={handleUndo}
                   onRedo={handleRedo}
                   canUndo={history.canUndo}
                   canRedo={history.canRedo}
+                  onToggleBookmark={history.toggleBookmark}
+                  onRenameBookmark={history.renameBookmark}
                   trigger={
-                    <Button variant="outline" size="sm" title="History">
+                    <Button variant="outline" size="sm" title="History & Bookmarks">
                       <History className="w-4 h-4" />
                     </Button>
                   }

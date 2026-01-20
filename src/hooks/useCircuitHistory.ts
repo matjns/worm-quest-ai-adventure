@@ -12,10 +12,13 @@ interface DesignerConnection extends ConnectionData {
 }
 
 interface CircuitState {
+  id: string;
   neurons: PlacedNeuron[];
   connections: DesignerConnection[];
   timestamp: number;
   label?: string;
+  isBookmarked?: boolean;
+  bookmarkName?: string;
 }
 
 interface UseCircuitHistoryOptions {
@@ -33,6 +36,11 @@ export function useCircuitHistory(options: UseCircuitHistoryOptions = {}) {
   const canRedo = currentIndex < history.length - 1;
 
   /**
+   * Generate unique ID for state
+   */
+  const generateId = () => `state_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+
+  /**
    * Push a new state to history
    */
   const pushState = useCallback(
@@ -44,10 +52,12 @@ export function useCircuitHistory(options: UseCircuitHistoryOptions = {}) {
       }
 
       const newState: CircuitState = {
+        id: generateId(),
         neurons: JSON.parse(JSON.stringify(neurons)),
         connections: JSON.parse(JSON.stringify(connections)),
         timestamp: Date.now(),
         label,
+        isBookmarked: false,
       };
 
       setHistory((prev) => {
@@ -76,10 +86,12 @@ export function useCircuitHistory(options: UseCircuitHistoryOptions = {}) {
   const initHistory = useCallback(
     (neurons: PlacedNeuron[], connections: DesignerConnection[]) => {
       const initialState: CircuitState = {
+        id: generateId(),
         neurons: JSON.parse(JSON.stringify(neurons)),
         connections: JSON.parse(JSON.stringify(connections)),
         timestamp: Date.now(),
         label: "Initial state",
+        isBookmarked: false,
       };
       setHistory([initialState]);
       setCurrentIndex(0);
@@ -114,6 +126,17 @@ export function useCircuitHistory(options: UseCircuitHistoryOptions = {}) {
   }, [canRedo, currentIndex, history]);
 
   /**
+   * Jump to specific state index
+   */
+  const jumpToState = useCallback((index: number): CircuitState | null => {
+    if (index < 0 || index >= history.length) return null;
+    
+    isUndoRedoAction.current = true;
+    setCurrentIndex(index);
+    return history[index];
+  }, [history]);
+
+  /**
    * Get current state info
    */
   const getCurrentState = useCallback((): CircuitState | null => {
@@ -132,6 +155,56 @@ export function useCircuitHistory(options: UseCircuitHistoryOptions = {}) {
   }, []);
 
   /**
+   * Toggle bookmark on a state
+   */
+  const toggleBookmark = useCallback((stateId: string, name?: string) => {
+    setHistory(prev => 
+      prev.map(state => 
+        state.id === stateId
+          ? { 
+              ...state, 
+              isBookmarked: !state.isBookmarked,
+              bookmarkName: !state.isBookmarked ? (name || state.label) : undefined
+            }
+          : state
+      )
+    );
+  }, []);
+
+  /**
+   * Rename a bookmark
+   */
+  const renameBookmark = useCallback((stateId: string, name: string) => {
+    setHistory(prev => 
+      prev.map(state => 
+        state.id === stateId && state.isBookmarked
+          ? { ...state, bookmarkName: name }
+          : state
+      )
+    );
+  }, []);
+
+  /**
+   * Get all bookmarked states
+   */
+  const getBookmarks = useCallback(() => {
+    return history
+      .map((state, index) => ({ ...state, index }))
+      .filter(state => state.isBookmarked);
+  }, [history]);
+
+  /**
+   * Get all states formatted for timeline/comparison
+   */
+  const getAllStates = useCallback(() => {
+    return history.map((state, index) => ({
+      ...state,
+      index,
+      isCurrent: index === currentIndex,
+    }));
+  }, [history, currentIndex]);
+
+  /**
    * Get history summary for display
    */
   const getHistorySummary = useCallback(() => {
@@ -140,11 +213,15 @@ export function useCircuitHistory(options: UseCircuitHistoryOptions = {}) {
       current: currentIndex + 1,
       canUndo,
       canRedo,
+      bookmarkCount: history.filter(s => s.isBookmarked).length,
       recentActions: history.slice(Math.max(0, currentIndex - 4), currentIndex + 1).map((s, i) => ({
+        id: s.id,
         label: s.label || `Action ${i + 1}`,
         neurons: s.neurons.length,
         connections: s.connections.length,
         isCurrent: i === Math.min(4, currentIndex),
+        isBookmarked: s.isBookmarked,
+        bookmarkName: s.bookmarkName,
       })),
     };
   }, [history, currentIndex, canUndo, canRedo]);
@@ -154,11 +231,16 @@ export function useCircuitHistory(options: UseCircuitHistoryOptions = {}) {
     initHistory,
     undo,
     redo,
+    jumpToState,
     canUndo,
     canRedo,
     clearHistory,
     getCurrentState,
+    getAllStates,
     getHistorySummary,
+    toggleBookmark,
+    renameBookmark,
+    getBookmarks,
     historyLength: history.length,
     currentIndex,
   };
