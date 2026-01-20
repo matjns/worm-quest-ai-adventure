@@ -334,8 +334,13 @@ export type Database = {
           circuits_shared: number | null
           created_at: string | null
           display_name: string
+          email_notifications: boolean | null
           github_username: string | null
           id: string
+          notify_on_comments: boolean | null
+          notify_on_forks: boolean | null
+          notify_on_likes: boolean | null
+          notify_weekly_digest: boolean | null
           total_likes: number | null
           updated_at: string | null
           user_id: string
@@ -346,8 +351,13 @@ export type Database = {
           circuits_shared?: number | null
           created_at?: string | null
           display_name: string
+          email_notifications?: boolean | null
           github_username?: string | null
           id?: string
+          notify_on_comments?: boolean | null
+          notify_on_forks?: boolean | null
+          notify_on_likes?: boolean | null
+          notify_weekly_digest?: boolean | null
           total_likes?: number | null
           updated_at?: string | null
           user_id: string
@@ -358,8 +368,13 @@ export type Database = {
           circuits_shared?: number | null
           created_at?: string | null
           display_name?: string
+          email_notifications?: boolean | null
           github_username?: string | null
           id?: string
+          notify_on_comments?: boolean | null
+          notify_on_forks?: boolean | null
+          notify_on_likes?: boolean | null
+          notify_weekly_digest?: boolean | null
           total_likes?: number | null
           updated_at?: string | null
           user_id?: string

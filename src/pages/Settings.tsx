@@ -1,14 +1,19 @@
 import { Header } from "@/components/Header";
 import { motion } from "framer-motion";
-import { Settings, RotateCcw, Moon, Sun, Volume2, VolumeX, Key, User, Trash2 } from "lucide-react";
+import { Settings, RotateCcw, Moon, Sun, Volume2, VolumeX, Key, User, Trash2, Bell, Mail, Heart, MessageCircle, GitFork, Calendar, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { useGameStore } from "@/stores/gameStore";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
+import { Link } from "react-router-dom";
 
 export default function SettingsPage() {
   const { resetProgress, level, totalPoints, completedLessons } = useGameStore();
+  const { isAuthenticated, profile } = useAuth();
+  const { preferences, loading: prefsLoading, saving, updatePreference } = useNotificationPreferences();
   const [darkMode, setDarkMode] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [soundVolume, setSoundVolume] = useState([75]);
@@ -36,7 +41,7 @@ export default function SettingsPage() {
               Settings
             </h1>
             <p className="text-lg text-muted-foreground">
-              Customize your WormQuest experience.
+              Customize your NeuroQuest experience.
             </p>
           </motion.div>
 
@@ -65,6 +70,133 @@ export default function SettingsPage() {
                 <p className="text-xs font-mono text-muted-foreground">LESSONS</p>
               </div>
             </div>
+          </motion.div>
+
+          {/* Email Notification Preferences */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="bg-card border-2 border-foreground p-6 shadow-[4px_4px_0px_hsl(var(--foreground))] mb-6"
+          >
+            <div className="flex items-center gap-4 mb-6">
+              <Bell className="w-6 h-6 text-primary" />
+              <h2 className="text-xl font-bold uppercase">Email Notifications</h2>
+              {saving && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
+            </div>
+
+            {!isAuthenticated ? (
+              <div className="text-center py-6">
+                <Mail className="w-10 h-10 mx-auto mb-3 text-muted-foreground opacity-50" />
+                <p className="text-muted-foreground mb-4">Sign in to manage your notification preferences</p>
+                <Link to="/auth">
+                  <Button variant="outline">Sign In</Button>
+                </Link>
+              </div>
+            ) : prefsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Master Toggle */}
+                <div className="flex items-center justify-between pb-4 border-b border-border">
+                  <div className="flex items-center gap-3">
+                    <Mail className="w-5 h-5 text-primary" />
+                    <div>
+                      <p className="font-bold">Email Notifications</p>
+                      <p className="text-sm text-muted-foreground">
+                        Receive email notifications for activity on your circuits
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={preferences.email_notifications}
+                    onCheckedChange={(checked) => updatePreference("email_notifications", checked)}
+                    disabled={saving}
+                  />
+                </div>
+
+                {/* Individual Preferences - only show if master toggle is on */}
+                {preferences.email_notifications && (
+                  <div className="space-y-4 pl-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Heart className="w-4 h-4 text-pink-500" />
+                        <div>
+                          <p className="font-medium">Likes</p>
+                          <p className="text-xs text-muted-foreground">
+                            When someone likes your circuit
+                          </p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={preferences.notify_on_likes}
+                        onCheckedChange={(checked) => updatePreference("notify_on_likes", checked)}
+                        disabled={saving}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <MessageCircle className="w-4 h-4 text-blue-500" />
+                        <div>
+                          <p className="font-medium">Comments</p>
+                          <p className="text-xs text-muted-foreground">
+                            When someone comments on your circuit
+                          </p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={preferences.notify_on_comments}
+                        onCheckedChange={(checked) => updatePreference("notify_on_comments", checked)}
+                        disabled={saving}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <GitFork className="w-4 h-4 text-green-500" />
+                        <div>
+                          <p className="font-medium">Forks</p>
+                          <p className="text-xs text-muted-foreground">
+                            When someone forks your circuit
+                          </p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={preferences.notify_on_forks}
+                        onCheckedChange={(checked) => updatePreference("notify_on_forks", checked)}
+                        disabled={saving}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between pt-4 border-t border-border">
+                      <div className="flex items-center gap-3">
+                        <Calendar className="w-4 h-4 text-yellow-500" />
+                        <div>
+                          <p className="font-medium">Weekly Digest</p>
+                          <p className="text-xs text-muted-foreground">
+                            Summary of activity on your circuits
+                          </p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={preferences.notify_weekly_digest}
+                        onCheckedChange={(checked) => updatePreference("notify_weekly_digest", checked)}
+                        disabled={saving}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {!preferences.email_notifications && (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    Enable email notifications to customize which updates you receive
+                  </p>
+                )}
+              </div>
+            )}
           </motion.div>
 
           {/* Display Settings */}
