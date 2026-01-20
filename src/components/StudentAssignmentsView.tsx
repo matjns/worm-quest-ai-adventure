@@ -1,14 +1,16 @@
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ModuleLessonPlayer } from '@/components/ModuleLessonPlayer';
 import { useStudentAssignments, StudentAssignment } from '@/hooks/useStudentAssignments';
-import { getModuleById } from '@/data/educationModules';
+import { getModuleById, type EducationModule } from '@/data/educationModules';
 import { Link } from 'react-router-dom';
-import { format, formatDistanceToNow, isPast, isFuture, isToday } from 'date-fns';
+import { formatDistanceToNow, isPast, isFuture, isToday } from 'date-fns';
 import {
   BookOpen,
   Clock,
@@ -27,10 +29,11 @@ import {
 
 interface AssignmentCardProps {
   assignment: StudentAssignment;
-  onStart: (id: string) => Promise<{ success: boolean }>;
+  onStart: (assignment: StudentAssignment) => void;
+  onContinue: (assignment: StudentAssignment) => void;
 }
 
-function AssignmentCard({ assignment, onStart }: AssignmentCardProps) {
+function AssignmentCard({ assignment, onStart, onContinue }: AssignmentCardProps) {
   const module = getModuleById(assignment.assignment.module_id);
   const dueDate = assignment.assignment.due_date ? new Date(assignment.assignment.due_date) : null;
   const isOverdue = dueDate && isPast(dueDate) && assignment.status !== 'completed';
@@ -132,32 +135,36 @@ function AssignmentCard({ assignment, onStart }: AssignmentCardProps) {
           </div>
 
           <div className="flex flex-col gap-2">
-            {assignment.status === 'pending' && (
+            {assignment.status === 'pending' && module && (
               <Button 
                 variant="hero" 
                 size="sm"
-                onClick={() => onStart(assignment.id)}
+                onClick={() => onStart(assignment)}
               >
                 <Play className="w-4 h-4 mr-1" />
                 Start
               </Button>
             )}
             
-            {assignment.status === 'in_progress' && (
-              <Link to="/education">
-                <Button variant="default" size="sm">
-                  Continue
-                  <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
-              </Link>
+            {assignment.status === 'in_progress' && module && (
+              <Button 
+                variant="default" 
+                size="sm"
+                onClick={() => onContinue(assignment)}
+              >
+                Continue
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
             )}
             
-            {assignment.status === 'completed' && (
-              <Link to="/education">
-                <Button variant="outline" size="sm">
-                  Review
-                </Button>
-              </Link>
+            {assignment.status === 'completed' && module && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => onContinue(assignment)}
+              >
+                Review
+              </Button>
             )}
           </div>
         </div>
@@ -184,7 +191,64 @@ export function StudentAssignmentsView() {
     overdueAssignments,
     loading,
     startAssignment,
+    completeAssignment,
   } = useStudentAssignments();
+
+  const [activeAssignment, setActiveAssignment] = useState<StudentAssignment | null>(null);
+  const [activeModule, setActiveModule] = useState<EducationModule | null>(null);
+  const startTimeRef = useRef<number>(0);
+
+  const handleStartAssignment = async (assignment: StudentAssignment) => {
+    const module = getModuleById(assignment.assignment.module_id);
+    if (!module) return;
+
+    // Mark as in_progress if pending
+    if (assignment.status === 'pending') {
+      await startAssignment(assignment.id);
+    }
+
+    startTimeRef.current = Date.now();
+    setActiveAssignment(assignment);
+    setActiveModule(module);
+  };
+
+  const handleContinueAssignment = (assignment: StudentAssignment) => {
+    const module = getModuleById(assignment.assignment.module_id);
+    if (!module) return;
+
+    startTimeRef.current = Date.now();
+    setActiveAssignment(assignment);
+    setActiveModule(module);
+  };
+
+  const handleCompleteModule = async (moduleId: string) => {
+    if (!activeAssignment || !activeModule) return;
+
+    const timeSpentSeconds = Math.floor((Date.now() - startTimeRef.current) / 1000);
+    const stepsCompleted = activeModule.steps.length;
+    const score = Math.min(100, stepsCompleted * 10 + 50); // Base 50 + 10 per step, max 100
+
+    await completeAssignment(activeAssignment.id, score, timeSpentSeconds);
+    
+    setActiveAssignment(null);
+    setActiveModule(null);
+  };
+
+  const handleExitModule = () => {
+    setActiveAssignment(null);
+    setActiveModule(null);
+  };
+
+  // Show module player when active
+  if (activeModule) {
+    return (
+      <ModuleLessonPlayer
+        module={activeModule}
+        onComplete={handleCompleteModule}
+        onExit={handleExitModule}
+      />
+    );
+  }
 
   if (loading) {
     return (
@@ -321,7 +385,11 @@ export function StudentAssignmentsView() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
                 >
-                  <AssignmentCard assignment={assignment} onStart={startAssignment} />
+                  <AssignmentCard 
+                    assignment={assignment} 
+                    onStart={handleStartAssignment}
+                    onContinue={handleContinueAssignment}
+                  />
                 </motion.div>
               ))}
             </div>
@@ -340,7 +408,11 @@ export function StudentAssignmentsView() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
                 >
-                  <AssignmentCard assignment={assignment} onStart={startAssignment} />
+                  <AssignmentCard 
+                    assignment={assignment} 
+                    onStart={handleStartAssignment}
+                    onContinue={handleContinueAssignment}
+                  />
                 </motion.div>
               ))}
             </div>
@@ -366,7 +438,11 @@ export function StudentAssignmentsView() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
               >
-                <AssignmentCard assignment={assignment} onStart={startAssignment} />
+                <AssignmentCard 
+                  assignment={assignment} 
+                  onStart={handleStartAssignment}
+                  onContinue={handleContinueAssignment}
+                />
               </motion.div>
             ))
           ) : (
@@ -388,7 +464,11 @@ export function StudentAssignmentsView() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
             >
-              <AssignmentCard assignment={assignment} onStart={startAssignment} />
+              <AssignmentCard 
+                assignment={assignment} 
+                onStart={handleStartAssignment}
+                onContinue={handleContinueAssignment}
+              />
             </motion.div>
           ))}
         </TabsContent>
