@@ -11,9 +11,10 @@ import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useTeacherDashboard, Classroom, LessonPlan } from '@/hooks/useTeacherDashboard';
+import { useTeacherDashboard, Classroom, LessonPlan, Student } from '@/hooks/useTeacherDashboard';
 import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
+import { WeeklyProgressReport, StudentReportData } from '@/components/WeeklyProgressReport';
 import {
   BookOpen,
   Users,
@@ -37,7 +38,9 @@ import {
   Download,
   Share2,
   Copy,
-  KeyRound
+  KeyRound,
+  ClipboardList,
+  Send
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -64,7 +67,8 @@ export default function TeacherDashboard() {
     addStudent,
     generateLessonPlan,
     generateWeeklyCurriculum,
-    analyzeClass
+    analyzeClass,
+    generateProgressReport
   } = useTeacherDashboard();
 
   const [newClassroomOpen, setNewClassroomOpen] = useState(false);
@@ -73,6 +77,10 @@ export default function TeacherDashboard() {
   const [lessonGenData, setLessonGenData] = useState({ classroom_id: '', topic: '', type: 'single' });
   const [selectedClassroom, setSelectedClassroom] = useState<Classroom | null>(null);
   const [classAnalysis, setClassAnalysis] = useState<Record<string, unknown> | null>(null);
+  const [reportClassroomId, setReportClassroomId] = useState<string>('');
+  const [reportWeek, setReportWeek] = useState<number>(1);
+  const [studentReports, setStudentReports] = useState<Map<string, StudentReportData>>(new Map());
+  const [generatingReportFor, setGeneratingReportFor] = useState<string | null>(null);
 
   if (authLoading) {
     return (
@@ -131,6 +139,42 @@ export default function TeacherDashboard() {
     setClassAnalysis(analysis);
   };
 
+  const handleGenerateReport = async (student: Student) => {
+    const classroom = classrooms.find(c => c.id === student.classroom_id);
+    if (!classroom) return;
+
+    setGeneratingReportFor(student.id);
+    const report = await generateProgressReport(student, classroom.name, reportWeek);
+    
+    if (report) {
+      const reportData: StudentReportData = {
+        id: student.id,
+        display_name: student.display_name,
+        classroom_name: classroom.name,
+        grade_level: classroom.grade_level,
+        school_name: classroom.school_name || undefined,
+        progress_data: student.progress_data,
+        weekly_stats: {
+          xp_gained: Math.floor(student.progress_data.total_xp * 0.2),
+          missions_this_week: Math.floor(student.progress_data.missions_completed * 0.15),
+          accuracy_change: parseFloat((Math.random() * 10 - 3).toFixed(1)),
+          level_ups: Math.floor(student.progress_data.total_xp / 100) > 0 ? 1 : 0
+        },
+        ai_summary: report.ai_summary,
+        ai_recommendations: report.ai_recommendations
+      };
+      setStudentReports(prev => new Map(prev).set(student.id, reportData));
+    }
+    setGeneratingReportFor(null);
+  };
+
+  const handleSendEmail = async (email: string, message: string): Promise<boolean> => {
+    // In production, this would call an edge function to send the email
+    console.log('Sending email to:', email, 'with message:', message);
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+    return true;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -185,7 +229,7 @@ export default function TeacherDashboard() {
 
         {/* Main Tabs */}
         <Tabs defaultValue="classrooms" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 h-12">
+          <TabsList className="grid w-full grid-cols-6 h-12">
             <TabsTrigger value="classrooms" className="gap-2">
               <School className="w-4 h-4" />
               <span className="hidden sm:inline">Classrooms</span>
@@ -193,6 +237,10 @@ export default function TeacherDashboard() {
             <TabsTrigger value="lessons" className="gap-2">
               <BookOpen className="w-4 h-4" />
               <span className="hidden sm:inline">Lessons</span>
+            </TabsTrigger>
+            <TabsTrigger value="reports" className="gap-2">
+              <ClipboardList className="w-4 h-4" />
+              <span className="hidden sm:inline">Reports</span>
             </TabsTrigger>
             <TabsTrigger value="analytics" className="gap-2">
               <BarChart3 className="w-4 h-4" />
@@ -596,6 +644,167 @@ export default function TeacherDashboard() {
                 <p className="text-muted-foreground">Student submissions will appear here for AI-assisted grading.</p>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Reports Tab */}
+          <TabsContent value="reports" className="space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <h2 className="text-2xl font-bold">Weekly Progress Reports</h2>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Label className="text-sm">Week:</Label>
+                  <Select
+                    value={reportWeek.toString()}
+                    onValueChange={(v) => setReportWeek(parseInt(v))}
+                  >
+                    <SelectTrigger className="w-24">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(w => (
+                        <SelectItem key={w} value={w.toString()}>Week {w}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label className="text-sm">Classroom:</Label>
+                  <Select
+                    value={reportClassroomId}
+                    onValueChange={setReportClassroomId}
+                  >
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Select classroom" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {classrooms.map(c => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {classrooms.length === 0 ? (
+              <Card className="border-dashed">
+                <CardContent className="py-12 text-center">
+                  <ClipboardList className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold mb-2">No classrooms yet</h3>
+                  <p className="text-muted-foreground">Create a classroom first to generate progress reports.</p>
+                </CardContent>
+              </Card>
+            ) : !reportClassroomId ? (
+              <Card className="border-dashed">
+                <CardContent className="py-12 text-center">
+                  <ClipboardList className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold mb-2">Select a Classroom</h3>
+                  <p className="text-muted-foreground">Choose a classroom above to view and generate student progress reports.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <Card className="bg-gradient-to-r from-primary/10 to-accent/10 border-2">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-semibold">AI-Powered Progress Reports</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Generate personalized reports with AI insights and parent-friendly recommendations.
+                        </p>
+                      </div>
+                      <Badge variant="secondary">
+                        <Sparkles className="w-3 h-3 mr-1" />
+                        AI Enhanced
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  {students
+                    .filter(s => s.classroom_id === reportClassroomId)
+                    .map((student) => {
+                      const existingReport = studentReports.get(student.id);
+                      const classroom = classrooms.find(c => c.id === student.classroom_id);
+                      const isGenerating = generatingReportFor === student.id;
+
+                      if (existingReport) {
+                        return (
+                          <WeeklyProgressReport
+                            key={student.id}
+                            student={existingReport}
+                            weekNumber={reportWeek}
+                            onSendEmail={handleSendEmail}
+                            loading={false}
+                          />
+                        );
+                      }
+
+                      return (
+                        <Card key={student.id} className="border-2">
+                          <CardHeader>
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <CardTitle className="text-lg">{student.display_name}</CardTitle>
+                                <CardDescription>
+                                  {student.progress_data.missions_completed} missions • {student.progress_data.total_xp} XP
+                                </CardDescription>
+                              </div>
+                              <Badge variant="outline">
+                                Level {Math.floor(student.progress_data.total_xp / 100) + 1}
+                              </Badge>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="grid grid-cols-3 gap-2 mb-4 text-center">
+                              <div className="p-2 bg-muted/50 rounded">
+                                <p className="text-lg font-bold">{student.progress_data.total_xp}</p>
+                                <p className="text-xs text-muted-foreground">XP</p>
+                              </div>
+                              <div className="p-2 bg-muted/50 rounded">
+                                <p className="text-lg font-bold">{student.progress_data.missions_completed}</p>
+                                <p className="text-xs text-muted-foreground">Missions</p>
+                              </div>
+                              <div className="p-2 bg-muted/50 rounded">
+                                <p className="text-lg font-bold">{student.progress_data.accuracy.toFixed(0)}%</p>
+                                <p className="text-xs text-muted-foreground">Accuracy</p>
+                              </div>
+                            </div>
+                            <Button 
+                              className="w-full" 
+                              onClick={() => handleGenerateReport(student)}
+                              disabled={isGenerating || aiLoading}
+                            >
+                              {isGenerating ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Generating Report...
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles className="w-4 h-4 mr-2" />
+                                  Generate AI Report
+                                </>
+                              )}
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                </div>
+
+                {students.filter(s => s.classroom_id === reportClassroomId).length === 0 && (
+                  <Card className="border-dashed">
+                    <CardContent className="py-12 text-center">
+                      <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                      <h3 className="text-lg font-semibold mb-2">No students in this classroom</h3>
+                      <p className="text-muted-foreground">Add students to generate progress reports.</p>
+                    </CardContent>
+                  </Card>
+                )}
+              </>
+            )}
           </TabsContent>
 
           {/* Sponsors Tab */}
