@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 interface LessonPlanRequest {
-  type: 'generate_lesson' | 'generate_week' | 'grade_submission' | 'analyze_class' | 'generate_progress_report' | 'personalize_lesson' | 'validate_simulation';
+  type: 'generate_lesson' | 'generate_week' | 'grade_submission' | 'analyze_class' | 'generate_progress_report' | 'personalize_lesson' | 'validate_simulation' | 'detect_learning_style';
   gradeLevel: string;
   topic?: string;
   weekNumber?: number;
@@ -18,6 +18,26 @@ interface LessonPlanRequest {
   lessonContent?: Record<string, unknown>;
   studentProfile?: Record<string, unknown>;
   simulationData?: Record<string, unknown>;
+  behaviorData?: BehaviorData;
+}
+
+interface BehaviorData {
+  videoWatchTime: number;
+  videoCompletionRate: number;
+  simulationInteractions: number;
+  simulationTimeSpent: number;
+  textReadingTime: number;
+  scrollSpeed: number;
+  clickPatterns: string[];
+  preferredContentTypes: string[];
+  quizResponseTimes: number[];
+  hintUsageRate: number;
+  pauseFrequency: number;
+  replayCount: number;
+  handsonTasksCompleted: number;
+  diagramInteractions: number;
+  audioPlayCount: number;
+  notesTaken: number;
 }
 
 serve(async (req) => {
@@ -32,7 +52,7 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    const { type, gradeLevel, topic, weekNumber, standards, submissionData, classData, studentData, lessonContent, studentProfile, simulationData } = await req.json() as LessonPlanRequest;
+    const { type, gradeLevel, topic, weekNumber, standards, submissionData, classData, studentData, lessonContent, studentProfile, simulationData, behaviorData } = await req.json() as LessonPlanRequest;
 
     let systemPrompt = '';
     let userPrompt = '';
@@ -213,6 +233,55 @@ ${JSON.stringify(simulationData, null, 2)}
 Grade Level: ${gradeLevel}
 
 Evaluate for scientific accuracy while providing age-appropriate feedback.`;
+        break;
+
+      case 'detect_learning_style':
+        systemPrompt = `You are an educational psychologist expert in learning style analysis based on the VARK model (Visual, Auditory, Reading/Writing, Kinesthetic).
+
+Analyze student behavior patterns to determine their dominant learning style(s). Consider these indicators:
+
+VISUAL LEARNERS tend to:
+- Spend more time on diagrams, charts, and visual simulations
+- Have high diagram interaction rates
+- Prefer watching over reading
+- Complete visual-heavy tasks faster
+
+AUDITORY LEARNERS tend to:
+- Listen to audio content multiple times
+- Have high audio play counts
+- Pause frequently to process spoken information
+- Respond well to verbal instructions
+
+READING/WRITING LEARNERS tend to:
+- Spend significant time reading text content
+- Take notes frequently
+- Have slower, deliberate scroll speeds (careful reading)
+- Prefer text-based explanations
+
+KINESTHETIC LEARNERS tend to:
+- Have high simulation interaction counts
+- Complete hands-on tasks quickly and accurately
+- Learn by doing and experimenting
+- Spend more time in interactive simulations
+
+Analyze the provided behavior data and output JSON with:
+- primary_style: The dominant learning style ("visual" | "auditory" | "reading" | "kinesthetic")
+- secondary_style: A secondary preference if applicable (same options or null)
+- confidence: Confidence score 0-100
+- style_breakdown: Object with percentage scores for each style
+- behavioral_evidence: Array of specific behaviors that indicate each style
+- recommendations: Array of teaching recommendations based on the detected style
+- content_preferences: Array of content types this student would respond best to
+- adaptation_tips: Specific tips for adapting lessons to this learner`;
+
+        userPrompt = `Analyze this student's behavior data to detect their learning style:
+
+Behavior Metrics:
+${JSON.stringify(behaviorData, null, 2)}
+
+Student Grade Level: ${gradeLevel}
+
+Provide a comprehensive learning style analysis based on these interaction patterns.`;
         break;
 
       default:
