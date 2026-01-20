@@ -114,6 +114,7 @@ export function useCommunity() {
     behavior: string;
     neurons_used: string[];
     tags?: string[];
+    forked_from?: string;
   }) => {
     if (!user) {
       toast.error("Please sign in to share circuits");
@@ -143,6 +144,48 @@ export function useCommunity() {
     } catch (error) {
       toast.error("Failed to share circuit");
       return { error };
+    }
+  };
+
+  // Fork a circuit to create your own version
+  const forkCircuit = async (circuitId: string) => {
+    if (!user) {
+      toast.error("Please sign in to fork circuits");
+      return { error: new Error("Not authenticated"), data: null };
+    }
+
+    try {
+      // Find the original circuit
+      const original = circuits.find(c => c.id === circuitId);
+      if (!original) {
+        toast.error("Circuit not found");
+        return { error: new Error("Circuit not found"), data: null };
+      }
+
+      // Create a forked copy
+      const { data, error } = await supabase
+        .from("shared_circuits")
+        .insert({
+          user_id: user.id,
+          title: `${original.title} (Fork)`,
+          description: `Forked from ${original.profiles?.display_name || 'Unknown'}'s creation.\n\n${original.description || ''}`,
+          circuit_data: original.circuit_data,
+          behavior: original.behavior,
+          neurons_used: original.neurons_used,
+          tags: [...(original.tags || []), 'forked'],
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast.success("Circuit forked! You can now edit your own copy.");
+      await fetchCircuits();
+      return { data, error: null };
+    } catch (error) {
+      console.error("Error forking circuit:", error);
+      toast.error("Failed to fork circuit");
+      return { error, data: null };
     }
   };
 
@@ -278,6 +321,7 @@ ${JSON.stringify(circuit.circuit_data, null, 2)}
     loading,
     userLikes,
     shareCircuit,
+    forkCircuit,
     likeCircuit,
     addComment,
     fetchComments,
