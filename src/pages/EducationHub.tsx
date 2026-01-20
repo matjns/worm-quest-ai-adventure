@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -20,10 +21,9 @@ import {
   Search,
   Filter,
   GraduationCap,
-  Clock,
-  Target,
   Sparkles,
-  ArrowLeft,
+  LogIn,
+  Cloud,
 } from "lucide-react";
 import {
   PREK_MODULES,
@@ -34,6 +34,7 @@ import {
   getModuleById,
   type EducationModule,
 } from "@/data/educationModules";
+import { useModuleProgress } from "@/hooks/useModuleProgress";
 
 type GradeFilter = "all" | "prek" | "k5" | "middle" | "high" | "public";
 type SortOption = "default" | "duration" | "objectives" | "steps";
@@ -77,7 +78,14 @@ export default function EducationHub() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("default");
   const [activeModuleId, setActiveModuleId] = useState<string | null>(null);
-  const [completedModules, setCompletedModules] = useState<Set<string>>(new Set());
+  
+  const { 
+    completedModules, 
+    loading: progressLoading, 
+    completeModule, 
+    isAuthenticated,
+    getTotalScore,
+  } = useModuleProgress();
 
   const allModules = useMemo(() => [
     ...PREK_MODULES,
@@ -149,8 +157,11 @@ export default function EducationHub() {
     setActiveModuleId(moduleId);
   };
 
-  const handleCompleteModule = (moduleId: string) => {
-    setCompletedModules(prev => new Set([...prev, moduleId]));
+  const handleCompleteModule = async (moduleId: string) => {
+    const module = getModuleById(moduleId);
+    const stepsCompleted = module?.steps.length || 0;
+    const score = stepsCompleted * 10; // 10 points per step
+    await completeModule(moduleId, score, stepsCompleted);
     setActiveModuleId(null);
   };
 
@@ -263,29 +274,65 @@ export default function EducationHub() {
         </motion.div>
 
         {/* Progress Bar */}
-        {completedModules.size > 0 && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            className="bg-card border border-border rounded-xl p-4 mb-8"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-medium flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                Your Progress
-              </span>
-              <span className="text-sm text-muted-foreground">
-                {completedModules.size} / {stats.total} completed
-              </span>
-            </div>
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
+        {progressLoading ? (
+          <Skeleton className="h-20 w-full mb-8 rounded-xl" />
+        ) : (
+          <>
+            {!isAuthenticated && completedModules.size > 0 && (
               <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${(completedModules.size / stats.total) * 100}%` }}
-                className="h-full bg-gradient-to-r from-primary to-cyan-400"
-              />
-            </div>
-          </motion.div>
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 mb-4"
+              >
+                <div className="flex items-center gap-3">
+                  <LogIn className="w-5 h-5 text-amber-500" />
+                  <div>
+                    <p className="font-medium text-amber-500">Sign in to save your progress</p>
+                    <p className="text-sm text-muted-foreground">Your progress is only saved locally. Sign in to sync across devices.</p>
+                  </div>
+                  <Button variant="outline" size="sm" className="ml-auto" onClick={() => navigate("/auth")}>
+                    Sign In
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+            
+            {completedModules.size > 0 && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                className="bg-card border border-border rounded-xl p-4 mb-8"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-medium flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    Your Progress
+                    {isAuthenticated && (
+                      <Badge variant="secondary" className="text-xs">
+                        <Cloud className="w-3 h-3 mr-1" />
+                        Synced
+                      </Badge>
+                    )}
+                  </span>
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm text-muted-foreground">
+                      {getTotalScore()} pts
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      {completedModules.size} / {stats.total} completed
+                    </span>
+                  </div>
+                </div>
+                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(completedModules.size / stats.total) * 100}%` }}
+                    className="h-full bg-gradient-to-r from-primary to-cyan-400"
+                  />
+                </div>
+              </motion.div>
+            )}
+          </>
         )}
 
         {/* Modules Grid */}
