@@ -22,6 +22,7 @@ import Auth from "./pages/Auth";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import JoinClassroomPage from "./pages/JoinClassroom";
 import StudentDashboard from "./pages/StudentDashboard";
+import Sandbox from "./pages/Sandbox";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ const App = () => (
               <Route path="/teacher" element={<TeacherDashboard />} />
               <Route path="/join" element={<JoinClassroomPage />} />
               <Route path="/progress" element={<StudentDashboard />} />
+              <Route path="/sandbox" element={<Sandbox />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
