@@ -1,5 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Header } from "@/components/Header";
+import { useCircuitFromUrl } from "@/hooks/useCircuitFromUrl";
+import { updateCircuitMetaTags, resetMetaTags } from "@/utils/metaTags";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Users, Github, MessageCircle, Share2, Heart, ExternalLink, 
@@ -257,6 +259,26 @@ export default function CommunityPage() {
   // Filter circuits for "My Creations" tab
   const myCircuits = useMemo(() => circuits.filter(c => c.user_id === user?.id), [circuits, user?.id]);
 
+  // Handle circuit from URL parameter (for shared links)
+  const { circuitToOpen, clearCircuitParam, hasCircuitParam } = useCircuitFromUrl(circuits);
+
+  // Auto-open circuit detail modal when coming from a shared link
+  useEffect(() => {
+    if (circuitToOpen && !showDetailModal) {
+      setDetailCircuit(circuitToOpen);
+      setShowDetailModal(true);
+      updateCircuitMetaTags(circuitToOpen);
+    }
+  }, [circuitToOpen, showDetailModal]);
+
+  // Reset meta tags when modal is closed
+  useEffect(() => {
+    if (!showDetailModal && hasCircuitParam) {
+      clearCircuitParam();
+      resetMetaTags();
+    }
+  }, [showDetailModal, hasCircuitParam, clearCircuitParam]);
+
   // Display circuits (filtered or all)
   const displayCircuits = filteredCircuits.length > 0 || circuits.length === 0 
     ? filteredCircuits 
@@ -276,6 +298,7 @@ export default function CommunityPage() {
   const handleViewDetails = (circuit: SharedCircuit) => {
     setDetailCircuit(circuit);
     setShowDetailModal(true);
+    updateCircuitMetaTags(circuit);
   };
 
   return (
