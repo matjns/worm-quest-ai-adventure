@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { APIPlayground } from "@/components/APIPlayground";
 import { BatchSimulationUI } from "@/components/BatchSimulationUI";
 import { APIOnboardingWizard } from "@/components/APIOnboardingWizard";
+import { VisualCircuitDesigner } from "@/components/VisualCircuitDesigner";
 import { 
   Github, 
   Code2, 
@@ -453,6 +454,11 @@ npm run dev`}
                   Scale your simulations with dedicated infrastructure. 
                   From indie researchers to Fortune 500 R&D departments.
                 </p>
+              </div>
+
+              {/* Visual Circuit Designer */}
+              <div className="max-w-7xl mx-auto mb-12">
+                <VisualCircuitDesigner />
               </div>
 
               {/* API Onboarding Wizard */}
