@@ -187,6 +187,7 @@ export type Database = {
           created_at: string
           grade_level: string
           id: string
+          join_code: string | null
           name: string
           school_district: string | null
           school_name: string | null
@@ -198,6 +199,7 @@ export type Database = {
           created_at?: string
           grade_level: string
           id?: string
+          join_code?: string | null
           name: string
           school_district?: string | null
           school_name?: string | null
@@ -209,6 +211,7 @@ export type Database = {
           created_at?: string
           grade_level?: string
           id?: string
+          join_code?: string | null
           name?: string
           school_district?: string | null
           school_name?: string | null
@@ -510,7 +513,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_join_code: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never

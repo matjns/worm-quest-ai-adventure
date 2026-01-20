@@ -19,6 +19,7 @@ import HighSchoolGame from "./pages/games/HighSchoolGame";
 import NeuroQuest from "./pages/NeuroQuest";
 import Auth from "./pages/Auth";
 import TeacherDashboard from "./pages/TeacherDashboard";
+import JoinClassroomPage from "./pages/JoinClassroom";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,8 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/teacher" element={<TeacherDashboard />} />
+            <Route path="/join" element={<JoinClassroomPage />} />
+            <Route path="*" element={<NotFound />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
