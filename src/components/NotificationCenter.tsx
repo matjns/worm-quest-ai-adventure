@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Bell, Heart, MessageCircle, GitFork, Star, AtSign,
-  Check, Trash2, CheckCheck, X, Loader2 
+  Check, Trash2, CheckCheck, X, Loader2, CheckCircle2 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,7 @@ const notificationIcons: Record<string, typeof Heart> = {
   feature: Star,
   mention: AtSign,
   reply: MessageCircle,
+  resolved: CheckCircle2,
 };
 
 const notificationColors: Record<string, string> = {
@@ -36,6 +37,7 @@ const notificationColors: Record<string, string> = {
   feature: "text-yellow-500",
   mention: "text-primary",
   reply: "text-purple-500",
+  resolved: "text-green-500",
 };
 
 function NotificationItem({
