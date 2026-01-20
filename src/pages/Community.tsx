@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Header } from "@/components/Header";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -19,6 +19,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useCommunity, SharedCircuit } from "@/hooks/useCommunity";
 import { EditCircuitDialog } from "@/components/EditCircuitDialog";
+import { CircuitFilters } from "@/components/CircuitFilters";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -218,6 +219,8 @@ export default function CommunityPage() {
   const [prTemplate, setPrTemplate] = useState("");
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [activeTab, setActiveTab] = useState<'featured' | 'my-creations'>('featured');
+  const [filteredCircuits, setFilteredCircuits] = useState<SharedCircuit[]>([]);
+  const [filteredMyCircuits, setFilteredMyCircuits] = useState<SharedCircuit[]>([]);
   const [shareForm, setShareForm] = useState({
     title: "",
     description: "",
@@ -225,7 +228,16 @@ export default function CommunityPage() {
   });
 
   // Filter circuits for "My Creations" tab
-  const myCircuits = circuits.filter(c => c.user_id === user?.id);
+  const myCircuits = useMemo(() => circuits.filter(c => c.user_id === user?.id), [circuits, user?.id]);
+
+  // Display circuits (filtered or all)
+  const displayCircuits = filteredCircuits.length > 0 || circuits.length === 0 
+    ? filteredCircuits 
+    : (featuredCircuits.length > 0 ? featuredCircuits : circuits.slice(0, 6));
+  
+  const displayMyCircuits = filteredMyCircuits.length > 0 || myCircuits.length === 0
+    ? filteredMyCircuits
+    : myCircuits;
 
   const handleGeneratePR = (circuit: SharedCircuit) => {
     const template = generateGitHubPRTemplate(circuit);
@@ -374,6 +386,14 @@ export default function CommunityPage() {
 
               {/* Featured Tab */}
               <TabsContent value="featured">
+                {/* Search and Filter */}
+                {circuits.length > 0 && (
+                  <CircuitFilters
+                    circuits={featuredCircuits.length > 0 ? featuredCircuits : circuits.slice(0, 6)}
+                    onFilterChange={setFilteredCircuits}
+                  />
+                )}
+
                 {loading ? (
                   <div className="text-center py-12">
                     <div className="loader mx-auto mb-4" />
@@ -398,9 +418,15 @@ export default function CommunityPage() {
                       </Link>
                     )}
                   </div>
+                ) : displayCircuits.length === 0 ? (
+                  <div className="text-center py-12 bg-card border-2 border-dashed border-muted rounded-lg">
+                    <Share2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="font-bold mb-2">No circuits match your filters</h3>
+                    <p className="text-muted-foreground">Try adjusting your search or filter criteria.</p>
+                  </div>
                 ) : (
                   <div className="grid md:grid-cols-3 gap-6">
-                    {(featuredCircuits.length > 0 ? featuredCircuits : circuits.slice(0, 6)).map((circuit) => (
+                    {displayCircuits.map((circuit) => (
                       <Dialog key={circuit.id}>
                         <DialogTrigger asChild>
                           <div>
@@ -427,6 +453,14 @@ export default function CommunityPage() {
 
               {/* My Creations Tab */}
               <TabsContent value="my-creations">
+                {/* Search and Filter for My Creations */}
+                {myCircuits.length > 0 && (
+                  <CircuitFilters
+                    circuits={myCircuits}
+                    onFilterChange={setFilteredMyCircuits}
+                  />
+                )}
+
                 {loading ? (
                   <div className="text-center py-12">
                     <div className="loader mx-auto mb-4" />
@@ -450,16 +484,22 @@ export default function CommunityPage() {
                       </Button>
                     </div>
                   </div>
+                ) : displayMyCircuits.length === 0 ? (
+                  <div className="text-center py-12 bg-card border-2 border-dashed border-muted rounded-lg">
+                    <Share2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="font-bold mb-2">No circuits match your filters</h3>
+                    <p className="text-muted-foreground">Try adjusting your search or filter criteria.</p>
+                  </div>
                 ) : (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between text-sm text-muted-foreground">
-                      <span>You have {myCircuits.length} creation{myCircuits.length !== 1 ? 's' : ''}</span>
+                      <span>Showing {displayMyCircuits.length} of {myCircuits.length} creation{myCircuits.length !== 1 ? 's' : ''}</span>
                       <span>
                         Total likes: {myCircuits.reduce((sum, c) => sum + (c.likes_count || 0), 0)}
                       </span>
                     </div>
                     <div className="grid md:grid-cols-3 gap-6">
-                      {myCircuits.map((circuit) => (
+                      {displayMyCircuits.map((circuit) => (
                         <Dialog key={circuit.id}>
                           <DialogTrigger asChild>
                             <div>
