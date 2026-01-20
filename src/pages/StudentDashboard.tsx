@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ActivityFeed } from '@/components/ActivityFeed';
 import { useStudentProgress } from '@/hooks/useStudentProgress';
 import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
@@ -45,7 +46,7 @@ const getRankBadge = (rank: number, total: number) => {
 };
 
 export default function StudentDashboard() {
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const {
     studentRecord,
     classroom,
@@ -309,6 +310,18 @@ export default function StudentDashboard() {
                   </div>
                 </CardContent>
               </Card>
+            </motion.div>
+
+            {/* Live Activity Feed */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <ActivityFeed 
+                classroomId={studentRecord.classroom_id} 
+                currentUserId={user?.id}
+              />
             </motion.div>
           </div>
 
