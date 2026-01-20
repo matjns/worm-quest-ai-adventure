@@ -1,11 +1,13 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Palette, Sparkles, Wand2, Eraser, RotateCcw, Volume2, VolumeX, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { ShareCreationDialog } from './ShareCreationDialog';
 import { DiscoveryHintBubble } from './DiscoveryHintBubble';
+import { SandboxChallengeCard, ChallengeCompletion } from './SandboxChallengeCard';
 import { useDiscoveryHints } from '@/hooks/useDiscoveryHints';
+import { useSandboxChallenges } from '@/hooks/useSandboxChallenges';
 
 interface Neuron {
   id: string;
@@ -42,6 +44,15 @@ export function FreePlayCanvas({ onCreationSaved, ageGroup = 'k5' }: FreePlayCan
   const canvasRef = useRef<HTMLDivElement>(null);
 
   const { currentHint, isLoading, isVisible, getHint, dismissHint, clearHints } = useDiscoveryHints(ageGroup);
+  const {
+    activeChallenge,
+    completedChallenges,
+    allChallenges,
+    justCompleted,
+    dismissChallenge,
+    pickRandomChallenge,
+    checkProgress,
+  } = useSandboxChallenges(ageGroup);
 
   const getCreationData = () => ({
     type: 'canvas' as const,
@@ -155,6 +166,51 @@ export function FreePlayCanvas({ onCreationSaved, ageGroup = 'k5' }: FreePlayCan
       n.connections.map(targetId => ({ from: n.id, to: targetId }))
     ),
   });
+
+  // Calculate challenge state from neurons
+  const challengeState = useMemo(() => {
+    const colors = [...new Set(neurons.map(n => n.color))];
+    const connectionCount = neurons.reduce((sum, n) => sum + n.connections.length, 0);
+    
+    // Calculate max chain length (simplified DFS)
+    const findMaxChain = () => {
+      let maxLen = 0;
+      const visited = new Set<string>();
+      
+      const dfs = (id: string, depth: number) => {
+        if (visited.has(id)) return;
+        visited.add(id);
+        maxLen = Math.max(maxLen, depth);
+        const neuron = neurons.find(n => n.id === id);
+        neuron?.connections.forEach(targetId => dfs(targetId, depth + 1));
+        visited.delete(id);
+      };
+      
+      neurons.forEach(n => dfs(n.id, 1));
+      return maxLen;
+    };
+
+    const connectedNeurons = new Set(neurons.flatMap(n => [n.id, ...n.connections]));
+    const isolatedNeurons = neurons.filter(n => !connectedNeurons.has(n.id) && n.connections.length === 0).length;
+
+    return {
+      neuronCount: neurons.length,
+      connectionCount,
+      colorCount: colors.length,
+      colors,
+      hasChain: connectionCount >= 2,
+      maxChainLength: findMaxChain(),
+      hasLoop: false, // Simplified
+      isolatedNeurons,
+    };
+  }, [neurons]);
+
+  // Check challenge progress when circuit changes
+  useEffect(() => {
+    if (neurons.length > 0) {
+      checkProgress(challengeState);
+    }
+  }, [challengeState, checkProgress, neurons.length]);
 
   const handleGetHint = () => {
     getHint(getCircuitState());
@@ -283,6 +339,19 @@ export function FreePlayCanvas({ onCreationSaved, ageGroup = 'k5' }: FreePlayCan
           isErasing ? 'cursor-not-allowed' : ''
         }`}
       >
+        {/* Floating Challenge Card */}
+        <SandboxChallengeCard
+          challenge={activeChallenge}
+          onDismiss={dismissChallenge}
+          onPickNew={pickRandomChallenge}
+          completedCount={completedChallenges.length}
+          totalCount={allChallenges.length}
+        />
+
+        {/* Challenge Completion Celebration */}
+        <AnimatePresence>
+          {justCompleted && <ChallengeCompletion challenge={justCompleted} />}
+        </AnimatePresence>
         {/* Connection Lines */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none">
           {neurons.map(neuron =>
