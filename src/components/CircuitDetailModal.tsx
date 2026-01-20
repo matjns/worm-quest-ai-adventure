@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { 
   Heart, MessageCircle, User, Clock, Zap, Tag, 
-  Github, GitFork, Send, Loader2, ExternalLink 
+  Github, GitFork, Send, Loader2, ExternalLink, Download, FileJson, Image 
 } from "lucide-react";
+import { exportCircuitAsJSON, exportCircuitAsPNG } from "@/utils/circuitExport";
 import {
   Dialog,
   DialogContent,
@@ -219,7 +220,7 @@ export function CircuitDetailModal({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-2 mt-4">
+            <div className="flex flex-wrap gap-2 mt-4">
               <Button
                 variant={isLiked ? "default" : "outline"}
                 size="sm"
@@ -235,6 +236,12 @@ export function CircuitDetailModal({
                   Fork
                 </Button>
               )}
+              <Button variant="outline" size="sm" onClick={() => exportCircuitAsJSON(circuit)} title="Export as JSON">
+                <FileJson className="w-4 h-4" />
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => exportCircuitAsPNG(circuit)} title="Export as PNG">
+                <Image className="w-4 h-4" />
+              </Button>
               <Button variant="outline" size="sm" onClick={onGeneratePR}>
                 <Github className="w-4 h-4 mr-1" />
                 PR
