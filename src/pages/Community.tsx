@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Users, Github, MessageCircle, Share2, Heart, ExternalLink, 
   Code, BookOpen, Plus, Sparkles, Copy, Check, LogIn, GitFork, Pencil, User, FolderOpen, Eye,
-  Download, FileJson, Image
+  Download, FileJson, Image, GitCompare
 } from "lucide-react";
 import { exportCircuitAsJSON, exportCircuitAsPNG } from "@/utils/circuitExport";
 import { SocialShareButtons } from "@/components/SocialShareButtons";
@@ -30,6 +30,7 @@ import { CircuitDetailModal } from "@/components/CircuitDetailModal";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { ImportCircuitDialog } from "@/components/ImportCircuitDialog";
+import { CircuitCompareDialog } from "@/components/CircuitCompareDialog";
 
 const communityStats = [
   { value: "15K+", label: "Community Members", icon: Users },
@@ -249,6 +250,7 @@ export default function CommunityPage() {
   const [prTemplate, setPrTemplate] = useState("");
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showPRDialog, setShowPRDialog] = useState(false);
+  const [showCompareDialog, setShowCompareDialog] = useState(false);
   const [activeTab, setActiveTab] = useState<'featured' | 'my-creations'>('featured');
   const [filteredCircuits, setFilteredCircuits] = useState<SharedCircuit[]>([]);
   const [filteredMyCircuits, setFilteredMyCircuits] = useState<SharedCircuit[]>([]);
@@ -383,6 +385,16 @@ export default function CommunityPage() {
                 
                 {isAuthenticated && (
                   <div className="flex gap-2">
+                    {circuits.length >= 2 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowCompareDialog(true)}
+                      >
+                        <GitCompare className="w-4 h-4 mr-2" />
+                        Compare
+                      </Button>
+                    )}
                     <ImportCircuitDialog
                       onImport={async (circuit) => {
                         await shareCircuit({
@@ -744,6 +756,13 @@ export default function CommunityPage() {
         onGeneratePR={() => detailCircuit && handleGeneratePR(detailCircuit)}
         fetchComments={fetchComments}
         addComment={addComment}
+      />
+
+      {/* Circuit Compare Dialog */}
+      <CircuitCompareDialog
+        circuits={circuits}
+        open={showCompareDialog}
+        onOpenChange={setShowCompareDialog}
       />
     </div>
   );
