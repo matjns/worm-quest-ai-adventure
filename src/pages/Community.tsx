@@ -3,8 +3,9 @@ import { Header } from "@/components/Header";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Users, Github, MessageCircle, Share2, Heart, ExternalLink, 
-  Code, BookOpen, Plus, Sparkles, Copy, Check, LogIn, GitFork, Pencil
+  Code, BookOpen, Plus, Sparkles, Copy, Check, LogIn, GitFork, Pencil, User, FolderOpen
 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -216,11 +217,15 @@ export default function CommunityPage() {
   const [selectedCircuit, setSelectedCircuit] = useState<SharedCircuit | null>(null);
   const [prTemplate, setPrTemplate] = useState("");
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const [activeTab, setActiveTab] = useState<'featured' | 'my-creations'>('featured');
   const [shareForm, setShareForm] = useState({
     title: "",
     description: "",
     tags: "",
   });
+
+  // Filter circuits for "My Creations" tab
+  const myCircuits = circuits.filter(c => c.user_id === user?.id);
 
   const handleGeneratePR = (circuit: SharedCircuit) => {
     const template = generateGitHubPRTemplate(circuit);
@@ -279,128 +284,207 @@ export default function CommunityPage() {
             </div>
           </motion.div>
 
-          {/* Featured Creations */}
+          {/* Circuits Section with Tabs */}
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
             className="mb-16"
           >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold uppercase tracking-tight flex items-center gap-2">
-                <Sparkles className="w-6 h-6 text-primary" />
-                Featured Circuits
-              </h2>
-              {isAuthenticated && (
-                <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Share Your Circuit
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Share Your Circuit</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-sm font-medium">Title</label>
-                        <Input
-                          value={shareForm.title}
-                          onChange={(e) => setShareForm({ ...shareForm, title: e.target.value })}
-                          placeholder="Chemotaxis Navigator"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium">Description</label>
-                        <Textarea
-                          value={shareForm.description}
-                          onChange={(e) => setShareForm({ ...shareForm, description: e.target.value })}
-                          placeholder="A neural pathway that mimics real C. elegans behavior..."
-                        />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium">Tags (comma separated)</label>
-                        <Input
-                          value={shareForm.tags}
-                          onChange={(e) => setShareForm({ ...shareForm, tags: e.target.value })}
-                          placeholder="chemotaxis, sensory, movement"
-                        />
-                      </div>
-                      <Button 
-                        className="w-full" 
-                        onClick={async () => {
-                          await shareCircuit({
-                            title: shareForm.title,
-                            description: shareForm.description,
-                            circuit_data: { neurons: [], connections: [] },
-                            behavior: "custom",
-                            neurons_used: [],
-                            tags: shareForm.tags.split(",").map(t => t.trim()).filter(Boolean),
-                          });
-                          setShowShareDialog(false);
-                          setShareForm({ title: "", description: "", tags: "" });
-                        }}
-                      >
-                        <Share2 className="w-4 h-4 mr-2" />
-                        Share Circuit
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'featured' | 'my-creations')} className="w-full">
+              <div className="flex items-center justify-between mb-6">
+                <TabsList className="bg-card border-2 border-foreground">
+                  <TabsTrigger value="featured" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                    <Sparkles className="w-4 h-4" />
+                    Featured
+                  </TabsTrigger>
+                  {isAuthenticated && (
+                    <TabsTrigger value="my-creations" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                      <User className="w-4 h-4" />
+                      My Creations
+                      {myCircuits.length > 0 && (
+                        <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">
+                          {myCircuits.length}
+                        </span>
+                      )}
+                    </TabsTrigger>
+                  )}
+                </TabsList>
+                
+                {isAuthenticated && (
+                  <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Share Your Circuit
                       </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              )}
-            </div>
-
-            {loading ? (
-              <div className="text-center py-12">
-                <div className="loader mx-auto mb-4" />
-                <p className="text-muted-foreground font-arcade text-xs">Loading circuits...</p>
-              </div>
-            ) : circuits.length === 0 ? (
-              <div className="text-center py-12 bg-card border-2 border-dashed border-muted rounded-lg">
-                <Share2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="font-bold mb-2">No circuits shared yet</h3>
-                <p className="text-muted-foreground mb-4">Be the first to share a circuit with the community!</p>
-                {isAuthenticated ? (
-                  <Button onClick={() => setShowShareDialog(true)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Share Your Circuit
-                  </Button>
-                ) : (
-                  <Link to="/auth">
-                    <Button>
-                      <LogIn className="w-4 h-4 mr-2" />
-                      Sign In to Share
-                    </Button>
-                  </Link>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Share Your Circuit</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium">Title</label>
+                          <Input
+                            value={shareForm.title}
+                            onChange={(e) => setShareForm({ ...shareForm, title: e.target.value })}
+                            placeholder="Chemotaxis Navigator"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium">Description</label>
+                          <Textarea
+                            value={shareForm.description}
+                            onChange={(e) => setShareForm({ ...shareForm, description: e.target.value })}
+                            placeholder="A neural pathway that mimics real C. elegans behavior..."
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium">Tags (comma separated)</label>
+                          <Input
+                            value={shareForm.tags}
+                            onChange={(e) => setShareForm({ ...shareForm, tags: e.target.value })}
+                            placeholder="chemotaxis, sensory, movement"
+                          />
+                        </div>
+                        <Button 
+                          className="w-full" 
+                          onClick={async () => {
+                            await shareCircuit({
+                              title: shareForm.title,
+                              description: shareForm.description,
+                              circuit_data: { neurons: [], connections: [] },
+                              behavior: "custom",
+                              neurons_used: [],
+                              tags: shareForm.tags.split(",").map(t => t.trim()).filter(Boolean),
+                            });
+                            setShowShareDialog(false);
+                            setShareForm({ title: "", description: "", tags: "" });
+                          }}
+                        >
+                          <Share2 className="w-4 h-4 mr-2" />
+                          Share Circuit
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 )}
               </div>
-            ) : (
-              <div className="grid md:grid-cols-3 gap-6">
-                {(featuredCircuits.length > 0 ? featuredCircuits : circuits.slice(0, 6)).map((circuit) => (
-                  <Dialog key={circuit.id}>
-                    <DialogTrigger asChild>
-                      <div>
-                        <CircuitCard
-                          circuit={circuit}
-                          isLiked={userLikes.has(circuit.id)}
-                          onLike={() => likeCircuit(circuit.id)}
-                          onGeneratePR={() => handleGeneratePR(circuit)}
-                          onFork={() => forkCircuit(circuit.id)}
-                          onUpdate={updateCircuit}
-                          onDelete={deleteCircuit}
-                          isOwnCircuit={circuit.user_id === user?.id}
-                        />
-                      </div>
-                    </DialogTrigger>
-                    {selectedCircuit?.id === circuit.id && (
-                      <GitHubPRDialog circuit={circuit} template={prTemplate} />
+
+              {/* Featured Tab */}
+              <TabsContent value="featured">
+                {loading ? (
+                  <div className="text-center py-12">
+                    <div className="loader mx-auto mb-4" />
+                    <p className="text-muted-foreground font-arcade text-xs">Loading circuits...</p>
+                  </div>
+                ) : circuits.length === 0 ? (
+                  <div className="text-center py-12 bg-card border-2 border-dashed border-muted rounded-lg">
+                    <Share2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="font-bold mb-2">No circuits shared yet</h3>
+                    <p className="text-muted-foreground mb-4">Be the first to share a circuit with the community!</p>
+                    {isAuthenticated ? (
+                      <Button onClick={() => setShowShareDialog(true)}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Share Your Circuit
+                      </Button>
+                    ) : (
+                      <Link to="/auth">
+                        <Button>
+                          <LogIn className="w-4 h-4 mr-2" />
+                          Sign In to Share
+                        </Button>
+                      </Link>
                     )}
-                  </Dialog>
-                ))}
-              </div>
-            )}
+                  </div>
+                ) : (
+                  <div className="grid md:grid-cols-3 gap-6">
+                    {(featuredCircuits.length > 0 ? featuredCircuits : circuits.slice(0, 6)).map((circuit) => (
+                      <Dialog key={circuit.id}>
+                        <DialogTrigger asChild>
+                          <div>
+                            <CircuitCard
+                              circuit={circuit}
+                              isLiked={userLikes.has(circuit.id)}
+                              onLike={() => likeCircuit(circuit.id)}
+                              onGeneratePR={() => handleGeneratePR(circuit)}
+                              onFork={() => forkCircuit(circuit.id)}
+                              onUpdate={updateCircuit}
+                              onDelete={deleteCircuit}
+                              isOwnCircuit={circuit.user_id === user?.id}
+                            />
+                          </div>
+                        </DialogTrigger>
+                        {selectedCircuit?.id === circuit.id && (
+                          <GitHubPRDialog circuit={circuit} template={prTemplate} />
+                        )}
+                      </Dialog>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              {/* My Creations Tab */}
+              <TabsContent value="my-creations">
+                {loading ? (
+                  <div className="text-center py-12">
+                    <div className="loader mx-auto mb-4" />
+                    <p className="text-muted-foreground font-arcade text-xs">Loading your creations...</p>
+                  </div>
+                ) : myCircuits.length === 0 ? (
+                  <div className="text-center py-12 bg-card border-2 border-dashed border-muted rounded-lg">
+                    <FolderOpen className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="font-bold mb-2">No creations yet</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Share a circuit from the Sandbox or fork one from the community!
+                    </p>
+                    <div className="flex gap-2 justify-center">
+                      <Button onClick={() => setShowShareDialog(true)}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Share Your First Circuit
+                      </Button>
+                      <Button variant="outline" onClick={() => setActiveTab('featured')}>
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Browse Featured
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between text-sm text-muted-foreground">
+                      <span>You have {myCircuits.length} creation{myCircuits.length !== 1 ? 's' : ''}</span>
+                      <span>
+                        Total likes: {myCircuits.reduce((sum, c) => sum + (c.likes_count || 0), 0)}
+                      </span>
+                    </div>
+                    <div className="grid md:grid-cols-3 gap-6">
+                      {myCircuits.map((circuit) => (
+                        <Dialog key={circuit.id}>
+                          <DialogTrigger asChild>
+                            <div>
+                              <CircuitCard
+                                circuit={circuit}
+                                isLiked={userLikes.has(circuit.id)}
+                                onLike={() => likeCircuit(circuit.id)}
+                                onGeneratePR={() => handleGeneratePR(circuit)}
+                                onFork={() => forkCircuit(circuit.id)}
+                                onUpdate={updateCircuit}
+                                onDelete={deleteCircuit}
+                                isOwnCircuit={true}
+                              />
+                            </div>
+                          </DialogTrigger>
+                          {selectedCircuit?.id === circuit.id && (
+                            <GitHubPRDialog circuit={circuit} template={prTemplate} />
+                          )}
+                        </Dialog>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
           </motion.section>
 
           {/* GitHub Contribution Guide */}
