@@ -60,6 +60,12 @@ export interface EngagementState {
   minutesPlayedToday: number;
   sessionStartTime: number;
   
+  // Celebration callbacks
+  onEvolution?: (name: string, emoji: string) => void;
+  onBadgeUnlock?: (badge: Badge) => void;
+  onStreakMilestone?: (days: number) => void;
+  onQuestComplete?: (quest: DailyQuest) => void;
+  
   // Actions
   refreshDailyQuests: () => void;
   updateQuestProgress: (type: DailyQuest["type"], amount: number) => void;
@@ -69,6 +75,12 @@ export interface EngagementState {
   updateBadgeProgress: (badgeId: string, progress: number) => void;
   startSession: () => void;
   endSession: () => void;
+  setCelebrationCallbacks: (
+    onEvolution: (name: string, emoji: string) => void,
+    onBadgeUnlock: (badge: Badge) => void,
+    onStreakMilestone: (days: number) => void,
+    onQuestComplete: (quest: DailyQuest) => void
+  ) => void;
 }
 
 // Worm evolution stages
@@ -229,6 +241,14 @@ export const useEngagementStore = create<EngagementState>()(
       connectionsCreatedToday: 0,
       minutesPlayedToday: 0,
       sessionStartTime: 0,
+      onEvolution: undefined,
+      onBadgeUnlock: undefined,
+      onStreakMilestone: undefined,
+      onQuestComplete: undefined,
+
+      setCelebrationCallbacks: (onEvolution, onBadgeUnlock, onStreakMilestone, onQuestComplete) => {
+        set({ onEvolution, onBadgeUnlock, onStreakMilestone, onQuestComplete });
+      },
 
       refreshDailyQuests: () => {
         const now = Date.now();
@@ -251,36 +271,40 @@ export const useEngagementStore = create<EngagementState>()(
       },
 
       updateQuestProgress: (type, amount) => {
-        set((state) => {
-          const updatedQuests = state.dailyQuests.map(quest => {
-            if (quest.type !== type || quest.completed) return quest;
-            
-            const newProgress = quest.progress + amount;
-            const completed = newProgress >= quest.target;
-            
-            return {
-              ...quest,
-              progress: Math.min(newProgress, quest.target),
-              completed,
-            };
-          });
+        const state = get();
+        const updatedQuests = state.dailyQuests.map(quest => {
+          if (quest.type !== type || quest.completed) return quest;
           
-          // Update daily stats
-          const updates: Partial<EngagementState> = { dailyQuests: updatedQuests };
-          switch (type) {
-            case "missions":
-              updates.missionsCompletedToday = state.missionsCompletedToday + amount;
-              break;
-            case "neurons":
-              updates.neuronsPlacedToday = state.neuronsPlacedToday + amount;
-              break;
-            case "connections":
-              updates.connectionsCreatedToday = state.connectionsCreatedToday + amount;
-              break;
+          const newProgress = quest.progress + amount;
+          const completed = newProgress >= quest.target;
+          
+          // Trigger quest complete celebration
+          if (completed && !quest.completed && state.onQuestComplete) {
+            setTimeout(() => state.onQuestComplete?.(quest), 100);
           }
           
-          return updates;
+          return {
+            ...quest,
+            progress: Math.min(newProgress, quest.target),
+            completed,
+          };
         });
+        
+        // Update daily stats
+        const updates: Partial<EngagementState> = { dailyQuests: updatedQuests };
+        switch (type) {
+          case "missions":
+            updates.missionsCompletedToday = state.missionsCompletedToday + amount;
+            break;
+          case "neurons":
+            updates.neuronsPlacedToday = state.neuronsPlacedToday + amount;
+            break;
+          case "connections":
+            updates.connectionsCreatedToday = state.connectionsCreatedToday + amount;
+            break;
+        }
+        
+        set(updates);
       },
 
       checkAndUpdateStreak: () => {
@@ -294,6 +318,7 @@ export const useEngagementStore = create<EngagementState>()(
         const yesterdayString = yesterday.toISOString().split("T")[0];
         
         let newStreak = state.currentStreak;
+        const oldStreak = state.currentStreak;
         
         if (state.lastActiveDate === yesterdayString) {
           // Continuing streak
@@ -311,6 +336,15 @@ export const useEngagementStore = create<EngagementState>()(
           lastActiveDate: today,
         });
         
+        // Trigger streak milestone celebrations
+        if (state.onStreakMilestone) {
+          if ((oldStreak < 7 && newStreak >= 7) || 
+              (oldStreak < 30 && newStreak >= 30) || 
+              (oldStreak < 100 && newStreak >= 100)) {
+            state.onStreakMilestone(newStreak);
+          }
+        }
+        
         // Update streak quest progress
         get().updateQuestProgress("streak", 0); // Trigger check
         
@@ -321,33 +355,48 @@ export const useEngagementStore = create<EngagementState>()(
       },
 
       addXPToEvolution: (xp) => {
-        set((state) => {
-          const newTotal = state.totalXPEarned + xp;
-          
-          // Check for evolution
-          let newStage = state.currentEvolutionStage;
-          for (let i = WORM_EVOLUTIONS.length - 1; i >= 0; i--) {
-            if (newTotal >= WORM_EVOLUTIONS[i].unlockedAt) {
-              newStage = i;
-              break;
-            }
+        const state = get();
+        const newTotal = state.totalXPEarned + xp;
+        const oldStage = state.currentEvolutionStage;
+        
+        // Check for evolution
+        let newStage = oldStage;
+        for (let i = WORM_EVOLUTIONS.length - 1; i >= 0; i--) {
+          if (newTotal >= WORM_EVOLUTIONS[i].unlockedAt) {
+            newStage = i;
+            break;
           }
-          
-          return {
-            totalXPEarned: newTotal,
-            currentEvolutionStage: newStage,
-          };
+        }
+        
+        set({
+          totalXPEarned: newTotal,
+          currentEvolutionStage: newStage,
         });
+        
+        // Trigger evolution celebration if stage changed
+        if (newStage > oldStage && state.onEvolution) {
+          const evolution = WORM_EVOLUTIONS[newStage];
+          state.onEvolution(evolution.name, evolution.sprite);
+        }
       },
 
       unlockBadge: (badgeId) => {
-        set((state) => ({
-          badges: state.badges.map(badge =>
-            badge.id === badgeId && !badge.unlockedAt
-              ? { ...badge, unlockedAt: Date.now() }
-              : badge
-          ),
-        }));
+        const state = get();
+        const badge = state.badges.find(b => b.id === badgeId);
+        
+        // Only unlock if not already unlocked
+        if (badge && !badge.unlockedAt) {
+          set((state) => ({
+            badges: state.badges.map(b =>
+              b.id === badgeId ? { ...b, unlockedAt: Date.now() } : b
+            ),
+          }));
+          
+          // Trigger celebration
+          if (state.onBadgeUnlock) {
+            state.onBadgeUnlock({ ...badge, unlockedAt: Date.now() });
+          }
+        }
       },
 
       updateBadgeProgress: (badgeId, progress) => {
@@ -394,6 +443,21 @@ export const useEngagementStore = create<EngagementState>()(
     }),
     {
       name: "neuroquest-engagement-storage",
+      partialize: (state) => ({
+        dailyQuests: state.dailyQuests,
+        lastQuestRefresh: state.lastQuestRefresh,
+        currentStreak: state.currentStreak,
+        longestStreak: state.longestStreak,
+        lastActiveDate: state.lastActiveDate,
+        currentEvolutionStage: state.currentEvolutionStage,
+        totalXPEarned: state.totalXPEarned,
+        badges: state.badges,
+        missionsCompletedToday: state.missionsCompletedToday,
+        neuronsPlacedToday: state.neuronsPlacedToday,
+        connectionsCreatedToday: state.connectionsCreatedToday,
+        minutesPlayedToday: state.minutesPlayedToday,
+        sessionStartTime: state.sessionStartTime,
+      }),
     }
   )
 );
