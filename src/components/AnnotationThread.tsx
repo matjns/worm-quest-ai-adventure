@@ -9,6 +9,8 @@ import {
   ChevronDown,
   ChevronUp,
   AtSign,
+  Pin,
+  PinOff,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -28,6 +30,7 @@ interface Annotation {
   updated_at: string;
   user_id: string;
   parent_id: string | null;
+  is_pinned: boolean;
   profiles?: {
     display_name: string;
     avatar_url: string | null;
@@ -38,12 +41,14 @@ interface AnnotationThreadProps {
   annotation: Annotation;
   replies: Annotation[];
   currentUserId?: string;
+  circuitOwnerId?: string;
   isAuthenticated: boolean;
   readOnly: boolean;
   getColorValue: (colorId: string) => string;
   onEdit: (annotationId: string, content: string) => Promise<void>;
   onDelete: (annotationId: string) => Promise<void>;
   onReply: (parentId: string, content: string) => Promise<void>;
+  onTogglePin?: (annotationId: string, currentlyPinned: boolean) => Promise<void>;
   saving: boolean;
 }
 
@@ -51,12 +56,14 @@ export function AnnotationThread({
   annotation,
   replies,
   currentUserId,
+  circuitOwnerId,
   isAuthenticated,
   readOnly,
   getColorValue,
   onEdit,
   onDelete,
   onReply,
+  onTogglePin,
   saving,
 }: AnnotationThreadProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -81,15 +88,26 @@ export function AnnotationThread({
     }
   };
 
+  // Check if user can pin (annotation author or circuit owner)
+  const canPin = (ann: Annotation) => 
+    !ann.parent_id && (ann.user_id === currentUserId || circuitOwnerId === currentUserId);
+
   const renderAnnotationContent = (ann: Annotation, isReply = false) => (
     <div
       key={ann.id}
       className={cn(
-        "bg-muted/50 rounded p-2 text-sm",
-        isReply && "ml-4 border-l-2 border-muted-foreground/20"
+        "bg-muted/50 rounded p-2 text-sm relative",
+        isReply && "ml-4 border-l-2 border-muted-foreground/20",
+        ann.is_pinned && !isReply && "ring-1 ring-primary/30 bg-primary/5"
       )}
       style={{ borderLeft: isReply ? undefined : `3px solid ${getColorValue(ann.color)}` }}
     >
+      {/* Pinned indicator */}
+      {ann.is_pinned && !isReply && (
+        <div className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground rounded-full p-0.5">
+          <Pin className="w-2.5 h-2.5" />
+        </div>
+      )}
       {editingId === ann.id ? (
         <div className="space-y-2">
           <Textarea
@@ -137,6 +155,18 @@ export function AnnotationThread({
               </span>
             </div>
             <div className="flex gap-0.5">
+              {/* Pin button - only for top-level annotations, visible to author or circuit owner */}
+              {canPin(ann) && onTogglePin && !readOnly && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn("h-5 w-5", ann.is_pinned && "text-primary")}
+                  onClick={() => onTogglePin(ann.id, ann.is_pinned)}
+                  title={ann.is_pinned ? "Unpin" : "Pin to top"}
+                >
+                  {ann.is_pinned ? <PinOff className="w-3 h-3" /> : <Pin className="w-3 h-3" />}
+                </Button>
+              )}
               {/* Reply button - only for top-level annotations */}
               {!isReply && isAuthenticated && !readOnly && (
                 <Button
