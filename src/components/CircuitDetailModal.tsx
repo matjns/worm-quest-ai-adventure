@@ -166,8 +166,10 @@ export function CircuitDetailModal({
                   neurons: neurons,
                   connections: connections,
                 }}
+                circuitId={circuit.id}
                 height={250}
                 autoPlay={true}
+                showAnnotations={true}
                 className="mb-4"
               />
             ) : (
