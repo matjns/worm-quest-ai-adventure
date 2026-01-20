@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { NeuralActivityCharts } from "@/components/NeuralActivityCharts";
+import { ResearchModeExport } from "@/components/ResearchModeExport";
 import { 
   Play, 
   Copy, 
@@ -22,7 +23,8 @@ import {
   Terminal,
   RotateCcw,
   Loader2,
-  BarChart3
+  BarChart3,
+  FlaskConical
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -483,7 +485,7 @@ export function APIPlayground() {
         {/* Response Section */}
         {response && (
           <Tabs defaultValue="visualize" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="visualize" className="gap-2">
                 <BarChart3 className="w-4 h-4" />
                 Visualize
@@ -491,6 +493,10 @@ export function APIPlayground() {
               <TabsTrigger value="raw" className="gap-2">
                 <Code2 className="w-4 h-4" />
                 Raw JSON
+              </TabsTrigger>
+              <TabsTrigger value="research" className="gap-2">
+                <FlaskConical className="w-4 h-4" />
+                Research
               </TabsTrigger>
             </TabsList>
 
@@ -526,6 +532,15 @@ export function APIPlayground() {
                   </pre>
                 </ScrollArea>
               </div>
+            </TabsContent>
+
+            <TabsContent value="research">
+              <ResearchModeExport 
+                simulationData={response}
+                neurons={selectedNeurons}
+                stimulus={{ type: stimulusType, value: stimulusValue }}
+                duration={duration}
+              />
             </TabsContent>
           </Tabs>
         )}

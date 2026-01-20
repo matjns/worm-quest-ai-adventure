@@ -153,9 +153,12 @@ export default function Index() {
                 <span className="block text-accent">Decode Biology</span>
               </h1>
 
-              <p className="text-lg text-muted-foreground mb-4 max-w-lg font-mono">
+              <p className="text-lg text-muted-foreground mb-2 max-w-lg font-mono">
                 🐛 A tiny worm with 302 neurons unlocks the secrets of the brain. 
                 Build neural circuits. Train AI. Conquer neuroscience.
+              </p>
+              <p className="text-sm text-primary font-bold italic mb-4">
+                "Learn from the lowly!"
               </p>
 
               {/* MTP Callout */}
