@@ -1,26 +1,25 @@
 import { createContext, useContext, ReactNode } from "react";
-import { useCircuitNotifications } from "@/hooks/useCircuitNotifications";
 
 interface NotificationContextType {
-  refreshCircuits: () => void;
+  // Context for notification-related global state if needed
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
-  const { refreshCircuits } = useCircuitNotifications();
-
+  // The actual notification logic is now handled by useNotificationsData hook
+  // which is used directly in NotificationCenter component
   return (
-    <NotificationContext.Provider value={{ refreshCircuits }}>
+    <NotificationContext.Provider value={{}}>
       {children}
     </NotificationContext.Provider>
   );
 }
 
-export function useNotifications() {
+export function useNotificationContext() {
   const context = useContext(NotificationContext);
   if (context === undefined) {
-    throw new Error("useNotifications must be used within a NotificationProvider");
+    throw new Error("useNotificationContext must be used within a NotificationProvider");
   }
   return context;
 }

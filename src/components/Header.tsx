@@ -5,6 +5,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import neuroQuestLogo from "@/assets/neuroquest-logo.png";
 import { useAuth } from "@/hooks/useAuth";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -64,6 +65,8 @@ export function Header() {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
+            <NotificationCenter />
+            
             {!loading && (
               <>
                 {isAuthenticated ? (
