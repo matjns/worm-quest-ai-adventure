@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   Circle,
   CheckCheck,
+  Undo2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -121,6 +122,9 @@ export function CircuitAnnotations({
   const [hideResolved, setHideResolved] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [presenceUsers, setPresenceUsers] = useState<PresenceUser[]>([]);
+  const [lastResolvedIds, setLastResolvedIds] = useState<string[]>([]);
+  const [showUndo, setShowUndo] = useState(false);
+  const undoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const channelRef = useRef<RealtimeChannel | null>(null);
   const presenceChannelRef = useRef<RealtimeChannel | null>(null);
 
@@ -666,6 +670,21 @@ export function CircuitAnnotations({
 
       if (!response.ok) throw new Error('Failed to resolve all threads');
 
+      // Store IDs for undo and show undo option
+      setLastResolvedIds(unresolvedIds);
+      setShowUndo(true);
+      
+      // Clear any existing timeout
+      if (undoTimeoutRef.current) {
+        clearTimeout(undoTimeoutRef.current);
+      }
+      
+      // Hide undo after 10 seconds
+      undoTimeoutRef.current = setTimeout(() => {
+        setShowUndo(false);
+        setLastResolvedIds([]);
+      }, 10000);
+
       toast({ 
         title: "All Threads Resolved",
         description: `${unresolvedIds.length} thread${unresolvedIds.length !== 1 ? 's' : ''} marked as resolved`
@@ -682,6 +701,67 @@ export function CircuitAnnotations({
       setSaving(false);
     }
   };
+
+  // Undo bulk resolve
+  const handleUndoResolveAll = async () => {
+    if (lastResolvedIds.length === 0 || !user) return;
+
+    setSaving(true);
+    try {
+      const session = await supabase.auth.getSession();
+      const token = session.data.session?.access_token;
+      
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/circuit_annotations?id=in.(${lastResolvedIds.join(',')})`,
+        {
+          method: 'PATCH',
+          headers: {
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            is_resolved: false,
+            resolved_at: null,
+            resolved_by: null,
+          }),
+        }
+      );
+
+      if (!response.ok) throw new Error('Failed to undo resolve');
+
+      // Clear undo state
+      if (undoTimeoutRef.current) {
+        clearTimeout(undoTimeoutRef.current);
+      }
+      setShowUndo(false);
+      setLastResolvedIds([]);
+
+      toast({ 
+        title: "Undo Successful",
+        description: `${lastResolvedIds.length} thread${lastResolvedIds.length !== 1 ? 's' : ''} reopened`
+      });
+      await fetchAnnotations();
+    } catch (error) {
+      console.error("Error undoing resolve:", error);
+      toast({
+        title: "Error",
+        description: "Failed to undo resolve",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (undoTimeoutRef.current) {
+        clearTimeout(undoTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const getNeuronPosition = (neuron: Neuron) => ({
     x: (neuron.x / 100) * (viewBox.width - padding * 2) + padding,
@@ -869,7 +949,7 @@ export function CircuitAnnotations({
         )}
 
         {/* Mark all as resolved button - only for circuit owner when there are active threads */}
-        {circuitOwnerId === user?.id && activeCount > 1 && (
+        {circuitOwnerId === user?.id && activeCount > 1 && !showUndo && (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -894,6 +974,41 @@ export function CircuitAnnotations({
             </Tooltip>
           </TooltipProvider>
         )}
+
+        {/* Undo button - shows temporarily after bulk resolve */}
+        <AnimatePresence>
+          {showUndo && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+            >
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleUndoResolveAll}
+                      disabled={saving}
+                      className="gap-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-700 dark:text-amber-400 border-amber-500/30"
+                    >
+                      {saving ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Undo2 className="w-4 h-4" />
+                      )}
+                      <span className="text-xs">Undo</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Undo: Reopen {lastResolvedIds.length} thread{lastResolvedIds.length !== 1 ? 's' : ''}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* SVG Overlay for annotation markers */}
