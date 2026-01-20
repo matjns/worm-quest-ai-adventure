@@ -56,6 +56,7 @@ interface SignalParticle {
 interface CircuitSimulationPreviewProps {
   circuit: CircuitData;
   circuitId?: string;
+  circuitOwnerId?: string;
   className?: string;
   autoPlay?: boolean;
   showControls?: boolean;
@@ -105,6 +106,7 @@ const neuronTypeColors: Record<string, { fill: string; stroke: string; glow: str
 export function CircuitSimulationPreview({
   circuit,
   circuitId,
+  circuitOwnerId,
   className,
   autoPlay = false,
   showControls = true,
@@ -274,6 +276,7 @@ export function CircuitSimulationPreview({
       {showAnnotations && circuitId && (
         <CircuitAnnotations
           circuitId={circuitId}
+          circuitOwnerId={circuitOwnerId}
           neurons={circuit.neurons}
           viewBox={viewBox}
           padding={padding}

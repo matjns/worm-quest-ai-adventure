@@ -167,6 +167,7 @@ export function CircuitDetailModal({
                   connections: connections,
                 }}
                 circuitId={circuit.id}
+                circuitOwnerId={circuit.user_id}
                 height={250}
                 autoPlay={true}
                 showAnnotations={true}

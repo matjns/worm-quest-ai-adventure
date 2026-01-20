@@ -41,6 +41,7 @@ interface Annotation {
   updated_at: string;
   user_id: string;
   parent_id: string | null;
+  is_pinned: boolean;
   profiles?: {
     display_name: string;
     avatar_url: string | null;
@@ -64,6 +65,7 @@ interface Neuron {
 
 interface CircuitAnnotationsProps {
   circuitId: string;
+  circuitOwnerId?: string;
   neurons: Neuron[];
   viewBox: { width: number; height: number };
   padding?: number;
@@ -94,6 +96,7 @@ const getUserColor = (userId: string) => {
 
 export function CircuitAnnotations({
   circuitId,
+  circuitOwnerId,
   neurons,
   viewBox,
   padding = 30,
@@ -546,14 +549,55 @@ export function CircuitAnnotations({
     }
   };
 
+  // Handle pinning/unpinning an annotation
+  const handleTogglePin = async (annotationId: string, currentlyPinned: boolean) => {
+    try {
+      const session = await supabase.auth.getSession();
+      const token = session.data.session?.access_token;
+      
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/circuit_annotations?id=eq.${annotationId}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ is_pinned: !currentlyPinned }),
+        }
+      );
+
+      if (!response.ok) throw new Error('Failed to update pin status');
+
+      toast({ title: currentlyPinned ? "Annotation Unpinned" : "Annotation Pinned" });
+      await fetchAnnotations();
+    } catch (error) {
+      console.error("Error toggling pin:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update pin status",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getNeuronPosition = (neuron: Neuron) => ({
     x: (neuron.x / 100) * (viewBox.width - padding * 2) + padding,
     y: (neuron.y / 100) * (viewBox.height - padding * 2) + padding,
   });
 
-  // Get top-level annotations for a neuron (no parent)
+  // Get top-level annotations for a neuron (no parent), sorted by pinned first
   const getAnnotationsForNeuron = (neuronId: string) =>
-    annotations.filter((a) => a.neuron_id === neuronId && !a.parent_id);
+    annotations
+      .filter((a) => a.neuron_id === neuronId && !a.parent_id)
+      .sort((a, b) => {
+        // Pinned first
+        if (a.is_pinned && !b.is_pinned) return -1;
+        if (!a.is_pinned && b.is_pinned) return 1;
+        // Then by date
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
 
   // Get replies for a specific annotation
   const getRepliesForAnnotation = (annotationId: string) =>
@@ -836,12 +880,14 @@ export function CircuitAnnotations({
                     annotation={annotation}
                     replies={getRepliesForAnnotation(annotation.id)}
                     currentUserId={user?.id}
+                    circuitOwnerId={circuitOwnerId}
                     isAuthenticated={isAuthenticated}
                     readOnly={readOnly}
                     getColorValue={getColorValue}
                     onEdit={handleUpdateAnnotation}
                     onDelete={handleDeleteAnnotation}
                     onReply={handleAddReply}
+                    onTogglePin={handleTogglePin}
                     saving={saving}
                   />
                 ))}

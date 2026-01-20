@@ -21,6 +21,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          is_pinned: boolean | null
           neuron_id: string
           parent_id: string | null
           updated_at: string
@@ -34,6 +35,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          is_pinned?: boolean | null
           neuron_id: string
           parent_id?: string | null
           updated_at?: string
@@ -47,6 +49,7 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          is_pinned?: boolean | null
           neuron_id?: string
           parent_id?: string | null
           updated_at?: string
