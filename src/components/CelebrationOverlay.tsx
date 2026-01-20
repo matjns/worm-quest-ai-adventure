@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Star, Zap, Target, Brain, Flame, Crown, Gem, Rocket, Heart, Sparkles } from "lucide-react";
+import { Trophy, Star, Zap, Target, Brain, Flame, Crown, Gem, Rocket, Heart, Sparkles, Globe, Flag, Microscope, Dna } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ICONS = {
@@ -14,6 +14,10 @@ const ICONS = {
   gem: Gem,
   rocket: Rocket,
   heart: Heart,
+  globe: Globe,
+  flag: Flag,
+  microscope: Microscope,
+  dna: Dna,
 };
 
 export type CelebrationIcon = keyof typeof ICONS;

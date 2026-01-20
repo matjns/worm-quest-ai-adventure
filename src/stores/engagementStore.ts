@@ -28,12 +28,12 @@ export interface Badge {
   id: string;
   name: string;
   description: string;
-  icon: "brain" | "zap" | "trophy" | "star" | "target" | "flame" | "crown" | "gem" | "rocket" | "heart";
+  icon: "brain" | "zap" | "trophy" | "star" | "target" | "flame" | "crown" | "gem" | "rocket" | "heart" | "globe" | "flag" | "microscope" | "dna";
   rarity: "common" | "rare" | "epic" | "legendary";
   unlockedAt?: number;
   progress?: number;
   maxProgress?: number;
-  category: "skill" | "dedication" | "social" | "achievement" | "special";
+  category: "skill" | "dedication" | "social" | "achievement" | "special" | "ambassador";
 }
 
 export interface EngagementState {
@@ -185,6 +185,18 @@ const ALL_BADGES: Badge[] = [
   { id: "openworm-ally", name: "OpenWorm Ally", description: "Visit the OpenWorm GitHub", icon: "rocket", rarity: "common", category: "special" },
   { id: "science-supporter", name: "Science Supporter", description: "Learn about real C. elegans research", icon: "star", rarity: "common", category: "special" },
   { id: "ai-explorer", name: "AI Explorer", description: "Complete AI-related lessons", icon: "brain", rarity: "rare", category: "special" },
+
+  // OpenWorm Ambassador badges
+  { id: "ambassador-recruit", name: "Ambassador Recruit", description: "Complete your first research-aligned circuit", icon: "flag", rarity: "common", category: "ambassador" },
+  { id: "science-communicator", name: "Science Communicator", description: "Share 5 circuits with educational descriptions", icon: "globe", rarity: "rare", category: "ambassador", progress: 0, maxProgress: 5 },
+  { id: "research-contributor", name: "Research Contributor", description: "Create 3 circuits matching real C. elegans behaviors", icon: "microscope", rarity: "rare", category: "ambassador", progress: 0, maxProgress: 3 },
+  { id: "community-mentor", name: "Community Mentor", description: "Have 10 of your circuits forked by others", icon: "heart", rarity: "epic", category: "ambassador", progress: 0, maxProgress: 10 },
+  { id: "global-advocate", name: "Global Advocate", description: "Receive likes from users in 5 different sessions", icon: "globe", rarity: "epic", category: "ambassador", progress: 0, maxProgress: 5 },
+  { id: "openworm-champion", name: "OpenWorm Champion", description: "Reach 100 total likes on research-aligned circuits", icon: "trophy", rarity: "legendary", category: "ambassador", progress: 0, maxProgress: 100 },
+  { id: "connectome-scholar", name: "Connectome Scholar", description: "Complete all neuroscience lessons", icon: "brain", rarity: "epic", category: "ambassador" },
+  { id: "citizen-scientist", name: "Citizen Scientist", description: "Contribute to 10 collaborative sandbox sessions", icon: "dna", rarity: "rare", category: "ambassador", progress: 0, maxProgress: 10 },
+  { id: "usa-pioneer", name: "USA Pioneer", description: "Be among the first 1000 US contributors", icon: "flag", rarity: "legendary", category: "ambassador" },
+  { id: "scientific-legacy", name: "Scientific Legacy", description: "Have your circuit featured in the Research Board", icon: "crown", rarity: "legendary", category: "ambassador" },
 
   // Race Victory badges
   { id: "first-victory", name: "First Victory", description: "Win your first race", icon: "trophy", rarity: "common", category: "achievement" },
