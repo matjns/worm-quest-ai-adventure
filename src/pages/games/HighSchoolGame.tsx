@@ -1,15 +1,19 @@
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { ArrowLeft, GraduationCap, Brain, Zap, Code2, GitBranch, Network, Play, Pause, RotateCcw } from "lucide-react";
+import { ArrowLeft, GraduationCap, Brain, Zap, Code2, GitBranch, Network, Play, Pause, RotateCcw, Download } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useGameStore } from "@/stores/gameStore";
 import { useAIChallenge } from "@/hooks/useAIChallenge";
 import { Worm3D } from "@/components/Worm3D";
+import { NeuralQAPanel } from "@/components/NeuralQAPanel";
+import { IterationFeedback } from "@/components/IterationFeedback";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { saveHighSchoolState, loadHighSchoolState, downloadExport } from "@/utils/simulationPersistence";
+import { Analytics } from "@/utils/analytics";
 
 interface NeuralLayer {
   neurons: number;
@@ -33,6 +37,30 @@ export default function HighSchoolGame() {
   const [score, setScore] = useState(0);
   const [activeNeurons, setActiveNeurons] = useState<boolean[]>([]);
   const [signalStrength, setSignalStrength] = useState(0);
+  const [trainingHistory, setTrainingHistory] = useState<{ epochs: number; loss: number; accuracy: number }[]>([]);
+
+  // Load persisted state on mount
+  useEffect(() => {
+    const saved = loadHighSchoolState();
+    if (saved && saved.trainingHistory) {
+      setTrainingHistory(saved.trainingHistory);
+    }
+    Analytics.gameStart("high_school");
+  }, []);
+
+  // Save state when training completes
+  useEffect(() => {
+    if (trainingHistory.length > 0) {
+      saveHighSchoolState({
+        hypothesis: [],
+        trials: [],
+        layers,
+        learningRate: learningRate[0],
+        epochs: epochs[0],
+        trainingHistory,
+      });
+    }
+  }, [trainingHistory, layers, learningRate, epochs]);
 
   const addLayer = () => {
     if (layers.length < 6) {
@@ -551,7 +579,40 @@ export default function HighSchoolGame() {
                     </span>
                   </div>
                 </div>
+                
+                {/* Export button */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full mt-4 gap-2"
+                  onClick={() => {
+                    downloadExport({
+                      type: "neural_network",
+                      layers,
+                      learningRate: learningRate[0],
+                      epochs: epochs[0],
+                      trainingHistory,
+                      timestamp: Date.now(),
+                    }, "neural-network-export.json");
+                    Analytics.exportData("neural_network");
+                    toast.success("Network exported for OpenWorm contribution!");
+                  }}
+                >
+                  <Download className="w-4 h-4" />
+                  Export for OpenWorm
+                </Button>
               </div>
+
+              {/* Neural Q&A Panel */}
+              <NeuralQAPanel 
+                userLevel="high"
+                currentCircuit={{
+                  neurons: layers.flatMap((l, i) => 
+                    Array(l.neurons).fill(0).map((_, j) => `L${i}_N${j}`)
+                  ),
+                  connections: [],
+                }}
+              />
 
               <div className="bg-gradient-to-br from-purple-500/10 to-primary/10 rounded-2xl border border-purple-500/20 p-4">
                 <h4 className="font-semibold text-sm mb-2">🎓 Research Challenge</h4>
@@ -561,6 +622,7 @@ export default function HighSchoolGame() {
                 <Button size="sm" className="w-full" onClick={() => {
                   addPoints(200);
                   addXp(100);
+                  Analytics.experimentRun("research_challenge", true);
                   toast.success("Research challenge started! Good luck!");
                 }}>
                   Accept Challenge

@@ -147,11 +147,12 @@ export default function MiddleSchoolGame() {
 
   // Export data for OpenWorm contributions
   const handleExport = () => {
-    const state: ExperimentState = {
+    const exportData = {
+      type: 'experiment',
       hypothesis: hypotheses.map(h => h.text),
       trials: experimentData.map(d => ({ ...d, timestamp: Date.now() })),
     };
-    downloadExport('experiment', state, `middle-school-experiment-${Date.now()}.json`);
+    downloadExport(exportData, `middle-school-experiment-${Date.now()}.json`);
     Analytics.exportData('json');
     toast.success("Experiment data exported for OpenWorm!");
   };

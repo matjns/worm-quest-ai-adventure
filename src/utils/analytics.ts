@@ -85,8 +85,8 @@ function flushEvents(): void {
 // Pre-defined tracking functions
 export const Analytics = {
   // Game interactions
-  gameStart: (gameId: string, ageGroup: string) => 
-    trackEvent('game', 'start', `${gameId}_${ageGroup}`),
+  gameStart: (gameId: string, ageGroup?: string) => 
+    trackEvent('game', 'start', ageGroup ? `${gameId}_${ageGroup}` : gameId),
   
   gameComplete: (gameId: string, score: number) => 
     trackEvent('game', 'complete', gameId, score),
@@ -114,8 +114,8 @@ export const Analytics = {
   circuitBuilt: (neuronCount: number, connectionCount: number) => 
     trackEvent('simulation', 'circuit_built', undefined, neuronCount),
   
-  experimentRun: (hypothesis: string) => 
-    trackEvent('experiment', 'run', hypothesis),
+  experimentRun: (hypothesis: string, success?: boolean) => 
+    trackEvent('experiment', 'run', hypothesis, success ? 1 : 0),
   
   // Engagement paths
   pageView: (path: string) => 
