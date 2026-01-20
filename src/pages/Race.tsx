@@ -46,6 +46,11 @@ export default function Race() {
     navigate("/race", { replace: true });
   };
 
+  const handlePlayAgain = () => {
+    setShowGameplay(false);
+    // Stay in lobby to create/join new race
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -84,6 +89,7 @@ export default function Race() {
             <RaceGameplay 
               raceId={activeRaceId} 
               onExit={handleExitRace}
+              onPlayAgain={handlePlayAgain}
             />
           ) : (
             <div className="max-w-2xl mx-auto">
