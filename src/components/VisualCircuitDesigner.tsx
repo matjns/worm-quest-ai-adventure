@@ -22,6 +22,7 @@ import { AICircuitCoach } from "@/components/AICircuitCoach";
 import { NeuroMLExportDialog } from "@/components/NeuroMLExportDialog";
 import { ImportMergeDialog } from "@/components/ImportMergeDialog";
 import { useCollaborativeCircuitDesigner } from "@/hooks/useCollaborativeCircuitDesigner";
+import { useCircuitHistory } from "@/hooks/useCircuitHistory";
 import { 
   Brain, 
   Zap, 
@@ -46,7 +47,9 @@ import {
   Check,
   Sparkles,
   BookOpen,
-  FlaskConical
+  FlaskConical,
+  Undo2,
+  Redo2
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -70,6 +73,10 @@ export function VisualCircuitDesigner() {
   // Local state (used when not in collab mode)
   const [localNeurons, setLocalNeurons] = useState<PlacedNeuron[]>([]);
   const [localConnections, setLocalConnections] = useState<DesignerConnection[]>([]);
+  
+  // History for undo/redo (only for local mode)
+  const history = useCircuitHistory({ maxHistory: 30 });
+  const lastPushRef = useRef<number>(0);
   
   // Collaboration
   const [collabRoomId, setCollabRoomId] = useState<string | null>(null);
@@ -99,6 +106,76 @@ export function VisualCircuitDesigner() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [showTemplates, setShowTemplates] = useState(false);
   const [templateFilter, setTemplateFilter] = useState<string>("all");
+  
+  // Push state to history with debouncing (only in local mode)
+  const pushToHistory = useCallback((label?: string) => {
+    if (collabRoomId && collab.isConnected) return; // No history in collab mode
+    
+    const now = Date.now();
+    if (now - lastPushRef.current < 100) return; // Debounce rapid changes
+    lastPushRef.current = now;
+    
+    history.pushState(localNeurons, localConnections, label);
+  }, [collabRoomId, collab.isConnected, localNeurons, localConnections, history]);
+  
+  // Initialize history when component mounts or local state changes significantly
+  useEffect(() => {
+    if (!collabRoomId && history.historyLength === 0 && (localNeurons.length > 0 || localConnections.length > 0)) {
+      history.initHistory(localNeurons, localConnections);
+    }
+  }, [collabRoomId, localNeurons, localConnections, history]);
+  
+  // Handle undo
+  const handleUndo = useCallback(() => {
+    if (collabRoomId && collab.isConnected) {
+      toast.error("Undo not available in collaborative mode");
+      return;
+    }
+    
+    const prevState = history.undo();
+    if (prevState) {
+      setLocalNeurons(prevState.neurons);
+      setLocalConnections(prevState.connections);
+      toast.info("Undo");
+    }
+  }, [collabRoomId, collab.isConnected, history]);
+  
+  // Handle redo
+  const handleRedo = useCallback(() => {
+    if (collabRoomId && collab.isConnected) {
+      toast.error("Redo not available in collaborative mode");
+      return;
+    }
+    
+    const nextState = history.redo();
+    if (nextState) {
+      setLocalNeurons(nextState.neurons);
+      setLocalConnections(nextState.connections);
+      toast.info("Redo");
+    }
+  }, [collabRoomId, collab.isConnected, history]);
+  
+  // Keyboard shortcuts for undo/redo
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "z") {
+        e.preventDefault();
+        if (e.shiftKey) {
+          handleRedo();
+        } else {
+          handleUndo();
+        }
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === "y") {
+        e.preventDefault();
+        handleRedo();
+      }
+    };
+    
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleUndo, handleRedo]);
+
 
   // Generate a new room ID
   const generateRoomId = () => {
@@ -160,11 +237,16 @@ export function VisualCircuitDesigner() {
     if (collabRoomId && collab.isConnected) {
       collab.addNeuron(newNeuron);
     } else {
-      setLocalNeurons(prev => [...prev, newNeuron]);
+      setLocalNeurons(prev => {
+        const updated = [...prev, newNeuron];
+        // Push to history after state update
+        setTimeout(() => pushToHistory(`Add ${draggedNeuron.name}`), 0);
+        return updated;
+      });
     }
     setDraggedNeuron(null);
     toast.success(`Added ${draggedNeuron.name}`);
-  }, [draggedNeuron, placedNeurons, collabRoomId, collab]);
+  }, [draggedNeuron, placedNeurons, collabRoomId, collab, pushToHistory]);
 
   // Handle neuron click based on mode
   const handleNeuronClick = (neuronId: string, e: React.MouseEvent) => {
@@ -176,6 +258,7 @@ export function VisualCircuitDesigner() {
       } else {
         setLocalNeurons(prev => prev.filter(n => n.id !== neuronId));
         setLocalConnections(prev => prev.filter(c => c.from !== neuronId && c.to !== neuronId));
+        setTimeout(() => pushToHistory(`Remove neuron`), 0);
       }
       toast.info("Neuron removed");
       return;
@@ -203,6 +286,7 @@ export function VisualCircuitDesigner() {
             collab.addConnection(newConnection);
           } else {
             setLocalConnections(prev => [...prev, newConnection]);
+            setTimeout(() => pushToHistory(`Add synapse`), 0);
           }
           toast.success(`Synapse created: ${connectingFrom} → ${neuronId}`);
         }
@@ -324,6 +408,7 @@ export function VisualCircuitDesigner() {
     } else {
       setLocalNeurons(neurons);
       setLocalConnections(conns);
+      setTimeout(() => pushToHistory(`Load template: ${template.name}`), 0);
     }
     
     setShowTemplates(false);
@@ -369,8 +454,11 @@ export function VisualCircuitDesigner() {
     if (collabRoomId && collab.isConnected) {
       collab.clearAll();
     } else {
+      // Push current state before clearing (so we can undo)
+      pushToHistory("Before clear");
       setLocalNeurons([]);
       setLocalConnections([]);
+      setTimeout(() => pushToHistory("Clear canvas"), 0);
     }
     setSimulationResult(null);
     setSelectedNeuron(null);
@@ -644,8 +732,13 @@ export function VisualCircuitDesigner() {
                 if (collabRoomId && collab.isConnected) {
                   collab.loadFromTemplate(neurons, conns);
                 } else {
+                  // Push current state to history before merge
+                  if (localNeurons.length > 0 || localConnections.length > 0) {
+                    pushToHistory("Before import/merge");
+                  }
                   setLocalNeurons(neurons);
                   setLocalConnections(conns);
+                  setTimeout(() => pushToHistory("Import/Merge circuit"), 0);
                 }
               }}
               trigger={
@@ -667,6 +760,30 @@ export function VisualCircuitDesigner() {
                 </Button>
               }
             />
+            
+            {/* Undo/Redo - only show in local mode */}
+            {!collabRoomId && (
+              <div className="flex gap-1 border-l pl-2 ml-1">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleUndo}
+                  disabled={!history.canUndo}
+                  title="Undo (Ctrl+Z)"
+                >
+                  <Undo2 className="w-4 h-4" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleRedo}
+                  disabled={!history.canRedo}
+                  title="Redo (Ctrl+Shift+Z)"
+                >
+                  <Redo2 className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
             
             <Button variant="outline" size="sm" onClick={exportCircuit}>
               <Download className="w-4 h-4 mr-1" />
