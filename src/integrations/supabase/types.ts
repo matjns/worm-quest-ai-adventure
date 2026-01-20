@@ -464,6 +464,39 @@ export type Database = {
           },
         ]
       }
+      module_progress: {
+        Row: {
+          completed_at: string
+          created_at: string
+          id: string
+          module_id: string
+          score: number | null
+          steps_completed: number | null
+          time_spent_seconds: number | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          created_at?: string
+          id?: string
+          module_id: string
+          score?: number | null
+          steps_completed?: number | null
+          time_spent_seconds?: number | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          created_at?: string
+          id?: string
+          module_id?: string
+          score?: number | null
+          steps_completed?: number | null
+          time_spent_seconds?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           actor_id: string | null
