@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
+import { NeuralActivityCharts } from "@/components/NeuralActivityCharts";
 import { 
   Play, 
   Copy, 
@@ -21,8 +22,7 @@ import {
   Terminal,
   RotateCcw,
   Loader2,
-  Wifi,
-  WifiOff
+  BarChart3
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -38,6 +38,37 @@ interface APIEndpoint {
   method: "GET" | "POST";
   path: string;
   description: string;
+}
+
+interface SimulationResponse {
+  success: boolean;
+  results?: {
+    neural_activity?: Array<{
+      neuron_id: string;
+      type: string;
+      peak_activation: string;
+      firing_events: number;
+      firing_rate_hz: number;
+      avg_membrane_potential: string;
+      spike_times_ms: number[];
+      activity_trace: number[];
+    }>;
+    behavior_prediction?: string;
+    confidence?: number;
+    total_spikes?: number;
+    physics?: {
+      body_curvature: string;
+      velocity: string;
+      energy_expenditure: string;
+      muscle_tension?: {
+        dorsal: string;
+        ventral: string;
+      };
+    };
+  };
+  duration_ms?: number;
+  timesteps?: number;
+  [key: string]: unknown;
 }
 
 const AVAILABLE_NEURONS: Neuron[] = [
@@ -71,7 +102,7 @@ export function APIPlayground() {
   const [duration, setDuration] = useState<number>(1000);
   const [includePhysics, setIncludePhysics] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [response, setResponse] = useState<object | null>(null);
+  const [response, setResponse] = useState<SimulationResponse | null>(null);
   const [responseTime, setResponseTime] = useState<number | null>(null);
   const [copiedCode, setCopiedCode] = useState<boolean>(false);
 
@@ -449,27 +480,54 @@ export function APIPlayground() {
           )}
         </Button>
 
-        {/* Response */}
+        {/* Response Section */}
         {response && (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-bold flex items-center gap-2">
-                <Code2 className="w-4 h-4 text-primary" />
-                Response
-              </Label>
-              {responseTime && (
-                <Badge variant="outline" className="text-xs">
-                  <Clock className="w-3 h-3 mr-1" />
-                  {responseTime}ms
-                </Badge>
+          <Tabs defaultValue="visualize" className="space-y-4">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="visualize" className="gap-2">
+                <BarChart3 className="w-4 h-4" />
+                Visualize
+              </TabsTrigger>
+              <TabsTrigger value="raw" className="gap-2">
+                <Code2 className="w-4 h-4" />
+                Raw JSON
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="visualize">
+              {response.success && response.results?.neural_activity ? (
+                <NeuralActivityCharts response={response} duration={duration} />
+              ) : (
+                <div className="p-8 text-center text-muted-foreground">
+                  <Activity className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <p>No visualization available for this endpoint</p>
+                  <p className="text-xs">Switch to Raw JSON to see the response</p>
+                </div>
               )}
-            </div>
-            <ScrollArea className="h-64 rounded-lg bg-foreground/5 p-4 font-mono text-sm">
-              <pre className="text-foreground/80 whitespace-pre-wrap">
-                {JSON.stringify(response, null, 2)}
-              </pre>
-            </ScrollArea>
-          </div>
+            </TabsContent>
+
+            <TabsContent value="raw">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-bold flex items-center gap-2">
+                    <Code2 className="w-4 h-4 text-primary" />
+                    Response
+                  </Label>
+                  {responseTime && (
+                    <Badge variant="outline" className="text-xs">
+                      <Clock className="w-3 h-3 mr-1" />
+                      {responseTime}ms
+                    </Badge>
+                  )}
+                </div>
+                <ScrollArea className="h-64 rounded-lg bg-foreground/5 p-4 font-mono text-sm">
+                  <pre className="text-foreground/80 whitespace-pre-wrap">
+                    {JSON.stringify(response, null, 2)}
+                  </pre>
+                </ScrollArea>
+              </div>
+            </TabsContent>
+          </Tabs>
         )}
 
         {/* Quick Stats */}
