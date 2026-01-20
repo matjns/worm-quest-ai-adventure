@@ -14,6 +14,10 @@ export interface RaceSession {
   created_at: string;
   started_at: string | null;
   finished_at: string | null;
+  skill_tier?: string;
+  min_elo?: number;
+  max_elo?: number;
+  is_ranked?: boolean;
 }
 
 export interface RaceParticipant {
@@ -148,26 +152,41 @@ export function useWormRace(raceId?: string) {
   }, [raceId, fetchRace]);
 
   // Create a new race
-  const createRace = async (name: string, maxPlayers: number = 4): Promise<string | null> => {
+  const createRace = async (
+    name: string, 
+    maxPlayers: number = 4,
+    options?: { isRanked?: boolean; playerElo?: number }
+  ): Promise<string | null> => {
     if (!user) {
       toast.error("Please sign in to create a race");
       return null;
     }
 
     try {
+      const raceData: Record<string, unknown> = {
+        host_id: user.id,
+        name,
+        max_players: maxPlayers,
+      };
+
+      // Add ranked race settings
+      if (options?.isRanked && options.playerElo) {
+        const eloRange = 200; // Match within 200 ELO points
+        raceData.is_ranked = true;
+        raceData.skill_tier = "ranked";
+        raceData.min_elo = Math.max(0, options.playerElo - eloRange);
+        raceData.max_elo = options.playerElo + eloRange;
+      }
+
       const { data, error } = await supabase
         .from("race_sessions")
-        .insert({
-          host_id: user.id,
-          name,
-          max_players: maxPlayers,
-        } as any)
+        .insert(raceData as any)
         .select()
         .single();
 
       if (error) throw error;
       
-      toast.success("Race created!");
+      toast.success(options?.isRanked ? "Ranked race created!" : "Race created!");
       return data.id;
     } catch (error) {
       console.error("Error creating race:", error);
