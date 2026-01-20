@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Brain, Menu, X, Trophy, BookOpen, Users, Settings, Gamepad2, LogIn, User, GraduationCap, BarChart3, FlaskConical, Award, Code2 } from "lucide-react";
+import { Brain, Menu, X, Trophy, BookOpen, Users, Settings, Gamepad2, LogIn, User, GraduationCap, BarChart3, FlaskConical, Award, Code2, Play, Puzzle, FileText, GitBranch, Zap, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import neuroQuestLogo from "@/assets/neuroquest-logo.png";
@@ -13,6 +13,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 
 const navItems = [
   { label: "Learn", href: "/learn", icon: BookOpen },
@@ -21,8 +29,35 @@ const navItems = [
   { label: "NeuroQuest", href: "/neuroquest", icon: Brain },
   { label: "Research", href: "/research", icon: FlaskConical },
   { label: "Challenge", href: "/challenge", icon: Award },
-  { label: "API", href: "/open", icon: Code2 },
   { label: "Community", href: "/community", icon: Users },
+];
+
+const apiMenuItems = [
+  { 
+    label: "API Playground", 
+    href: "/open#api-access", 
+    icon: Play, 
+    description: "Test neural simulations with live API calls" 
+  },
+  { 
+    label: "Extensions", 
+    href: "/open#extensions", 
+    icon: Puzzle, 
+    description: "Community-built modules and integrations" 
+  },
+  { 
+    label: "Documentation", 
+    href: "/open#contribute", 
+    icon: FileText, 
+    description: "Guides, tutorials, and API reference" 
+  },
+  { 
+    label: "GitHub", 
+    href: "https://github.com/openworm", 
+    icon: GitBranch, 
+    description: "Open source repositories and contributions",
+    external: true 
+  },
 ];
 
 export function Header() {
@@ -63,6 +98,80 @@ export function Header() {
                 </Link>
               );
             })}
+            
+            {/* API Mega Menu */}
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger 
+                    className={cn(
+                      "font-bold uppercase h-9 px-3 text-sm bg-transparent hover:bg-accent hover:text-accent-foreground",
+                      location.pathname === "/open" && "bg-primary text-primary-foreground shadow-[2px_2px_0px_hsl(var(--foreground))]"
+                    )}
+                  >
+                    <Code2 className="w-4 h-4 mr-1" />
+                    API
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <div className="w-[400px] p-4 bg-popover border-2 border-foreground shadow-[4px_4px_0px_hsl(var(--foreground))]">
+                      <div className="flex items-center gap-2 mb-3 pb-3 border-b border-border">
+                        <div className="p-2 rounded-md bg-primary/10">
+                          <Zap className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-sm">OpenWorm API</h4>
+                          <p className="text-xs text-muted-foreground">Neural simulation & connectome data</p>
+                        </div>
+                      </div>
+                      <div className="grid gap-2">
+                        {apiMenuItems.map((item) => (
+                          item.external ? (
+                            <a
+                              key={item.label}
+                              href={item.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-start gap-3 p-2 rounded-md hover:bg-accent transition-colors group"
+                            >
+                              <div className="p-1.5 rounded bg-muted group-hover:bg-primary/10 transition-colors">
+                                <item.icon className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
+                              </div>
+                              <div>
+                                <div className="font-semibold text-sm">{item.label}</div>
+                                <p className="text-xs text-muted-foreground">{item.description}</p>
+                              </div>
+                            </a>
+                          ) : (
+                            <Link
+                              key={item.label}
+                              to={item.href}
+                              className="flex items-start gap-3 p-2 rounded-md hover:bg-accent transition-colors group"
+                            >
+                              <div className="p-1.5 rounded bg-muted group-hover:bg-primary/10 transition-colors">
+                                <item.icon className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
+                              </div>
+                              <div>
+                                <div className="font-semibold text-sm">{item.label}</div>
+                                <p className="text-xs text-muted-foreground">{item.description}</p>
+                              </div>
+                            </Link>
+                          )
+                        ))}
+                      </div>
+                      <div className="mt-3 pt-3 border-t border-border">
+                        <Link 
+                          to="/open" 
+                          className="flex items-center justify-center gap-2 w-full py-2 px-3 bg-primary text-primary-foreground rounded-md font-bold text-sm hover:bg-primary/90 transition-colors"
+                        >
+                          <Code2 className="w-4 h-4" />
+                          Open Platform Overview
+                        </Link>
+                      </div>
+                    </div>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
           </nav>
 
           {/* Actions */}
@@ -157,6 +266,34 @@ export function Header() {
                   </Link>
                 );
               })}
+              
+              {/* API Section for mobile */}
+              <div className="border-t border-border pt-2 mt-1">
+                <p className="text-xs text-muted-foreground px-3 py-1 uppercase font-bold">API & Platform</p>
+                {apiMenuItems.map((item) => (
+                  item.external ? (
+                    <a
+                      key={item.label}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Button variant="ghost" className="w-full justify-start">
+                        <item.icon className="w-4 h-4 mr-2" />
+                        {item.label}
+                      </Button>
+                    </a>
+                  ) : (
+                    <Link key={item.label} to={item.href} onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start">
+                        <item.icon className="w-4 h-4 mr-2" />
+                        {item.label}
+                      </Button>
+                    </Link>
+                  )
+                ))}
+              </div>
               
               {/* Auth section for mobile */}
               {isAuthenticated ? (
