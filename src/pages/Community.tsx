@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Users, Github, MessageCircle, Share2, Heart, ExternalLink, 
-  Code, BookOpen, Plus, Sparkles, Copy, Check, LogIn 
+  Code, BookOpen, Plus, Sparkles, Copy, Check, LogIn, GitFork
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,12 +54,16 @@ function CircuitCard({
   circuit, 
   isLiked, 
   onLike,
-  onGeneratePR 
+  onGeneratePR,
+  onFork,
+  isOwnCircuit
 }: { 
   circuit: SharedCircuit; 
   isLiked: boolean;
   onLike: () => void;
   onGeneratePR: () => void;
+  onFork: () => void;
+  isOwnCircuit: boolean;
 }) {
   return (
     <motion.div
@@ -116,10 +120,15 @@ function CircuitCard({
         </Button>
         
         <div className="flex gap-1">
-          <Button variant="ghost" size="sm" onClick={onGeneratePR}>
+          {!isOwnCircuit && (
+            <Button variant="ghost" size="sm" onClick={onFork} title="Fork this circuit">
+              <GitFork className="w-4 h-4" />
+            </Button>
+          )}
+          <Button variant="ghost" size="sm" onClick={onGeneratePR} title="Contribute to OpenWorm">
             <Github className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" title="View details">
             <ExternalLink className="w-3 h-3" />
           </Button>
         </div>
@@ -186,6 +195,7 @@ export default function CommunityPage() {
     userLikes, 
     likeCircuit,
     shareCircuit,
+    forkCircuit,
     generateGitHubPRTemplate 
   } = useCommunity();
   
@@ -363,6 +373,8 @@ export default function CommunityPage() {
                           isLiked={userLikes.has(circuit.id)}
                           onLike={() => likeCircuit(circuit.id)}
                           onGeneratePR={() => handleGeneratePR(circuit)}
+                          onFork={() => forkCircuit(circuit.id)}
+                          isOwnCircuit={circuit.user_id === user?.id}
                         />
                       </div>
                     </DialogTrigger>
