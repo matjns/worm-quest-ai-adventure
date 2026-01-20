@@ -7,6 +7,8 @@ import { BentoCard, BentoGrid } from "@/components/BentoGrid";
 import { ExpandableTabs } from "@/components/ExpandableTabs";
 import { WormCanvas } from "@/components/WormCanvas";
 import { AIChallengeBanner } from "@/components/AIChallengeBanner";
+import { GlobalImpactCounter } from "@/components/GlobalImpactCounter";
+import { WormRaceLobby } from "@/components/WormRaceLobby";
 import neuroQuestLogo from "@/assets/neuroquest-logo.png";
 import { 
   Brain, 
@@ -304,6 +306,45 @@ export default function Index() {
                 Begin Your Adventure
               </Button>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Social Technologies Section - Races & Global Impact */}
+      <section className="py-20 px-4 bg-muted/30">
+        <div className="container mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-4">
+              Join the <span className="text-primary">Global Community</span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Collaborate, compete, and contribute to open-source neuroscience research.
+            </p>
+          </motion.div>
+
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Global Impact Counter */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <GlobalImpactCounter />
+            </motion.div>
+
+            {/* Worm Race Lobby */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <WormRaceLobby />
+            </motion.div>
           </div>
         </div>
       </section>
