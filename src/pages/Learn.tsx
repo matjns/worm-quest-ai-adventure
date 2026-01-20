@@ -1,6 +1,6 @@
 import { Header } from "@/components/Header";
 import { motion } from "framer-motion";
-import { Brain, BookOpen, Play, CheckCircle, Lock, ChevronRight, Microscope, Sparkles, Gamepad2, Volume2 } from "lucide-react";
+import { Brain, BookOpen, Play, CheckCircle, Lock, ChevronRight, Microscope, Sparkles, Gamepad2, Volume2, Puzzle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useGameStore } from "@/stores/gameStore";
 import { Link } from "react-router-dom";
@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArcadeScreen, GhostIcon, PacManLoader } from "@/components/ArcadeScreen";
 import { TeacherScript, TEACHER_SCRIPTS } from "@/components/TeacherScript";
 import { AgeSelector } from "@/components/AgeSelector";
+import { NeuronBuilder } from "@/components/NeuronBuilder";
 import { useState } from "react";
 
 type AgeGroup = "prek" | "k5" | "middle" | "high";
@@ -103,12 +104,18 @@ export default function LearnPage() {
           </motion.div>
 
           <Tabs defaultValue="lessons" className="space-y-6">
-            <TabsList className="grid w-full max-w-lg mx-auto grid-cols-3 bg-card border-2 border-foreground shadow-[4px_4px_0px_hsl(var(--foreground))]">
+            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4 bg-card border-2 border-foreground shadow-[4px_4px_0px_hsl(var(--foreground))]">
               <TabsTrigger 
                 value="lessons" 
                 className="font-arcade text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
                 <Gamepad2 className="w-4 h-4 mr-1" />Lessons
+              </TabsTrigger>
+              <TabsTrigger 
+                value="builder"
+                className="font-arcade text-xs data-[state=active]:bg-[hsl(280_100%_60%)] data-[state=active]:text-foreground"
+              >
+                <Puzzle className="w-4 h-4 mr-1" />Build
               </TabsTrigger>
               <TabsTrigger 
                 value="connectome"
@@ -239,6 +246,17 @@ export default function LearnPage() {
                   </ArcadeScreen>
                 </div>
               </div>
+            </TabsContent>
+
+            <TabsContent value="builder">
+              <ArcadeScreen title="Neuron Builder" className="min-h-[500px]">
+                <NeuronBuilder 
+                  ageGroup={ageGroup}
+                  onCircuitComplete={(connections) => {
+                    console.log("Circuit complete!", connections);
+                  }}
+                />
+              </ArcadeScreen>
             </TabsContent>
 
             <TabsContent value="connectome">
