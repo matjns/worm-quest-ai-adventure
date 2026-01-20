@@ -1028,9 +1028,32 @@ export type Database = {
         Args: { k_factor?: number; loser_elo: number; winner_elo: number }
         Returns: number
       }
+      create_system_notification: {
+        Args: {
+          p_actor_id?: string
+          p_circuit_id?: string
+          p_message?: string
+          p_title: string
+          p_type: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       generate_join_code: { Args: never; Returns: string }
       get_tier_from_elo: { Args: { elo_rating: number }; Returns: string }
       increment_simulation_count: { Args: never; Returns: undefined }
+      upsert_classroom_analytics: {
+        Args: {
+          p_active_students?: number
+          p_ai_interactions?: number
+          p_avg_accuracy?: number
+          p_classroom_id: string
+          p_community_contributions?: number
+          p_missions_completed?: number
+          p_total_xp_earned?: number
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
