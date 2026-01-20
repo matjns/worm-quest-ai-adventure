@@ -11,6 +11,7 @@ import {
   Users,
   Wifi,
   WifiOff,
+  AtSign,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { MentionInput, parseMentions, renderMentionText } from "./MentionInput";
+import { findMentionedUserIds, notifyMentionedUsers } from "@/utils/mentionNotifications";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
 interface Annotation {
@@ -329,9 +332,33 @@ export function CircuitAnnotations({
 
       if (!response.ok) throw new Error('Failed to add annotation');
 
+      // Parse mentions and notify users
+      const mentions = parseMentions(newContent);
+      if (mentions.length > 0) {
+        const mentionedUsers = await findMentionedUserIds(mentions);
+        
+        // Get current user's display name
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('display_name')
+          .eq('user_id', user.id)
+          .single();
+        
+        await notifyMentionedUsers({
+          mentionedUserIds: mentionedUsers,
+          actorId: user.id,
+          actorName: profile?.display_name || 'Someone',
+          circuitId,
+          neuronId,
+          annotationPreview: newContent.trim(),
+        });
+      }
+
       toast({
         title: "Annotation Added",
-        description: `Note added to neuron ${neuronId}`,
+        description: mentions.length > 0 
+          ? `Note added and ${mentions.length} user(s) notified`
+          : `Note added to neuron ${neuronId}`,
       });
 
       setNewContent("");
@@ -737,7 +764,7 @@ export function CircuitAnnotations({
                       </div>
                     ) : (
                       <>
-                        <p className="text-xs mb-2">{annotation.content}</p>
+                        <p className="text-xs mb-2">{renderMentionText(annotation.content)}</p>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1 text-xs text-muted-foreground">
                             <Avatar className="w-4 h-4">
@@ -787,12 +814,15 @@ export function CircuitAnnotations({
             {/* Add new annotation */}
             {isAuthenticated && !readOnly && (
               <div className="space-y-2">
-                <Textarea
-                  placeholder="Add a note about this neuron..."
-                  value={newContent}
-                  onChange={(e) => setNewContent(e.target.value)}
-                  className="min-h-[60px] text-sm"
-                />
+                <div className="relative">
+                  <MentionInput
+                    value={newContent}
+                    onChange={setNewContent}
+                    placeholder="Add a note... Use @ to mention users"
+                    className="text-sm pr-8"
+                  />
+                  <AtSign className="absolute right-2 top-2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                </div>
 
                 {/* Color picker */}
                 <div className="flex items-center gap-1">
