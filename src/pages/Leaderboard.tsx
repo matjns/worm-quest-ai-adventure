@@ -15,6 +15,7 @@ import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from "date-fns";
+import { Link } from "react-router-dom";
 
 const getRankIcon = (rank: number) => {
   switch (rank) {
@@ -263,6 +264,11 @@ export default function LeaderboardPage() {
             <p className="text-lg text-muted-foreground">
               Top neural engineers and their winning worm circuits
             </p>
+            <Link to="/race-history">
+              <Badge variant="outline" className="mt-2 cursor-pointer hover:bg-muted">
+                View Your Race History →
+              </Badge>
+            </Link>
           </motion.div>
 
           {/* Global Stats */}
