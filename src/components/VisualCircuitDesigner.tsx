@@ -24,8 +24,10 @@ import { ImportMergeDialog } from "@/components/ImportMergeDialog";
 import { BatchImportDialog } from "@/components/BatchImportDialog";
 import { BatchExportDialog } from "@/components/BatchExportDialog";
 import { HistoryTimelinePanel } from "@/components/HistoryTimelinePanel";
+import { ThreeWayMergeDialog } from "@/components/ThreeWayMergeDialog";
 import { useCollaborativeCircuitDesigner } from "@/hooks/useCollaborativeCircuitDesigner";
 import { useCircuitHistory } from "@/hooks/useCircuitHistory";
+import { useTouchDrag } from "@/hooks/useTouchDrag";
 import { 
   Brain, 
   Zap, 
@@ -55,7 +57,8 @@ import {
   Redo2,
   FileStack,
   History,
-  Package
+  Package,
+  GitMerge
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -112,6 +115,26 @@ export function VisualCircuitDesigner() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [showTemplates, setShowTemplates] = useState(false);
   const [templateFilter, setTemplateFilter] = useState<string>("all");
+  
+  // Touch drag support for mobile
+  const touchDrag = useTouchDrag({
+    containerRef: canvasRef,
+    onDragMove: (id, x, y) => {
+      if (mode !== "select") return;
+      if (collabRoomId && collab.isConnected) {
+        collab.moveNeuron(id, x, y);
+      } else {
+        setLocalNeurons(prev =>
+          prev.map(n => n.id === id ? { ...n, x, y } : n)
+        );
+      }
+    },
+    onDragEnd: () => {
+      if (!collabRoomId) {
+        pushToHistory("Move neuron");
+      }
+    },
+  });
   
   // Push state to history with debouncing (only in local mode)
   const pushToHistory = useCallback((label?: string) => {
@@ -851,6 +874,26 @@ export function VisualCircuitDesigner() {
               </div>
             )}
             
+            {/* 3-Way Merge */}
+            {!collabRoomId && history.historyLength > 2 && (
+              <ThreeWayMergeDialog
+                historyStates={history.getAllStates()}
+                currentState={{ neurons: localNeurons, connections: localConnections }}
+                onMerge={(neurons, conns) => {
+                  pushToHistory("Before 3-way merge");
+                  setLocalNeurons(neurons);
+                  setLocalConnections(conns);
+                  setTimeout(() => pushToHistory("3-way merge result"), 0);
+                }}
+                trigger={
+                  <Button variant="outline" size="sm" className="gap-1" title="3-Way Merge">
+                    <GitMerge className="w-4 h-4" />
+                    Merge
+                  </Button>
+                }
+              />
+            )}
+            
             {/* Batch Export */}
             <BatchExportDialog
               neurons={placedNeurons}
@@ -1041,7 +1084,7 @@ export function VisualCircuitDesigner() {
                   key={neuron.id}
                   className={cn(
                     "absolute flex items-center justify-center rounded-full cursor-pointer transition-all",
-                    "border-2 shadow-lg select-none",
+                    "border-2 shadow-lg select-none touch-none",
                     selectedNeuron === neuron.id && "ring-2 ring-primary ring-offset-2",
                     connectingFrom === neuron.id && "ring-2 ring-accent ring-offset-2",
                     neuron.isActive && "animate-pulse scale-110"
@@ -1055,10 +1098,14 @@ export function VisualCircuitDesigner() {
                     borderColor: neuron.isActive ? "hsl(var(--primary))" : "hsl(var(--background))",
                     boxShadow: neuron.isActive 
                       ? `0 0 20px ${getNeuronColor(neuron.type)}` 
-                      : undefined
+                      : undefined,
+                    pointerEvents: "auto",
                   }}
                   onClick={(e) => handleNeuronClick(neuron.id, e)}
                   onMouseDown={(e) => handleNeuronDrag(neuron.id, e)}
+                  onTouchStart={touchDrag.handleTouchStart(neuron.id, neuron.x, neuron.y)}
+                  onTouchMove={touchDrag.handleTouchMove}
+                  onTouchEnd={touchDrag.handleTouchEnd}
                   title={neuron.description}
                 >
                   <span className="text-[10px] font-bold text-white drop-shadow-md">
