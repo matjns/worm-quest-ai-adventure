@@ -84,7 +84,7 @@ export function ResearchContributionBoard() {
                 </Badge>
               </h2>
               <p className="text-muted-foreground">
-                Circuits contributing to OpenWorm's mission to digitize life
+                Circuits contributing to OpenWorm's mission to simulate organisms
               </p>
             </div>
           </div>
