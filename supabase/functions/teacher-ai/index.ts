@@ -7,13 +7,14 @@ const corsHeaders = {
 };
 
 interface LessonPlanRequest {
-  type: 'generate_lesson' | 'generate_week' | 'grade_submission' | 'analyze_class';
+  type: 'generate_lesson' | 'generate_week' | 'grade_submission' | 'analyze_class' | 'generate_progress_report';
   gradeLevel: string;
   topic?: string;
   weekNumber?: number;
   standards?: string[];
   submissionData?: Record<string, unknown>;
   classData?: Record<string, unknown>;
+  studentData?: Record<string, unknown>;
 }
 
 serve(async (req) => {
@@ -28,7 +29,7 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    const { type, gradeLevel, topic, weekNumber, standards, submissionData, classData } = await req.json() as LessonPlanRequest;
+    const { type, gradeLevel, topic, weekNumber, standards, submissionData, classData, studentData } = await req.json() as LessonPlanRequest;
 
     let systemPrompt = '';
     let userPrompt = '';
@@ -106,6 +107,29 @@ Output JSON with: class_summary, common_struggles[], mastered_concepts[], recomm
 ${JSON.stringify(classData, null, 2)}
 
 Provide actionable insights for the teacher.`;
+        break;
+
+      case 'generate_progress_report':
+        systemPrompt = `You are an educational progress report writer creating weekly student progress reports for parents.
+
+Write in a warm, encouraging tone that:
+- Celebrates achievements and progress
+- Explains neuroscience concepts in parent-friendly language
+- Provides specific, actionable suggestions for home support
+- Uses positive framing for areas needing improvement
+- Is appropriate for the student's grade level
+
+Output JSON with:
+- summary: A 2-3 sentence overview of the student's week (warm, encouraging)
+- highlights: Array of 2-3 specific achievements to celebrate
+- growth_areas: Array of 1-2 areas for improvement (framed positively)
+- home_activities: Array of 3-4 specific activities parents can do at home to support learning
+- encouragement: A motivating closing message for the student`;
+
+        userPrompt = `Generate a weekly progress report for this ${gradeLevel} student:
+${JSON.stringify(studentData, null, 2)}
+
+Create an encouraging, parent-friendly report that celebrates progress and provides actionable home activities.`;
         break;
 
       default:

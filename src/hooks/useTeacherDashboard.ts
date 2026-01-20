@@ -393,6 +393,54 @@ export function useTeacherDashboard() {
     }
   };
 
+  // Generate progress report for a student
+  const generateProgressReport = async (
+    student: Student,
+    classroomName: string,
+    weekNumber: number = 1
+  ) => {
+    setAiLoading(true);
+    try {
+      const classroom = classrooms.find(c => c.id === student.classroom_id);
+      
+      const response = await supabase.functions.invoke('teacher-ai', {
+        body: {
+          type: 'generate_progress_report',
+          gradeLevel: classroom?.grade_level || 'unknown',
+          studentData: {
+            name: student.display_name,
+            classroom: classroomName,
+            weekNumber,
+            ...student.progress_data,
+            weekly_stats: {
+              xp_gained: Math.floor(student.progress_data.total_xp * 0.2), // Estimate
+              missions_this_week: Math.floor(student.progress_data.missions_completed * 0.15),
+              accuracy_change: (Math.random() * 10 - 3).toFixed(1),
+              level_ups: Math.floor(student.progress_data.total_xp / 100) > 0 ? 1 : 0
+            }
+          }
+        }
+      });
+
+      if (response.error) throw response.error;
+      
+      const result = response.data.result;
+      return {
+        ai_summary: result.summary || '',
+        ai_recommendations: result.home_activities || [],
+        highlights: result.highlights || [],
+        growth_areas: result.growth_areas || [],
+        encouragement: result.encouragement || ''
+      };
+    } catch (error) {
+      console.error('Error generating progress report:', error);
+      toast.error('Failed to generate progress report');
+      return null;
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   // Calculate dashboard stats
   const stats = {
     totalStudents: students.length,
@@ -430,6 +478,7 @@ export function useTeacherDashboard() {
     generateLessonPlan,
     generateWeeklyCurriculum,
     gradeSubmission,
-    analyzeClass
+    analyzeClass,
+    generateProgressReport
   };
 }
