@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
   Trophy, BarChart3, PlayCircle, Share2, 
-  ArrowLeft, Download, Sparkles, Award
+  ArrowLeft, Download, Sparkles, Award, Twitter, Linkedin
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,6 +14,7 @@ import { SocialShareButtons } from "./SocialShareButtons";
 import { RaceRecording } from "@/hooks/useRaceRecording";
 import { useRaceAchievements, RaceResult } from "@/hooks/useRaceAchievements";
 import { useEngagementStore } from "@/stores/engagementStore";
+import { shareToTwitter, shareToLinkedIn } from "@/utils/socialShare";
 import { cn } from "@/lib/utils";
 
 interface PostRaceResultsProps {
@@ -171,6 +172,37 @@ export function PostRaceResults({
         <Button variant="ghost" onClick={handleDownloadReplay}>
           <Download className="w-4 h-4 mr-2" />
           Download Replay
+        </Button>
+      </div>
+
+      {/* Quick social share buttons for viral races */}
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-muted-foreground">Quick share:</span>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => shareToTwitter({
+            title: isWinner ? `🏆 I won the Worm Race!` : `Just raced in NeuroQuest!`,
+            description: shareText,
+            url: `${window.location.origin}/race`,
+            tags: ["NeuroQuest", "OpenWorm", "WormRace", "Neuroscience"],
+          })}
+          className="gap-2"
+        >
+          <Twitter className="w-4 h-4" />
+          Twitter
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => shareToLinkedIn({
+            title: `NeuroQuest Worm Race Achievement`,
+            url: `${window.location.origin}/race`,
+          })}
+          className="gap-2"
+        >
+          <Linkedin className="w-4 h-4" />
+          LinkedIn
         </Button>
       </div>
 

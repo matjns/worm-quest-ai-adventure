@@ -14,6 +14,7 @@ export interface ExperimentState {
   layers?: Array<{ neurons: number; activation: string }>;
   learningRate?: number;
   epochs?: number;
+  trainingHistory?: Array<{ epochs: number; loss: number; accuracy: number }>;
 }
 
 const STORAGE_KEYS = {
@@ -136,19 +137,31 @@ export function exportForOpenWorm(
   return JSON.stringify(exportData, null, 2);
 }
 
-// Download JSON export
+// Download JSON export - accepts any data object for flexibility
 export function downloadExport(
-  type: 'experiment' | 'network',
-  state: ExperimentState,
+  data: Record<string, unknown>,
   filename?: string
 ): void {
-  const json = exportForOpenWorm(type, state);
+  const exportData = {
+    format: 'OpenWorm-NeuroQuest-v1',
+    exportedAt: new Date().toISOString(),
+    source: 'NeuroQuest Educational Platform',
+    license: 'CC-BY-4.0',
+    data,
+    metadata: {
+      platform: 'NeuroQuest',
+      version: '1.0.0',
+      compatibleWith: ['c302', 'CElegansNeuroML'],
+    },
+  };
+  
+  const json = JSON.stringify(exportData, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   
   const a = document.createElement('a');
   a.href = url;
-  a.download = filename || `neuroquest-${type}-${Date.now()}.json`;
+  a.download = filename || `neuroquest-export-${Date.now()}.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
