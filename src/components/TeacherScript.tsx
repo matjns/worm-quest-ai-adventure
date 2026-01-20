@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
-import { Volume2, MessageCircle } from "lucide-react";
-import { motion } from "framer-motion";
+import { Volume2, VolumeX, MessageCircle, Pause, Play } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useSpeech } from "@/hooks/useSpeech";
 
 interface TeacherScriptProps {
   script: string;
@@ -14,21 +15,25 @@ const ageStyles = {
     bg: "bg-gradient-to-r from-[hsl(340_100%_60%)] to-[hsl(25_100%_55%)]",
     text: "text-2xl font-speak",
     icon: "🐛",
+    rate: 0.85, // Slower for young kids
   },
   k5: {
     bg: "bg-gradient-to-r from-[hsl(175_100%_45%)] to-[hsl(200_100%_50%)]",
     text: "text-xl font-speak",
     icon: "🧠",
+    rate: 0.9,
   },
   middle: {
     bg: "bg-gradient-to-r from-[hsl(280_100%_60%)] to-[hsl(340_100%_55%)]",
     text: "text-lg font-mono",
     icon: "🔬",
+    rate: 0.95,
   },
   high: {
     bg: "bg-gradient-to-r from-[hsl(250_40%_25%)] to-[hsl(280_50%_20%)]",
     text: "text-base font-mono",
     icon: "💻",
+    rate: 1.0,
   },
 };
 
@@ -39,6 +44,23 @@ export function TeacherScript({
   showSpeaker = true 
 }: TeacherScriptProps) {
   const style = ageStyles[ageGroup];
+  const { speak, stop, pause, resume, isSpeaking, isPaused, isSupported } = useSpeech({
+    rate: style.rate,
+  });
+
+  const handleSpeakerClick = () => {
+    if (isSpeaking && !isPaused) {
+      pause();
+    } else if (isPaused) {
+      resume();
+    } else {
+      speak(script);
+    }
+  };
+
+  const handleStop = () => {
+    stop();
+  };
 
   return (
     <motion.div
@@ -61,13 +83,89 @@ export function TeacherScript({
           "{script}"
         </div>
         
-        {showSpeaker && (
-          <button 
-            className="p-2 rounded-lg bg-card/20 hover:bg-card/40 transition-colors"
-            aria-label="Read aloud"
-          >
-            <Volume2 className="w-5 h-5" />
-          </button>
+        {showSpeaker && isSupported && (
+          <div className="flex items-center gap-1">
+            <motion.button 
+              onClick={handleSpeakerClick}
+              className={cn(
+                "p-2 rounded-lg transition-all",
+                isSpeaking 
+                  ? "bg-card/40 text-foreground" 
+                  : "bg-card/20 hover:bg-card/40"
+              )}
+              aria-label={isSpeaking ? (isPaused ? "Resume" : "Pause") : "Read aloud"}
+              whileTap={{ scale: 0.95 }}
+            >
+              <AnimatePresence mode="wait">
+                {isSpeaking && !isPaused ? (
+                  <motion.div
+                    key="pause"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                  >
+                    <Pause className="w-5 h-5" />
+                  </motion.div>
+                ) : isPaused ? (
+                  <motion.div
+                    key="play"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                  >
+                    <Play className="w-5 h-5" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="volume"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="relative"
+                  >
+                    <Volume2 className="w-5 h-5" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
+            
+            {isSpeaking && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0 }}
+                onClick={handleStop}
+                className="p-2 rounded-lg bg-destructive/20 hover:bg-destructive/40 transition-colors"
+                aria-label="Stop"
+              >
+                <VolumeX className="w-5 h-5" />
+              </motion.button>
+            )}
+            
+            {/* Speaking indicator */}
+            {isSpeaking && !isPaused && (
+              <motion.div 
+                className="flex items-center gap-0.5 ml-1"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                {[0, 1, 2].map((i) => (
+                  <motion.div
+                    key={i}
+                    className="w-1 bg-foreground rounded-full"
+                    animate={{
+                      height: ["8px", "16px", "8px"],
+                    }}
+                    transition={{
+                      duration: 0.5,
+                      repeat: Infinity,
+                      delay: i * 0.15,
+                    }}
+                  />
+                ))}
+              </motion.div>
+            )}
+          </div>
         )}
       </div>
     </motion.div>
