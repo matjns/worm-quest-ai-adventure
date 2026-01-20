@@ -18,12 +18,14 @@ export function useModuleProgress() {
   const [completedModules, setCompletedModules] = useState<Set<string>>(new Set());
   const [progressData, setProgressData] = useState<Map<string, ModuleProgress>>(new Map());
   const [loading, setLoading] = useState(true);
+  const [studentId, setStudentId] = useState<string | null>(null);
 
   // Fetch progress on mount and when auth changes
   useEffect(() => {
     if (!isAuthenticated || !user) {
       setCompletedModules(new Set());
       setProgressData(new Map());
+      setStudentId(null);
       setLoading(false);
       return;
     }
@@ -31,6 +33,7 @@ export function useModuleProgress() {
     const fetchProgress = async () => {
       setLoading(true);
       try {
+        // Fetch module progress
         const { data, error } = await supabase
           .from('module_progress')
           .select('*')
@@ -48,6 +51,17 @@ export function useModuleProgress() {
 
         setCompletedModules(completed);
         setProgressData(progress);
+
+        // Also fetch student record for assignment sync
+        const { data: studentData } = await supabase
+          .from('students')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (studentData) {
+          setStudentId(studentData.id);
+        }
       } catch (error) {
         console.error('Error fetching module progress:', error);
       } finally {
@@ -57,6 +71,63 @@ export function useModuleProgress() {
 
     fetchProgress();
   }, [user, isAuthenticated]);
+
+  // Sync assignment progress when completing a module
+  const syncAssignmentProgress = useCallback(async (
+    moduleId: string,
+    score: number,
+    timeSpentSeconds: number
+  ) => {
+    if (!studentId) return;
+
+    try {
+      // Find any assignments for this module that belong to this student
+      const { data: assignments, error: assignmentsError } = await supabase
+        .from('student_assignment_progress')
+        .select(`
+          id,
+          status,
+          assignment:module_assignments!inner(module_id)
+        `)
+        .eq('student_id', studentId);
+
+      if (assignmentsError) {
+        console.error('Error fetching assignments for sync:', assignmentsError);
+        return;
+      }
+
+      // Filter to find assignments matching this module that aren't completed
+      const matchingAssignments = (assignments || []).filter(a => {
+        const assignment = a.assignment as { module_id: string } | null;
+        return assignment?.module_id === moduleId && a.status !== 'completed';
+      });
+
+      // Update each matching assignment to completed
+      for (const assignment of matchingAssignments) {
+        const { error: updateError } = await supabase
+          .from('student_assignment_progress')
+          .update({
+            status: 'completed',
+            completed_at: new Date().toISOString(),
+            score,
+            time_spent_seconds: timeSpentSeconds,
+          })
+          .eq('id', assignment.id);
+
+        if (updateError) {
+          console.error('Error syncing assignment progress:', updateError);
+        }
+      }
+
+      if (matchingAssignments.length > 0) {
+        toast.success(`Assignment${matchingAssignments.length > 1 ? 's' : ''} synced!`, {
+          description: 'Your teacher can now see your progress.',
+        });
+      }
+    } catch (error) {
+      console.error('Error syncing assignment progress:', error);
+    }
+  }, [studentId]);
 
   const completeModule = useCallback(async (
     moduleId: string, 
@@ -93,6 +164,9 @@ export function useModuleProgress() {
         setProgressData(prev => new Map(prev).set(moduleId, data as ModuleProgress));
       }
 
+      // Also sync with any related assignments
+      await syncAssignmentProgress(moduleId, score, timeSpentSeconds);
+
       toast.success('Progress saved!');
       return { success: true, data };
     } catch (error) {
@@ -100,7 +174,7 @@ export function useModuleProgress() {
       toast.error('Failed to save progress');
       return { success: false, error };
     }
-  }, [user]);
+  }, [user, syncAssignmentProgress]);
 
   const resetProgress = useCallback(async (moduleId: string) => {
     if (!user) {
@@ -168,5 +242,6 @@ export function useModuleProgress() {
     getTotalCompleted,
     getTotalScore,
     isAuthenticated,
+    studentId,
   };
 }
