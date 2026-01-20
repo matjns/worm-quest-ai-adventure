@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   Eye, Zap, Brain, GraduationCap, Trophy, Dna, 
-  Play, BarChart3, Target, Sparkles, BookOpen
+  Play, BarChart3, Target, Sparkles, BookOpen, Users
 } from "lucide-react";
 import { Header } from "@/components/Header";
+import { SimulationThinkingBridge } from "@/components/SimulationThinkingBridge";
 import { SimulationLearningPath } from "@/components/SimulationLearningPath";
 import { SynapticManipulator } from "@/components/SynapticManipulator";
 import { EvolutionaryOptimizer } from "@/components/EvolutionaryOptimizer";
@@ -17,7 +18,7 @@ import { WormSimulator3D } from "@/components/WormSimulator3D";
 import { useGameStore } from "@/stores/gameStore";
 import { toast } from "sonner";
 
-type ActiveTier = "novice" | "intermediate" | "advanced";
+type ActiveTier = "novice" | "intermediate" | "advanced" | "business";
 
 export default function SimulationMastery() {
   const { completedLessons, addXp, addPoints } = useGameStore();
@@ -129,7 +130,7 @@ export default function SimulationMastery() {
 
         {/* Tier Tabs */}
         <Tabs value={activeTier} onValueChange={(v) => setActiveTier(v as ActiveTier)} className="space-y-6">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-3">
+          <TabsList className="grid w-full max-w-lg mx-auto grid-cols-4">
             <TabsTrigger value="novice" className="flex items-center gap-2">
               <Eye className="h-4 w-4" />
               Novice
@@ -141,6 +142,10 @@ export default function SimulationMastery() {
             <TabsTrigger value="advanced" className="flex items-center gap-2">
               <Brain className="h-4 w-4" />
               Advanced
+            </TabsTrigger>
+            <TabsTrigger value="business" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Business
             </TabsTrigger>
           </TabsList>
 
@@ -314,6 +319,11 @@ export default function SimulationMastery() {
                 </p>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Business: Simulation Thinking for Non-Technical Professionals */}
+          <TabsContent value="business" className="space-y-6">
+            <SimulationThinkingBridge />
           </TabsContent>
         </Tabs>
 
