@@ -2,10 +2,12 @@ import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { 
   Heart, MessageCircle, User, Clock, Zap, Tag, 
-  Github, GitFork, Send, Loader2, ExternalLink, Download, FileJson, Image 
+  Github, GitFork, Send, Loader2, ExternalLink, Download, FileJson, Image,
+  Play, Eye
 } from "lucide-react";
 import { exportCircuitAsJSON, exportCircuitAsPNG } from "@/utils/circuitExport";
 import { SocialShareButtons } from "@/components/SocialShareButtons";
+import { CircuitSimulationPreview } from "@/components/CircuitSimulationPreview";
 import {
   Dialog,
   DialogContent,
@@ -50,6 +52,7 @@ export function CircuitDetailModal({
   const [newComment, setNewComment] = useState("");
   const [loadingComments, setLoadingComments] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [showSimulation, setShowSimulation] = useState(false);
 
   const loadComments = useCallback(async () => {
     if (!circuit) return;
@@ -103,85 +106,119 @@ export function CircuitDetailModal({
               </div>
             </DialogHeader>
 
-            {/* Circuit Visualization */}
-            <div className="bg-background border-2 border-foreground rounded-lg p-4 mb-4 relative h-64 overflow-hidden">
-              <svg className="w-full h-full" viewBox="0 0 400 200">
-                {/* Draw connections */}
-                {connections.map((conn, i) => {
-                  const fromNeuron = neurons.find(n => n.id === conn.from);
-                  const toNeuron = neurons.find(n => n.id === conn.to);
-                  if (!fromNeuron || !toNeuron) return null;
-                  
-                  const x1 = (fromNeuron.x / 100) * 400;
-                  const y1 = (fromNeuron.y / 100) * 200;
-                  const x2 = (toNeuron.x / 100) * 400;
-                  const y2 = (toNeuron.y / 100) * 200;
-                  
-                  return (
-                    <motion.line
-                      key={`conn-${i}`}
-                      x1={x1}
-                      y1={y1}
-                      x2={x2}
-                      y2={y2}
-                      stroke={conn.type === "excitatory" ? "hsl(var(--primary))" : "hsl(var(--destructive))"}
-                      strokeWidth="2"
-                      strokeOpacity="0.6"
-                      initial={{ pathLength: 0 }}
-                      animate={{ pathLength: 1 }}
-                      transition={{ duration: 0.5, delay: i * 0.1 }}
-                    />
-                  );
-                })}
-                
-                {/* Draw neurons */}
-                {neurons.map((neuron, i) => {
-                  const cx = (neuron.x / 100) * 400;
-                  const cy = (neuron.y / 100) * 200;
-                  
-                  return (
-                    <motion.g key={neuron.id}>
-                      <motion.circle
-                        cx={cx}
-                        cy={cy}
-                        r="16"
-                        fill="hsl(var(--primary))"
-                        stroke="hsl(var(--foreground))"
-                        strokeWidth="2"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ duration: 0.3, delay: i * 0.1 }}
-                      />
-                      <text
-                        x={cx}
-                        y={cy}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                        fill="hsl(var(--primary-foreground))"
-                        fontSize="8"
-                        fontFamily="monospace"
-                        fontWeight="bold"
-                      >
-                        {neuron.id.slice(0, 4)}
-                      </text>
-                    </motion.g>
-                  );
-                })}
-
-                {/* Empty state */}
-                {neurons.length === 0 && (
-                  <text
-                    x="200"
-                    y="100"
-                    textAnchor="middle"
-                    fill="hsl(var(--muted-foreground))"
-                    fontSize="14"
-                  >
-                    No visualization data available
-                  </text>
-                )}
-              </svg>
+            {/* View Toggle */}
+            <div className="flex gap-2 mb-4">
+              <Button
+                variant={showSimulation ? "outline" : "default"}
+                size="sm"
+                onClick={() => setShowSimulation(false)}
+                className="gap-1"
+              >
+                <Eye className="w-4 h-4" />
+                Static
+              </Button>
+              <Button
+                variant={showSimulation ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowSimulation(true)}
+                className="gap-1"
+              >
+                <Play className="w-4 h-4" />
+                Simulate
+              </Button>
             </div>
+
+            {/* Circuit Visualization */}
+            {showSimulation && neurons.length > 0 ? (
+              <CircuitSimulationPreview
+                circuit={{
+                  neurons: neurons,
+                  connections: connections,
+                }}
+                height={250}
+                autoPlay={true}
+                className="mb-4"
+              />
+            ) : (
+              <div className="bg-background border-2 border-foreground rounded-lg p-4 mb-4 relative h-64 overflow-hidden">
+                <svg className="w-full h-full" viewBox="0 0 400 200">
+                  {/* Draw connections */}
+                  {connections.map((conn, i) => {
+                    const fromNeuron = neurons.find(n => n.id === conn.from);
+                    const toNeuron = neurons.find(n => n.id === conn.to);
+                    if (!fromNeuron || !toNeuron) return null;
+                    
+                    const x1 = (fromNeuron.x / 100) * 400;
+                    const y1 = (fromNeuron.y / 100) * 200;
+                    const x2 = (toNeuron.x / 100) * 400;
+                    const y2 = (toNeuron.y / 100) * 200;
+                    
+                    return (
+                      <motion.line
+                        key={`conn-${i}`}
+                        x1={x1}
+                        y1={y1}
+                        x2={x2}
+                        y2={y2}
+                        stroke={conn.type === "excitatory" ? "hsl(var(--primary))" : "hsl(var(--destructive))"}
+                        strokeWidth="2"
+                        strokeOpacity="0.6"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ duration: 0.5, delay: i * 0.1 }}
+                      />
+                    );
+                  })}
+                  
+                  {/* Draw neurons */}
+                  {neurons.map((neuron, i) => {
+                    const cx = (neuron.x / 100) * 400;
+                    const cy = (neuron.y / 100) * 200;
+                    
+                    return (
+                      <motion.g key={neuron.id}>
+                        <motion.circle
+                          cx={cx}
+                          cy={cy}
+                          r="16"
+                          fill="hsl(var(--primary))"
+                          stroke="hsl(var(--foreground))"
+                          strokeWidth="2"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ duration: 0.3, delay: i * 0.1 }}
+                        />
+                        <text
+                          x={cx}
+                          y={cy}
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                          fill="hsl(var(--primary-foreground))"
+                          fontSize="8"
+                          fontFamily="monospace"
+                          fontWeight="bold"
+                        >
+                          {neuron.id.slice(0, 4)}
+                        </text>
+                      </motion.g>
+                    );
+                  })}
+
+                  {/* Empty state */}
+                  {neurons.length === 0 && (
+                    <text
+                      x="200"
+                      y="100"
+                      textAnchor="middle"
+                      fill="hsl(var(--muted-foreground))"
+                      fontSize="14"
+                    >
+                      No visualization data available
+                    </text>
+                  )}
+                </svg>
+              </div>
+            )}
 
             {/* Circuit Info */}
             <div className="space-y-3">

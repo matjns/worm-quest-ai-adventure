@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Sparkles,
   GraduationCap,
+  Play,
 } from "lucide-react";
 import {
   Dialog,
@@ -34,6 +35,7 @@ import {
   difficultyLevels,
   CircuitTemplate,
 } from "@/data/circuitTemplates";
+import { CircuitSimulationPreview } from "@/components/CircuitSimulationPreview";
 
 interface CircuitTemplateLibraryProps {
   open: boolean;
@@ -147,6 +149,7 @@ function TemplateDetail({
   onBack: () => void;
 }) {
   const CategoryIcon = categoryIcons[template.category];
+  const [showSimulation, setShowSimulation] = useState(false);
 
   return (
     <div className="space-y-4">
@@ -167,7 +170,37 @@ function TemplateDetail({
         </Badge>
       </div>
 
+      {/* Toggle between static view and simulation */}
+      <div className="flex gap-2">
+        <Button
+          variant={showSimulation ? "outline" : "default"}
+          size="sm"
+          onClick={() => setShowSimulation(false)}
+        >
+          Static View
+        </Button>
+        <Button
+          variant={showSimulation ? "default" : "outline"}
+          size="sm"
+          onClick={() => setShowSimulation(true)}
+          className="gap-1"
+        >
+          <Play className="w-4 h-4" />
+          Simulation Preview
+        </Button>
+      </div>
+
       {/* Circuit Visualization */}
+      {showSimulation ? (
+        <CircuitSimulationPreview
+          circuit={{
+            neurons: template.neurons,
+            connections: template.connections,
+          }}
+          height={220}
+          autoPlay={true}
+        />
+      ) : (
       <svg
         className="w-full h-48 rounded-lg border-2 border-foreground"
         viewBox="0 0 400 200"
@@ -281,8 +314,7 @@ function TemplateDetail({
           );
         })}
       </svg>
-
-      {/* Legend */}
+      )}
       <div className="flex gap-4 text-xs">
         <div className="flex items-center gap-1">
           <div className="w-6 h-0.5 bg-primary" />
