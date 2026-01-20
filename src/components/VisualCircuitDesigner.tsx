@@ -21,6 +21,7 @@ import { CircuitValidationPanel } from "@/components/CircuitValidationPanel";
 import { AICircuitCoach } from "@/components/AICircuitCoach";
 import { NeuroMLExportDialog } from "@/components/NeuroMLExportDialog";
 import { ImportMergeDialog } from "@/components/ImportMergeDialog";
+import { BatchImportDialog } from "@/components/BatchImportDialog";
 import { useCollaborativeCircuitDesigner } from "@/hooks/useCollaborativeCircuitDesigner";
 import { useCircuitHistory } from "@/hooks/useCircuitHistory";
 import { 
@@ -49,7 +50,8 @@ import {
   BookOpen,
   FlaskConical,
   Undo2,
-  Redo2
+  Redo2,
+  FileStack
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -757,6 +759,32 @@ export function VisualCircuitDesigner() {
                 <Button variant="outline" size="sm" className="gap-1">
                   <FileCode className="w-4 h-4" />
                   Export
+                </Button>
+              }
+            />
+            
+            {/* Batch Import */}
+            <BatchImportDialog
+              existingNeurons={placedNeurons}
+              existingConnections={connections}
+              canvasWidth={canvasRef.current?.offsetWidth || 600}
+              canvasHeight={canvasRef.current?.offsetHeight || 400}
+              onBatchMerge={(neurons, conns) => {
+                if (collabRoomId && collab.isConnected) {
+                  collab.loadFromTemplate(neurons, conns);
+                } else {
+                  if (localNeurons.length > 0 || localConnections.length > 0) {
+                    pushToHistory("Before batch import");
+                  }
+                  setLocalNeurons(neurons);
+                  setLocalConnections(conns);
+                  setTimeout(() => pushToHistory("Batch import"), 0);
+                }
+              }}
+              trigger={
+                <Button variant="outline" size="sm" className="gap-1">
+                  <FileStack className="w-4 h-4" />
+                  Batch
                 </Button>
               }
             />
