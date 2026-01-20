@@ -343,7 +343,9 @@ export default function Index() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <WormRaceLobby />
+              <WormRaceLobby 
+                onJoinRace={(raceId) => window.location.href = `/race/${raceId}`}
+              />
             </motion.div>
           </div>
         </div>
