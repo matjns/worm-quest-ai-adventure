@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ModuleLessonPlayer } from '@/components/ModuleLessonPlayer';
 import { useStudentAssignments, StudentAssignment } from '@/hooks/useStudentAssignments';
+import { useNotificationsData } from '@/hooks/useNotificationsData';
 import { getModuleById, type EducationModule } from '@/data/educationModules';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow, isPast, isFuture, isToday } from 'date-fns';
@@ -31,9 +32,10 @@ interface AssignmentCardProps {
   assignment: StudentAssignment;
   onStart: (assignment: StudentAssignment) => void;
   onContinue: (assignment: StudentAssignment) => void;
+  isNew?: boolean;
 }
 
-function AssignmentCard({ assignment, onStart, onContinue }: AssignmentCardProps) {
+function AssignmentCard({ assignment, onStart, onContinue, isNew }: AssignmentCardProps) {
   const module = getModuleById(assignment.assignment.module_id);
   const dueDate = assignment.assignment.due_date ? new Date(assignment.assignment.due_date) : null;
   const isOverdue = dueDate && isPast(dueDate) && assignment.status !== 'completed';
@@ -78,6 +80,12 @@ function AssignmentCard({ assignment, onStart, onContinue }: AssignmentCardProps
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2 flex-wrap">
+              {isNew && (
+                <Badge className="bg-primary text-primary-foreground animate-pulse">
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  New
+                </Badge>
+              )}
               {getStatusBadge()}
               {module && (
                 <Badge variant="secondary" className="text-xs">
@@ -193,6 +201,20 @@ export function StudentAssignmentsView() {
     startAssignment,
     completeAssignment,
   } = useStudentAssignments();
+
+  const { notifications } = useNotificationsData();
+  
+  // Get assignment IDs that have unread notifications (new assignments)
+  const newAssignmentTitles = new Set(
+    notifications
+      .filter(n => n.type === 'assignment' && !n.read)
+      .map(n => {
+        // Extract assignment title from notification title "New Assignment: <title>"
+        const match = n.title.match(/^New Assignment: (.+)$/);
+        return match ? match[1] : null;
+      })
+      .filter(Boolean)
+  );
 
   const [activeAssignment, setActiveAssignment] = useState<StudentAssignment | null>(null);
   const [activeModule, setActiveModule] = useState<EducationModule | null>(null);
@@ -389,6 +411,7 @@ export function StudentAssignmentsView() {
                     assignment={assignment} 
                     onStart={handleStartAssignment}
                     onContinue={handleContinueAssignment}
+                    isNew={newAssignmentTitles.has(assignment.assignment.title)}
                   />
                 </motion.div>
               ))}
@@ -412,6 +435,7 @@ export function StudentAssignmentsView() {
                     assignment={assignment} 
                     onStart={handleStartAssignment}
                     onContinue={handleContinueAssignment}
+                    isNew={newAssignmentTitles.has(assignment.assignment.title)}
                   />
                 </motion.div>
               ))}
@@ -442,6 +466,7 @@ export function StudentAssignmentsView() {
                   assignment={assignment} 
                   onStart={handleStartAssignment}
                   onContinue={handleContinueAssignment}
+                  isNew={newAssignmentTitles.has(assignment.assignment.title)}
                 />
               </motion.div>
             ))
@@ -468,6 +493,7 @@ export function StudentAssignmentsView() {
                 assignment={assignment} 
                 onStart={handleStartAssignment}
                 onContinue={handleContinueAssignment}
+                isNew={newAssignmentTitles.has(assignment.assignment.title)}
               />
             </motion.div>
           ))}
