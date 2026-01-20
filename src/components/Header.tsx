@@ -16,10 +16,10 @@ import {
 
 const navItems = [
   { label: "Learn", href: "/learn", icon: BookOpen },
+  { label: "Modules", href: "/education", icon: GraduationCap },
   { label: "Play", href: "/play", icon: Gamepad2 },
   { label: "NeuroQuest", href: "/neuroquest", icon: Brain },
   { label: "Research", href: "/research", icon: FlaskConical },
-  { label: "Teachers", href: "/teacher", icon: GraduationCap },
   { label: "Leaderboard", href: "/leaderboard", icon: Trophy },
   { label: "Community", href: "/community", icon: Users },
 ];
