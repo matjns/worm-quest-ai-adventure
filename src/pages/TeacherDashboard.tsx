@@ -1,0 +1,641 @@
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Header } from '@/components/Header';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useTeacherDashboard, Classroom, LessonPlan } from '@/hooks/useTeacherDashboard';
+import { useAuth } from '@/hooks/useAuth';
+import { Link } from 'react-router-dom';
+import {
+  BookOpen,
+  Users,
+  Brain,
+  Sparkles,
+  TrendingUp,
+  DollarSign,
+  Zap,
+  GraduationCap,
+  Plus,
+  FileText,
+  BarChart3,
+  Calendar,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  Loader2,
+  School,
+  Target,
+  Award,
+  Download,
+  Share2
+} from 'lucide-react';
+
+const gradeOptions = [
+  { value: 'pre-k', label: 'Pre-K' },
+  { value: 'k-2', label: 'K-2nd Grade' },
+  { value: '3-5', label: '3rd-5th Grade' },
+  { value: '6-8', label: '6th-8th Grade (Middle School)' },
+  { value: '9-12', label: '9th-12th Grade (High School)' },
+];
+
+export default function TeacherDashboard() {
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const {
+    classrooms,
+    students,
+    lessonPlans,
+    analytics,
+    sponsorships,
+    stats,
+    loading,
+    aiLoading,
+    createClassroom,
+    addStudent,
+    generateLessonPlan,
+    generateWeeklyCurriculum,
+    analyzeClass
+  } = useTeacherDashboard();
+
+  const [newClassroomOpen, setNewClassroomOpen] = useState(false);
+  const [newClassroom, setNewClassroom] = useState({ name: '', grade_level: '', school_name: '' });
+  const [lessonGenOpen, setLessonGenOpen] = useState(false);
+  const [lessonGenData, setLessonGenData] = useState({ classroom_id: '', topic: '', type: 'single' });
+  const [selectedClassroom, setSelectedClassroom] = useState<Classroom | null>(null);
+  const [classAnalysis, setClassAnalysis] = useState<Record<string, unknown> | null>(null);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 pt-24 text-center">
+          <GraduationCap className="w-16 h-16 mx-auto mb-4 text-primary" />
+          <h1 className="text-3xl font-bold mb-4">Teacher Dashboard</h1>
+          <p className="text-muted-foreground mb-6">Please sign in to access your teacher dashboard.</p>
+          <Link to="/auth">
+            <Button variant="hero" size="lg">Sign In</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const handleCreateClassroom = async () => {
+    if (!newClassroom.name || !newClassroom.grade_level) return;
+    await createClassroom({
+      name: newClassroom.name,
+      grade_level: newClassroom.grade_level,
+      school_name: newClassroom.school_name || null,
+      school_district: null
+    });
+    setNewClassroomOpen(false);
+    setNewClassroom({ name: '', grade_level: '', school_name: '' });
+  };
+
+  const handleGenerateLesson = async () => {
+    if (!lessonGenData.classroom_id || !lessonGenData.topic) return;
+    const classroom = classrooms.find(c => c.id === lessonGenData.classroom_id);
+    if (!classroom) return;
+
+    if (lessonGenData.type === 'single') {
+      await generateLessonPlan(classroom.id, classroom.grade_level, lessonGenData.topic);
+    } else {
+      await generateWeeklyCurriculum(classroom.id, classroom.grade_level, lessonGenData.topic, 1);
+    }
+    setLessonGenOpen(false);
+    setLessonGenData({ classroom_id: '', topic: '', type: 'single' });
+  };
+
+  const handleAnalyzeClass = async (classroom: Classroom) => {
+    setSelectedClassroom(classroom);
+    const analysis = await analyzeClass(classroom.id, classroom.grade_level);
+    setClassAnalysis(analysis);
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+
+      <main className="container mx-auto px-4 pt-24 pb-12">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <GraduationCap className="w-8 h-8 text-primary" />
+            <h1 className="text-3xl font-bold">Teacher Dashboard</h1>
+            <Badge variant="secondary" className="ml-2">
+              <Sparkles className="w-3 h-3 mr-1" />
+              AI-Powered
+            </Badge>
+          </div>
+          <p className="text-muted-foreground">
+            Manage classrooms, generate AI lesson plans, track student progress, and find sponsors.
+          </p>
+        </motion.div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
+          {[
+            { label: 'Classrooms', value: stats.totalClassrooms, icon: School, color: 'text-blue-500' },
+            { label: 'Students', value: stats.totalStudents, icon: Users, color: 'text-green-500' },
+            { label: 'Lessons', value: stats.totalLessons, icon: FileText, color: 'text-purple-500' },
+            { label: 'Total XP', value: stats.totalXpEarned.toLocaleString(), icon: Zap, color: 'text-yellow-500' },
+            { label: 'Avg Accuracy', value: `${stats.avgAccuracy.toFixed(1)}%`, icon: Target, color: 'text-pink-500' },
+            { label: 'Sponsored', value: `$${stats.totalSponsored.toFixed(0)}`, icon: DollarSign, color: 'text-emerald-500' },
+            { label: 'Credits', value: stats.computeCredits, icon: Sparkles, color: 'text-orange-500' },
+          ].map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+            >
+              <Card className="border-2">
+                <CardContent className="p-4 text-center">
+                  <stat.icon className={`w-6 h-6 mx-auto mb-2 ${stat.color}`} />
+                  <p className="text-2xl font-bold">{stat.value}</p>
+                  <p className="text-xs text-muted-foreground">{stat.label}</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Main Tabs */}
+        <Tabs defaultValue="classrooms" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5 h-12">
+            <TabsTrigger value="classrooms" className="gap-2">
+              <School className="w-4 h-4" />
+              <span className="hidden sm:inline">Classrooms</span>
+            </TabsTrigger>
+            <TabsTrigger value="lessons" className="gap-2">
+              <BookOpen className="w-4 h-4" />
+              <span className="hidden sm:inline">Lessons</span>
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="gap-2">
+              <BarChart3 className="w-4 h-4" />
+              <span className="hidden sm:inline">Analytics</span>
+            </TabsTrigger>
+            <TabsTrigger value="grading" className="gap-2">
+              <CheckCircle className="w-4 h-4" />
+              <span className="hidden sm:inline">Grading</span>
+            </TabsTrigger>
+            <TabsTrigger value="sponsors" className="gap-2">
+              <DollarSign className="w-4 h-4" />
+              <span className="hidden sm:inline">Sponsors</span>
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Classrooms Tab */}
+          <TabsContent value="classrooms" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">My Classrooms</h2>
+              <Dialog open={newClassroomOpen} onOpenChange={setNewClassroomOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Classroom
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Create New Classroom</DialogTitle>
+                    <DialogDescription>Add a new classroom to start tracking student progress.</DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label>Classroom Name</Label>
+                      <Input
+                        placeholder="e.g., 6th Grade Science - Period 2"
+                        value={newClassroom.name}
+                        onChange={(e) => setNewClassroom(prev => ({ ...prev, name: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Grade Level</Label>
+                      <Select
+                        value={newClassroom.grade_level}
+                        onValueChange={(value) => setNewClassroom(prev => ({ ...prev, grade_level: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select grade level" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {gradeOptions.map(grade => (
+                            <SelectItem key={grade.value} value={grade.value}>{grade.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>School Name (optional)</Label>
+                      <Input
+                        placeholder="e.g., Lincoln Middle School"
+                        value={newClassroom.school_name}
+                        onChange={(e) => setNewClassroom(prev => ({ ...prev, school_name: e.target.value }))}
+                      />
+                    </div>
+                    <Button onClick={handleCreateClassroom} className="w-full" disabled={loading}>
+                      {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
+                      Create Classroom
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {loading ? (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[1, 2, 3].map(i => (
+                  <Skeleton key={i} className="h-48" />
+                ))}
+              </div>
+            ) : classrooms.length === 0 ? (
+              <Card className="border-dashed">
+                <CardContent className="py-12 text-center">
+                  <School className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold mb-2">No classrooms yet</h3>
+                  <p className="text-muted-foreground mb-4">Create your first classroom to start using AI-powered lesson planning.</p>
+                  <Button onClick={() => setNewClassroomOpen(true)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Classroom
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {classrooms.map((classroom) => {
+                  const classStudents = students.filter(s => s.classroom_id === classroom.id);
+                  const avgXP = classStudents.length > 0
+                    ? classStudents.reduce((sum, s) => sum + s.progress_data.total_xp, 0) / classStudents.length
+                    : 0;
+
+                  return (
+                    <motion.div
+                      key={classroom.id}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                    >
+                      <Card className="border-2 hover:border-primary/50 transition-colors">
+                        <CardHeader className="pb-2">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <CardTitle className="text-lg">{classroom.name}</CardTitle>
+                              <CardDescription>{classroom.school_name || 'No school specified'}</CardDescription>
+                            </div>
+                            <Badge>{classroom.grade_level}</Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Students</span>
+                            <span className="font-medium">{classStudents.length}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Avg XP</span>
+                            <span className="font-medium">{avgXP.toFixed(0)}</span>
+                          </div>
+                          <Progress value={Math.min(avgXP / 10, 100)} className="h-2" />
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline" className="flex-1" onClick={() => handleAnalyzeClass(classroom)}>
+                              <BarChart3 className="w-3 h-3 mr-1" />
+                              Analyze
+                            </Button>
+                            <Button size="sm" className="flex-1" onClick={() => {
+                              setLessonGenData(prev => ({ ...prev, classroom_id: classroom.id }));
+                              setLessonGenOpen(true);
+                            }}>
+                              <Sparkles className="w-3 h-3 mr-1" />
+                              Generate
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Lessons Tab */}
+          <TabsContent value="lessons" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Lesson Plans</h2>
+              <Dialog open={lessonGenOpen} onOpenChange={setLessonGenOpen}>
+                <DialogTrigger asChild>
+                  <Button disabled={classrooms.length === 0}>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Generate with AI
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Generate AI Lesson Plan</DialogTitle>
+                    <DialogDescription>Let AI create an NGSS-aligned lesson using OpenWorm neural circuits.</DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label>Classroom</Label>
+                      <Select
+                        value={lessonGenData.classroom_id}
+                        onValueChange={(value) => setLessonGenData(prev => ({ ...prev, classroom_id: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select classroom" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {classrooms.map(c => (
+                            <SelectItem key={c.id} value={c.id}>{c.name} ({c.grade_level})</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Topic</Label>
+                      <Input
+                        placeholder="e.g., How neurons communicate"
+                        value={lessonGenData.topic}
+                        onChange={(e) => setLessonGenData(prev => ({ ...prev, topic: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Type</Label>
+                      <Select
+                        value={lessonGenData.type}
+                        onValueChange={(value) => setLessonGenData(prev => ({ ...prev, type: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="single">Single Lesson</SelectItem>
+                          <SelectItem value="week">5-Day Unit</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button onClick={handleGenerateLesson} className="w-full" disabled={aiLoading}>
+                      {aiLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Brain className="w-4 h-4 mr-2" />
+                          Generate Lesson{lessonGenData.type === 'week' ? 's' : ''}
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {loading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map(i => <Skeleton key={i} className="h-24" />)}
+              </div>
+            ) : lessonPlans.length === 0 ? (
+              <Card className="border-dashed">
+                <CardContent className="py-12 text-center">
+                  <BookOpen className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold mb-2">No lesson plans yet</h3>
+                  <p className="text-muted-foreground mb-4">Generate your first AI-powered lesson plan.</p>
+                  <Button onClick={() => setLessonGenOpen(true)} disabled={classrooms.length === 0}>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Generate Lesson
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {lessonPlans.map((lesson) => (
+                  <Card key={lesson.id} className="border-2">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-semibold">{lesson.title}</h3>
+                            {lesson.ai_generated && (
+                              <Badge variant="secondary" className="text-xs">
+                                <Sparkles className="w-3 h-3 mr-1" />
+                                AI
+                              </Badge>
+                            )}
+                            <Badge variant={lesson.status === 'published' ? 'default' : 'outline'}>
+                              {lesson.status}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {lesson.grade_level} • {lesson.duration_minutes} min
+                            {lesson.week_number && ` • Week ${lesson.week_number}, Day ${lesson.day_of_week}`}
+                          </p>
+                          {lesson.objectives.length > 0 && (
+                            <p className="text-sm mt-2">
+                              <span className="text-muted-foreground">Objective:</span> {lesson.objectives[0]}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline">
+                            <Download className="w-3 h-3 mr-1" />
+                            Export
+                          </Button>
+                          <Button size="sm" variant="outline">
+                            <Share2 className="w-3 h-3 mr-1" />
+                            Share
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="space-y-6">
+            <h2 className="text-2xl font-bold">Class Analytics</h2>
+
+            {classAnalysis && selectedClassroom && (
+              <Card className="border-2 border-primary">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Brain className="w-5 h-5 text-primary" />
+                    AI Analysis: {selectedClassroom.name}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {classAnalysis.class_summary && (
+                    <div>
+                      <h4 className="font-semibold mb-2">Summary</h4>
+                      <p className="text-sm text-muted-foreground">{String(classAnalysis.class_summary)}</p>
+                    </div>
+                  )}
+                  {Array.isArray(classAnalysis.common_struggles) && classAnalysis.common_struggles.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold mb-2 text-orange-500">Common Struggles</h4>
+                      <ul className="list-disc list-inside text-sm space-y-1">
+                        {classAnalysis.common_struggles.map((s: string, i: number) => (
+                          <li key={i}>{s}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {Array.isArray(classAnalysis.recommendations) && classAnalysis.recommendations.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold mb-2 text-green-500">Recommendations</h4>
+                      <ul className="list-disc list-inside text-sm space-y-1">
+                        {classAnalysis.recommendations.map((r: string, i: number) => (
+                          <li key={i}>{r}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {classrooms.map((classroom) => {
+                const classAnalytics = analytics.filter(a => a.classroom_id === classroom.id);
+                const recentAnalytics = classAnalytics[0];
+
+                return (
+                  <Card key={classroom.id} className="border-2">
+                    <CardHeader>
+                      <CardTitle className="text-lg">{classroom.name}</CardTitle>
+                      <CardDescription>Last 7 days performance</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4 text-center">
+                        <div>
+                          <p className="text-2xl font-bold text-primary">{recentAnalytics?.missions_completed || 0}</p>
+                          <p className="text-xs text-muted-foreground">Missions</p>
+                        </div>
+                        <div>
+                          <p className="text-2xl font-bold text-accent">{(recentAnalytics?.avg_accuracy || 0).toFixed(1)}%</p>
+                          <p className="text-xs text-muted-foreground">Accuracy</p>
+                        </div>
+                        <div>
+                          <p className="text-2xl font-bold text-green-500">{recentAnalytics?.active_students || 0}</p>
+                          <p className="text-xs text-muted-foreground">Active</p>
+                        </div>
+                        <div>
+                          <p className="text-2xl font-bold text-yellow-500">{(recentAnalytics?.total_xp_earned || 0).toLocaleString()}</p>
+                          <p className="text-xs text-muted-foreground">XP Earned</p>
+                        </div>
+                      </div>
+                      <Button className="w-full" variant="outline" onClick={() => handleAnalyzeClass(classroom)} disabled={aiLoading}>
+                        {aiLoading && selectedClassroom?.id === classroom.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        ) : (
+                          <Brain className="w-4 h-4 mr-2" />
+                        )}
+                        AI Analysis
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </TabsContent>
+
+          {/* Grading Tab */}
+          <TabsContent value="grading" className="space-y-6">
+            <h2 className="text-2xl font-bold">AI Auto-Grading</h2>
+            <Card className="border-dashed">
+              <CardContent className="py-12 text-center">
+                <CheckCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-lg font-semibold mb-2">No submissions to grade</h3>
+                <p className="text-muted-foreground">Student submissions will appear here for AI-assisted grading.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Sponsors Tab */}
+          <TabsContent value="sponsors" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Classroom Sponsorships</h2>
+              <Button variant="outline">
+                <Share2 className="w-4 h-4 mr-2" />
+                Share Donation Link
+              </Button>
+            </div>
+
+            <Card className="bg-gradient-to-r from-primary/10 to-accent/10 border-2">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-bold mb-2">Get Your Classroom Sponsored!</h3>
+                    <p className="text-muted-foreground max-w-lg">
+                      Share your classroom's donation link with potential sponsors. Each donation provides compute credits 
+                      for AI-powered learning experiences.
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-3xl font-bold text-primary">${stats.totalSponsored.toFixed(0)}</p>
+                    <p className="text-sm text-muted-foreground">Total Raised</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {sponsorships.length === 0 ? (
+              <Card className="border-dashed">
+                <CardContent className="py-12 text-center">
+                  <DollarSign className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold mb-2">No sponsorships yet</h3>
+                  <p className="text-muted-foreground">Share your classroom's donation link to get started.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {sponsorships.map((sponsorship) => (
+                  <Card key={sponsorship.id} className="border-2">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-semibold">
+                            {sponsorship.is_anonymous ? 'Anonymous Donor' : sponsorship.donor_name || 'Unknown'}
+                          </p>
+                          {sponsorship.message && (
+                            <p className="text-sm text-muted-foreground italic">"{sponsorship.message}"</p>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xl font-bold text-green-500">${(sponsorship.amount_cents / 100).toFixed(0)}</p>
+                          <p className="text-xs text-muted-foreground">+{sponsorship.compute_credits_granted} credits</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      </main>
+    </div>
+  );
+}
