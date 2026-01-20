@@ -156,21 +156,17 @@ export default function LearnPage() {
                   const completed = completedLessons.includes(lesson.id);
                   const unlocked = isUnlocked(globalIndex);
 
-                  return (
-                    <div
-                      key={lesson.id}
-                      className={cn(
-                        "bg-card border-2 border-foreground p-4 transition-all",
-                        unlocked && !completed && "shadow-[4px_4px_0px_hsl(var(--foreground))] hover:shadow-[6px_6px_0px_hsl(var(--primary))] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:border-primary cursor-pointer",
-                        completed && "bg-accent/10 border-accent",
-                        !unlocked && "opacity-60"
-                      )}
-                      onClick={() => {
-                        if (unlocked && !completed) {
-                          completeLesson(lesson.id);
-                        }
-                      }}
-                    >
+                    return (
+                      <Link
+                        key={lesson.id}
+                        to={unlocked ? `/learn/${lesson.id}` : "#"}
+                        className={cn(
+                          "block bg-card border-2 border-foreground p-4 transition-all rounded-xl",
+                          unlocked && "shadow-[4px_4px_0px_hsl(var(--foreground))] hover:shadow-[6px_6px_0px_hsl(var(--primary))] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:border-primary cursor-pointer",
+                          completed && "bg-accent/10 border-accent",
+                          !unlocked && "opacity-60 pointer-events-none"
+                        )}
+                      >
                       <div className="flex items-center gap-4">
                         {/* Status Icon */}
                         <div
