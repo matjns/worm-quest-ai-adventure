@@ -145,6 +145,30 @@ export function Header() {
                   </Link>
                 );
               })}
+              
+              {/* Auth section for mobile */}
+              {isAuthenticated ? (
+                <>
+                  <Link to="/settings" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="ghost" className="w-full justify-start">
+                      <Settings className="w-4 h-4 mr-2" />
+                      Settings
+                    </Button>
+                  </Link>
+                  <Button variant="ghost" className="w-full justify-start" onClick={() => { signOut(); setMobileMenuOpen(false); }}>
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="outline" className="w-full">
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Sign In
+                  </Button>
+                </Link>
+              )}
+              
               <Link to="/neuroquest" onClick={() => setMobileMenuOpen(false)}>
                 <Button variant="hero" className="w-full mt-2 glow-neon-pink">
                   <Brain className="w-4 h-4 mr-2" />
