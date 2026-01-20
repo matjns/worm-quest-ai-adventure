@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      circuit_annotations: {
+        Row: {
+          circuit_id: string
+          color: string | null
+          content: string
+          created_at: string
+          id: string
+          neuron_id: string
+          updated_at: string
+          user_id: string
+          x_offset: number | null
+          y_offset: number | null
+        }
+        Insert: {
+          circuit_id: string
+          color?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          neuron_id: string
+          updated_at?: string
+          user_id: string
+          x_offset?: number | null
+          y_offset?: number | null
+        }
+        Update: {
+          circuit_id?: string
+          color?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          neuron_id?: string
+          updated_at?: string
+          user_id?: string
+          x_offset?: number | null
+          y_offset?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "circuit_annotations_circuit_id_fkey"
+            columns: ["circuit_id"]
+            isOneToOne: false
+            referencedRelation: "shared_circuits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       circuit_comments: {
         Row: {
           circuit_id: string

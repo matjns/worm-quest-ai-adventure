@@ -26,6 +26,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { CircuitAnnotations } from "@/components/CircuitAnnotations";
 
 interface Neuron {
   id: string;
@@ -54,9 +55,11 @@ interface SignalParticle {
 
 interface CircuitSimulationPreviewProps {
   circuit: CircuitData;
+  circuitId?: string;
   className?: string;
   autoPlay?: boolean;
   showControls?: boolean;
+  showAnnotations?: boolean;
   height?: number;
 }
 
@@ -101,9 +104,11 @@ const neuronTypeColors: Record<string, { fill: string; stroke: string; glow: str
 
 export function CircuitSimulationPreview({
   circuit,
+  circuitId,
   className,
   autoPlay = false,
   showControls = true,
+  showAnnotations = false,
   height = 300,
 }: CircuitSimulationPreviewProps) {
   const [isPlaying, setIsPlaying] = useState(autoPlay);
@@ -264,7 +269,16 @@ export function CircuitSimulationPreview({
   }, [circuit.neurons]);
 
   return (
-    <div className={cn("bg-card border-2 border-foreground rounded-lg overflow-hidden", className)}>
+    <div className={cn("bg-card border-2 border-foreground rounded-lg overflow-hidden relative", className)}>
+      {/* Annotations overlay */}
+      {showAnnotations && circuitId && (
+        <CircuitAnnotations
+          circuitId={circuitId}
+          neurons={circuit.neurons}
+          viewBox={viewBox}
+          padding={padding}
+        />
+      )}
       {/* SVG Canvas */}
       <svg
         viewBox={`0 0 ${viewBox.width} ${viewBox.height}`}
