@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { ArrowLeft, FlaskConical, Brain, Zap, BarChart3, Lightbulb, RefreshCw } from "lucide-react";
+import { ArrowLeft, FlaskConical, Brain, Zap, BarChart3, Lightbulb, RefreshCw, Download, Save } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useGameStore } from "@/stores/gameStore";
 import { NeuronSimulator } from "@/components/NeuronSimulator";
@@ -12,6 +12,9 @@ import { useAIChallenge } from "@/hooks/useAIChallenge";
 import { Worm3D } from "@/components/Worm3D";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { saveMiddleSchoolState, loadMiddleSchoolState, downloadExport, type ExperimentState } from "@/utils/simulationPersistence";
+import { Analytics } from "@/utils/analytics";
+import { withRetry, getResilienceMessage } from "@/utils/apiResilience";
 
 interface Hypothesis {
   id: string;
@@ -35,12 +38,39 @@ export default function MiddleSchoolGame() {
   const [signalStrength, setSignalStrength] = useState(0);
   const [currentWeight, setCurrentWeight] = useState([50]);
   const [quizData, setQuizData] = useState<any>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Load persisted state on mount
+  useEffect(() => {
+    const savedState = loadMiddleSchoolState();
+    if (savedState) {
+      if (savedState.trials && savedState.trials.length > 0) {
+        setExperimentData(savedState.trials.map(t => ({ weight: t.weight, speed: t.speed })));
+      }
+      toast.success("Previous session restored!");
+    }
+    Analytics.gameStart("middle_school", "middle");
+  }, []);
+
+  // Auto-save state on changes
+  useEffect(() => {
+    if (experimentData.length > 0) {
+      const state: ExperimentState = {
+        hypothesis: hypotheses.map(h => h.text),
+        trials: experimentData.map(d => ({ ...d, timestamp: Date.now() })),
+      };
+      saveMiddleSchoolState(state);
+    }
+  }, [experimentData, hypotheses]);
 
   const runExperiment = () => {
     const weight = currentWeight[0] / 100;
     const speed = weight * 0.8 + Math.random() * 0.2;
     
     setExperimentData((prev) => [...prev, { weight: currentWeight[0], speed: speed * 100 }]);
+    
+    // Track analytics
+    Analytics.experimentRun(`synaptic_weight_${currentWeight[0]}`);
     
     // Animate 3D worm
     setActiveNeurons([true, false, false, false, false, false, false, false, false, false]);
@@ -68,10 +98,17 @@ export default function MiddleSchoolGame() {
     if (!hypothesis) return;
 
     try {
-      const result = await validateSimulation("middle", JSON.stringify({
-        hypothesis: hypothesis.text,
-        experimentData,
-      }));
+      // Use retry wrapper with resilience messages
+      const result = await withRetry(
+        () => validateSimulation("middle", JSON.stringify({
+          hypothesis: hypothesis.text,
+          experimentData,
+        })),
+        3,
+        (attempt, message) => {
+          toast.info(message);
+        }
+      );
 
       const confirmed = result.isValid !== false;
       
@@ -91,8 +128,32 @@ export default function MiddleSchoolGame() {
           : "Hypothesis needs revision. Science is about learning from results!"
       );
     } catch (e) {
-      toast.error("Couldn't validate hypothesis. Try again!");
+      // Fallback with c302 cached data
+      toast.info(getResilienceMessage());
+      
+      // Use local validation
+      const confirmed = experimentData.length >= 3 && 
+        experimentData.some(d => d.weight > 70 && d.speed > 70);
+      
+      setHypotheses((prev) =>
+        prev.map((h) =>
+          h.id === id ? { ...h, tested: true, result: confirmed ? "confirmed" : "rejected" } : h
+        )
+      );
+      addPoints(10);
+      addXp(10);
     }
+  };
+
+  // Export data for OpenWorm contributions
+  const handleExport = () => {
+    const state: ExperimentState = {
+      hypothesis: hypotheses.map(h => h.text),
+      trials: experimentData.map(d => ({ ...d, timestamp: Date.now() })),
+    };
+    downloadExport('experiment', state, `middle-school-experiment-${Date.now()}.json`);
+    Analytics.exportData('json');
+    toast.success("Experiment data exported for OpenWorm!");
   };
 
   const loadQuiz = async () => {
@@ -272,6 +333,15 @@ export default function MiddleSchoolGame() {
                           </div>
                         ))}
                       </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={handleExport}
+                        className="w-full mt-3 gap-2"
+                      >
+                        <Download className="w-4 h-4" />
+                        Export for OpenWorm
+                      </Button>
                     </div>
                   )}
                 </motion.div>
