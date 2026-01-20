@@ -17,6 +17,7 @@ import {
 } from "@/data/neuronData";
 import { circuitTemplates, type CircuitTemplate } from "@/data/circuitTemplates";
 import { WormSimulator3D } from "@/components/WormSimulator3D";
+import { CircuitValidationPanel } from "@/components/CircuitValidationPanel";
 import { useCollaborativeCircuitDesigner } from "@/hooks/useCollaborativeCircuitDesigner";
 import { 
   Brain, 
@@ -40,7 +41,8 @@ import {
   Copy,
   Check,
   Sparkles,
-  BookOpen
+  BookOpen,
+  FlaskConical
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -892,90 +894,127 @@ export function VisualCircuitDesigner() {
             </div>
           </div>
 
-          {/* 3D Preview & Results */}
+          {/* 3D Preview, Validation & Results */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-sm flex items-center gap-2">
-                <Eye className="w-4 h-4" />
-                3D Preview
-              </h3>
-              {simulationResult && (
-                <Badge variant="secondary" className="capitalize">
-                  {simulationResult.behavior.replace("_", " ")}
-                </Badge>
-              )}
-            </div>
+            <Tabs defaultValue="preview" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="preview" className="text-xs gap-1">
+                  <Eye className="w-3 h-3" />
+                  3D Preview
+                </TabsTrigger>
+                <TabsTrigger value="validation" className="text-xs gap-1">
+                  <FlaskConical className="w-3 h-3" />
+                  Validation
+                </TabsTrigger>
+              </TabsList>
 
-            <div className="h-[200px] rounded-xl border-2 border-border bg-gradient-to-br from-muted/50 to-background overflow-hidden">
-              <WormSimulator3D 
-                behavior={simulationResult?.behavior || "no_movement"} 
-                activeNeurons={simulationResult?.activeNeurons || []}
-                signalPath={simulationResult?.signalPath || []}
-                isSimulating={isSimulating}
-                className="h-full"
-              />
-            </div>
+              <TabsContent value="preview" className="space-y-4 mt-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-sm flex items-center gap-2">
+                    <Eye className="w-4 h-4" />
+                    Behavior Preview
+                  </h3>
+                  {simulationResult && (
+                    <Badge variant="secondary" className="capitalize">
+                      {simulationResult.behavior.replace("_", " ")}
+                    </Badge>
+                  )}
+                </div>
 
-            {simulationResult && (
-              <Card className="border border-border/50">
-                <CardContent className="p-3 space-y-2">
-                  <h4 className="text-xs font-semibold uppercase text-muted-foreground">
-                    Signal Path
-                  </h4>
-                  <div className="flex flex-wrap items-center gap-1">
-                    {simulationResult.signalPath.map((neuronId, i) => {
-                      const neuron = placedNeurons.find(n => n.id === neuronId);
-                      return (
-                        <span key={i} className="flex items-center gap-1">
-                          <Badge 
-                            variant="outline" 
-                            className="text-[10px] px-1.5"
-                            style={{ 
-                              borderColor: neuron ? getNeuronColor(neuron.type) : undefined,
-                              color: neuron ? getNeuronColor(neuron.type) : undefined
-                            }}
-                          >
-                            {neuronId}
-                          </Badge>
-                          {i < simulationResult.signalPath.length - 1 && (
-                            <ArrowRight className="w-3 h-3 text-muted-foreground" />
-                          )}
-                        </span>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+                <div className="h-[200px] rounded-xl border-2 border-border bg-gradient-to-br from-muted/50 to-background overflow-hidden">
+                  <WormSimulator3D 
+                    behavior={simulationResult?.behavior || "no_movement"} 
+                    activeNeurons={simulationResult?.activeNeurons || []}
+                    signalPath={simulationResult?.signalPath || []}
+                    isSimulating={isSimulating}
+                    className="h-full"
+                  />
+                </div>
 
-            {simulationResult && (
-              <Card className="border border-border/50">
-                <CardContent className="p-3 space-y-2">
-                  <h4 className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-2">
-                    <Zap className="w-3 h-3" />
-                    Active Neurons ({simulationResult.activeNeurons.length})
-                  </h4>
-                  <div className="flex flex-wrap gap-1">
-                    {simulationResult.activeNeurons.map(id => {
-                      const neuron = placedNeurons.find(n => n.id === id);
-                      return (
-                        <Badge 
-                          key={id}
-                          variant="secondary"
-                          className="text-[10px]"
-                          style={{ 
-                            backgroundColor: neuron ? `${getNeuronColor(neuron.type)}20` : undefined,
-                            borderColor: neuron ? getNeuronColor(neuron.type) : undefined
-                          }}
-                        >
-                          {id}
-                        </Badge>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+                {simulationResult && (
+                  <Card className="border border-border/50">
+                    <CardContent className="p-3 space-y-2">
+                      <h4 className="text-xs font-semibold uppercase text-muted-foreground">
+                        Signal Path
+                      </h4>
+                      <div className="flex flex-wrap items-center gap-1">
+                        {simulationResult.signalPath.map((neuronId, i) => {
+                          const neuron = placedNeurons.find(n => n.id === neuronId);
+                          return (
+                            <span key={i} className="flex items-center gap-1">
+                              <Badge 
+                                variant="outline" 
+                                className="text-[10px] px-1.5"
+                                style={{ 
+                                  borderColor: neuron ? getNeuronColor(neuron.type) : undefined,
+                                  color: neuron ? getNeuronColor(neuron.type) : undefined
+                                }}
+                              >
+                                {neuronId}
+                              </Badge>
+                              {i < simulationResult.signalPath.length - 1 && (
+                                <ArrowRight className="w-3 h-3 text-muted-foreground" />
+                              )}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {simulationResult && (
+                  <Card className="border border-border/50">
+                    <CardContent className="p-3 space-y-2">
+                      <h4 className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-2">
+                        <Zap className="w-3 h-3" />
+                        Active Neurons ({simulationResult.activeNeurons.length})
+                      </h4>
+                      <div className="flex flex-wrap gap-1">
+                        {simulationResult.activeNeurons.map(id => {
+                          const neuron = placedNeurons.find(n => n.id === id);
+                          return (
+                            <Badge 
+                              key={id}
+                              variant="secondary"
+                              className="text-[10px]"
+                              style={{ 
+                                backgroundColor: neuron ? `${getNeuronColor(neuron.type)}20` : undefined,
+                                borderColor: neuron ? getNeuronColor(neuron.type) : undefined
+                              }}
+                            >
+                              {id}
+                            </Badge>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+
+              <TabsContent value="validation" className="mt-3">
+                <CircuitValidationPanel
+                  neurons={placedNeurons.map(n => ({ id: n.id, type: n.type }))}
+                  connections={connections.map(c => ({ from: c.from, to: c.to, weight: c.weight }))}
+                  onAddConnection={(from, to, weight) => {
+                    const newConnection: DesignerConnection = {
+                      id: `${from}-${to}-${Date.now()}`,
+                      from,
+                      to,
+                      type: "chemical",
+                      weight
+                    };
+                    if (collabRoomId && collab.isConnected) {
+                      collab.addConnection(newConnection);
+                    } else {
+                      setLocalConnections(prev => [...prev, newConnection]);
+                    }
+                    toast.success(`Added connection: ${from} → ${to}`);
+                  }}
+                />
+              </TabsContent>
+            </Tabs>
 
             <div className="grid grid-cols-2 gap-2">
               <Card className="border border-border/50">
