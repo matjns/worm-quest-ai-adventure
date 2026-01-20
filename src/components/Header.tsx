@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Brain, Menu, X, Trophy, BookOpen, Users, Settings, Gamepad2, LogIn, User, GraduationCap, BarChart3, FlaskConical, Award } from "lucide-react";
+import { Brain, Menu, X, Trophy, BookOpen, Users, Settings, Gamepad2, LogIn, User, GraduationCap, BarChart3, FlaskConical, Award, Code2 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import neuroQuestLogo from "@/assets/neuroquest-logo.png";
@@ -21,6 +21,7 @@ const navItems = [
   { label: "NeuroQuest", href: "/neuroquest", icon: Brain },
   { label: "Research", href: "/research", icon: FlaskConical },
   { label: "Challenge", href: "/challenge", icon: Award },
+  { label: "API", href: "/open", icon: Code2 },
   { label: "Community", href: "/community", icon: Users },
 ];
 
