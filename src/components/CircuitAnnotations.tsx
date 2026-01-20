@@ -11,6 +11,7 @@ import {
   AtSign,
   CheckCircle2,
   Circle,
+  CheckCheck,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -630,6 +631,58 @@ export function CircuitAnnotations({
     }
   };
 
+  // Handle resolving all unresolved annotation threads (circuit owner only)
+  const handleResolveAll = async () => {
+    if (!user) return;
+    
+    const unresolvedIds = annotations
+      .filter((a) => !a.parent_id && !a.is_resolved)
+      .map((a) => a.id);
+    
+    if (unresolvedIds.length === 0) return;
+
+    setSaving(true);
+    try {
+      const session = await supabase.auth.getSession();
+      const token = session.data.session?.access_token;
+      
+      // Update all unresolved annotations
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/circuit_annotations?id=in.(${unresolvedIds.join(',')})`,
+        {
+          method: 'PATCH',
+          headers: {
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            is_resolved: true,
+            resolved_at: new Date().toISOString(),
+            resolved_by: user.id,
+          }),
+        }
+      );
+
+      if (!response.ok) throw new Error('Failed to resolve all threads');
+
+      toast({ 
+        title: "All Threads Resolved",
+        description: `${unresolvedIds.length} thread${unresolvedIds.length !== 1 ? 's' : ''} marked as resolved`
+      });
+      await fetchAnnotations();
+    } catch (error) {
+      console.error("Error resolving all:", error);
+      toast({
+        title: "Error",
+        description: "Failed to resolve all threads",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const getNeuronPosition = (neuron: Neuron) => ({
     x: (neuron.x / 100) * (viewBox.width - padding * 2) + padding,
     y: (neuron.y / 100) * (viewBox.height - padding * 2) + padding,
@@ -810,6 +863,33 @@ export function CircuitAnnotations({
                   ? `Show ${resolvedCount} resolved thread${resolvedCount !== 1 ? 's' : ''}`
                   : `Hide ${resolvedCount} resolved thread${resolvedCount !== 1 ? 's' : ''}`
                 }
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
+        {/* Mark all as resolved button - only for circuit owner when there are active threads */}
+        {circuitOwnerId === user?.id && activeCount > 1 && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleResolveAll}
+                  disabled={saving}
+                  className="gap-1"
+                >
+                  {saving ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <CheckCheck className="w-4 h-4" />
+                  )}
+                  <span className="hidden sm:inline text-xs">Resolve All</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                Resolve all {activeCount} active threads
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
