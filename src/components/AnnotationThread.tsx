@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { MentionInput, renderMentionText } from "./MentionInput";
+import { AnnotationReactions } from "./AnnotationReactions";
 import { cn } from "@/lib/utils";
 
 interface Annotation {
@@ -137,7 +138,11 @@ export function AnnotationThread({
         </div>
       ) : (
         <>
-          <p className="text-xs mb-2">{renderMentionText(ann.content)}</p>
+          <p className="text-xs mb-1">{renderMentionText(ann.content)}</p>
+          
+          {/* Emoji reactions */}
+          <AnnotationReactions annotationId={ann.id} compact className="mb-1" />
+          
           <div className="flex items-center justify-between flex-wrap gap-1">
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Avatar className="w-4 h-4">

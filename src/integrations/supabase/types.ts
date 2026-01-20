@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      annotation_reactions: {
+        Row: {
+          annotation_id: string
+          created_at: string
+          emoji: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          annotation_id: string
+          created_at?: string
+          emoji: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          annotation_id?: string
+          created_at?: string
+          emoji?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "annotation_reactions_annotation_id_fkey"
+            columns: ["annotation_id"]
+            isOneToOne: false
+            referencedRelation: "circuit_annotations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       circuit_annotations: {
         Row: {
           circuit_id: string
