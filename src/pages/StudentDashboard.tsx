@@ -10,6 +10,7 @@ import { ActivityFeed } from '@/components/ActivityFeed';
 import { SimulationAccuracyChart } from '@/components/SimulationAccuracyChart';
 import { ExOMetrics } from '@/components/ExOMetrics';
 import { SkillDashboard } from '@/components/SkillDashboard';
+import { StudentAssignmentsView } from '@/components/StudentAssignmentsView';
 import { useStudentProgress } from '@/hooks/useStudentProgress';
 import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
@@ -31,7 +32,9 @@ import {
   Award,
   Loader2,
   Activity,
-  BarChart3
+  BarChart3,
+  FileText,
+  ClipboardList
 } from 'lucide-react';
 
 const getRankIcon = (rank: number) => {
@@ -201,10 +204,14 @@ export default function StudentDashboard() {
 
         {/* Main Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 h-12">
+          <TabsList className="grid w-full grid-cols-5 h-12">
             <TabsTrigger value="overview" className="gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="assignments" className="gap-2">
+              <ClipboardList className="w-4 h-4" />
+              <span className="hidden sm:inline">Assignments</span>
             </TabsTrigger>
             <TabsTrigger value="skills" className="gap-2">
               <Brain className="w-4 h-4" />
@@ -326,6 +333,11 @@ export default function StudentDashboard() {
                 />
               </motion.div>
             </div>
+          </TabsContent>
+
+          {/* Assignments Tab */}
+          <TabsContent value="assignments" className="space-y-6">
+            <StudentAssignmentsView />
           </TabsContent>
 
           {/* Skills Tab */}
