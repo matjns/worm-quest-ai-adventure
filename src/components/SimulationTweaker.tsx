@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Sliders, Play, Pause, RotateCcw, Save, Download, Lightbulb, Zap } from 'lucide-react';
+import { Sliders, Play, Pause, RotateCcw, Save, Download, Lightbulb, Zap, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { ShareCreationDialog } from './ShareCreationDialog';
 
 interface SimulationParams {
   signalSpeed: number;
@@ -116,6 +117,12 @@ export function SimulationTweaker({ onParamsChange, onSimulationToggle }: Simula
   const [autoApply, setAutoApply] = useState(true);
   const [savedConfigs, setSavedConfigs] = useState<{ name: string; params: SimulationParams }[]>([]);
   const [simulationOutput, setSimulationOutput] = useState<string[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const getCreationData = () => ({
+    type: 'simulation' as const,
+    params: params as unknown as Record<string, number>,
+  });
 
   useEffect(() => {
     if (autoApply) {
@@ -252,9 +259,16 @@ export function SimulationTweaker({ onParamsChange, onSimulationToggle }: Simula
           <Download className="w-4 h-4 mr-1" />
           Export
         </Button>
+
+        <ShareCreationDialog creationData={getCreationData()} canvasRef={containerRef}>
+          <Button variant="outline" size="sm" className="gap-1">
+            <Share2 className="w-4 h-4" />
+            Share
+          </Button>
+        </ShareCreationDialog>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div ref={containerRef} className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Parameters */}
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">

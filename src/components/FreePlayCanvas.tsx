@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Palette, Sparkles, Wand2, Eraser, RotateCcw, Volume2, VolumeX } from 'lucide-react';
+import { Palette, Sparkles, Wand2, Eraser, RotateCcw, Volume2, VolumeX, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
+import { ShareCreationDialog } from './ShareCreationDialog';
 
 interface Neuron {
   id: string;
@@ -36,6 +37,17 @@ export function FreePlayCanvas({ onCreationSaved }: FreePlayCanvasProps) {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [connectingFrom, setConnectingFrom] = useState<string | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+
+  const getCreationData = () => ({
+    type: 'canvas' as const,
+    neurons: neurons.map(n => ({
+      id: n.id,
+      x: n.x,
+      y: n.y,
+      color: n.color,
+      connections: n.connections,
+    })),
+  });
 
   const playSound = (type: 'pop' | 'connect' | 'magic') => {
     if (!soundEnabled) return;
@@ -218,6 +230,15 @@ export function FreePlayCanvas({ onCreationSaved }: FreePlayCanvasProps) {
         >
           {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
         </Button>
+
+        {neurons.length > 0 && (
+          <ShareCreationDialog creationData={getCreationData()} canvasRef={canvasRef}>
+            <Button variant="outline" size="sm" className="gap-1">
+              <Share2 className="w-4 h-4" />
+              Share
+            </Button>
+          </ShareCreationDialog>
+        )}
       </div>
 
       {/* Canvas */}
