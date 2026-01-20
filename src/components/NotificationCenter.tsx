@@ -26,6 +26,7 @@ const notificationIcons: Record<string, typeof Heart> = {
   fork: GitFork,
   feature: Star,
   mention: AtSign,
+  reply: MessageCircle,
 };
 
 const notificationColors: Record<string, string> = {
@@ -34,6 +35,7 @@ const notificationColors: Record<string, string> = {
   fork: "text-green-500",
   feature: "text-yellow-500",
   mention: "text-primary",
+  reply: "text-purple-500",
 };
 
 function NotificationItem({

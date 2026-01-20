@@ -410,38 +410,59 @@ export function CircuitAnnotations({
 
       if (!response.ok) throw new Error('Failed to add reply');
 
-      // Parse mentions and notify users
-      const mentions = parseMentions(content);
-      
-      // Also notify the parent annotation author if different from current user
-      const usersToNotify = [...mentions];
-      if (parentAnnotation.profiles?.display_name && parentAnnotation.user_id !== user.id) {
-        // The parent author gets notified via mention system
+      // Get current user's display name
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('display_name')
+        .eq('user_id', user.id)
+        .single();
+
+      const actorName = profile?.display_name || 'Someone';
+      let notifiedCount = 0;
+
+      // Notify the parent annotation author if different from current user
+      if (parentAnnotation.user_id !== user.id) {
+        const truncatedPreview = content.length > 50 ? content.slice(0, 50) + '...' : content;
+        
+        await supabase.from('notifications').insert({
+          user_id: parentAnnotation.user_id,
+          type: 'reply',
+          title: `${actorName} replied to your annotation`,
+          message: `On neuron ${parentAnnotation.neuron_id}: "${truncatedPreview}"`,
+          circuit_id: circuitId,
+          actor_id: user.id,
+          read: false,
+        });
+        notifiedCount++;
       }
+
+      // Parse mentions and notify mentioned users (excluding the parent author to avoid double notification)
+      const mentions = parseMentions(content);
       
       if (mentions.length > 0) {
         const mentionedUsers = await findMentionedUserIds(mentions);
+        // Filter out the parent author from mentions to avoid double notification
+        const filteredMentionedUsers = mentionedUsers.filter(
+          (u) => u.userId !== parentAnnotation.user_id
+        );
         
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('display_name')
-          .eq('user_id', user.id)
-          .single();
-        
-        await notifyMentionedUsers({
-          mentionedUserIds: mentionedUsers,
-          actorId: user.id,
-          actorName: profile?.display_name || 'Someone',
-          circuitId,
-          neuronId: parentAnnotation.neuron_id,
-          annotationPreview: content.trim(),
-        });
+        if (filteredMentionedUsers.length > 0) {
+          await notifyMentionedUsers({
+            mentionedUserIds: filteredMentionedUsers,
+            actorId: user.id,
+            actorName,
+            circuitId,
+            neuronId: parentAnnotation.neuron_id,
+            annotationPreview: content.trim(),
+          });
+          notifiedCount += filteredMentionedUsers.length;
+        }
       }
 
       toast({
         title: "Reply Added",
-        description: mentions.length > 0 
-          ? `Reply added and ${mentions.length} user(s) notified`
+        description: notifiedCount > 0 
+          ? `Reply added and ${notifiedCount} user(s) notified`
           : "Reply added successfully",
       });
 
