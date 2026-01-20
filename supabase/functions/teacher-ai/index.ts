@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 interface LessonPlanRequest {
-  type: 'generate_lesson' | 'generate_week' | 'grade_submission' | 'analyze_class' | 'generate_progress_report';
+  type: 'generate_lesson' | 'generate_week' | 'grade_submission' | 'analyze_class' | 'generate_progress_report' | 'personalize_lesson' | 'validate_simulation';
   gradeLevel: string;
   topic?: string;
   weekNumber?: number;
@@ -15,6 +15,9 @@ interface LessonPlanRequest {
   submissionData?: Record<string, unknown>;
   classData?: Record<string, unknown>;
   studentData?: Record<string, unknown>;
+  lessonContent?: Record<string, unknown>;
+  studentProfile?: Record<string, unknown>;
+  simulationData?: Record<string, unknown>;
 }
 
 serve(async (req) => {
@@ -29,7 +32,7 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    const { type, gradeLevel, topic, weekNumber, standards, submissionData, classData, studentData } = await req.json() as LessonPlanRequest;
+    const { type, gradeLevel, topic, weekNumber, standards, submissionData, classData, studentData, lessonContent, studentProfile, simulationData } = await req.json() as LessonPlanRequest;
 
     let systemPrompt = '';
     let userPrompt = '';
@@ -132,13 +135,93 @@ ${JSON.stringify(studentData, null, 2)}
 Create an encouraging, parent-friendly report that celebrates progress and provides actionable home activities.`;
         break;
 
+      case 'personalize_lesson':
+        systemPrompt = `You are an expert adaptive learning specialist who personalizes STEM lessons for individual students.
+
+Analyze the student's learning profile and adapt the lesson content to:
+- Match their learning style (visual, auditory, kinesthetic, reading/writing)
+- Address their specific knowledge gaps
+- Build on their demonstrated strengths
+- Adjust difficulty to their skill level (target 85% success rate)
+- Include scaffolding for struggling areas
+- Add extension challenges for mastered concepts
+
+OpenWorm C. elegans Context:
+- Use the 302-neuron connectome as the teaching framework
+- Connect abstract concepts to observable worm behaviors
+- Reference real scientific data from OpenWorm GitHub repositories
+
+Output JSON with:
+- adapted_content: The personalized lesson content
+- scaffolding: Array of support structures for struggling areas
+- extensions: Array of challenge activities for advanced students
+- differentiation_notes: Teacher notes on the adaptations made
+- estimated_difficulty: Adjusted difficulty level (1-10)
+- success_prediction: Predicted success rate based on adaptations`;
+
+        userPrompt = `Personalize this lesson for the student:
+
+Original Lesson:
+${JSON.stringify(lessonContent, null, 2)}
+
+Student Profile:
+${JSON.stringify(studentProfile, null, 2)}
+
+Grade Level: ${gradeLevel}
+
+Adapt the content to maximize this student's engagement and learning outcomes.`;
+        break;
+
+      case 'validate_simulation':
+        systemPrompt = `You are a neuroscience expert validating student circuit simulations against OpenWorm ground truth data.
+
+OpenWorm C. elegans Reference Data:
+- 302 neurons total (exact count)
+- 118 classes of neurons
+- ~7,000 synaptic connections
+- Key motor neurons: VA, VB, DA, DB (ventral/dorsal A and B types)
+- Key sensory neurons: ASE, AWC (chemosensory), ALM, AVM (mechanosensory)
+- Key interneurons: AVA, AVB, AVD, AVE (command interneurons)
+
+Known Behaviors and Their Circuits:
+1. Forward locomotion: AVB → VB → muscles (wave propagation)
+2. Backward locomotion: AVA → VA → muscles (reverse wave)
+3. Touch response: ALM/AVM → AVD → AVA → backward movement
+4. Chemotaxis: ASE/AWC → AIY/AIZ → AVB/AVA → directed movement
+5. Omega turn: RIV → SMD → neck muscles (sharp turns)
+
+Validation Criteria:
+- Anatomical accuracy (correct neuron types and connections)
+- Functional plausibility (circuit could produce claimed behavior)
+- Scientific reasoning (student's explanation matches known biology)
+
+Output JSON with:
+- validation_score: 0-100 accuracy score
+- anatomical_accuracy: How well the circuit matches real C. elegans anatomy
+- functional_plausibility: Whether the circuit could realistically work
+- scientific_accuracy: Correctness of the student's biological reasoning
+- discrepancies: Array of differences from ground truth
+- corrections: Suggested fixes with explanations
+- praise: What the student got right (with scientific context)
+- openworm_references: Relevant OpenWorm resources for further learning`;
+
+        userPrompt = `Validate this student's neural circuit simulation against OpenWorm ground truth:
+
+Student's Circuit:
+${JSON.stringify(simulationData, null, 2)}
+
+Grade Level: ${gradeLevel}
+
+Evaluate for scientific accuracy while providing age-appropriate feedback.`;
+        break;
+
       default:
         throw new Error(`Unknown request type: ${type}`);
     }
 
     console.log(`Teacher AI request: ${type} for ${gradeLevel}`);
 
-    const response = await fetch('https://api.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
