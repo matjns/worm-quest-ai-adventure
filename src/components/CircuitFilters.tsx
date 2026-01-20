@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { Search, Filter, X, Tag, Hash, User } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Search, Filter, X, Tag, Hash, User, ArrowUpDown, Heart, Clock, Zap } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,11 +17,14 @@ import {
 } from "@/components/ui/popover";
 import { SharedCircuit } from "@/hooks/useCommunity";
 
+export type SortOption = "newest" | "oldest" | "most-liked" | "most-neurons" | "least-neurons";
+
 export interface FilterState {
   search: string;
   selectedTags: string[];
   neuronCountRange: string;
   creator: string;
+  sortBy: SortOption;
 }
 
 interface CircuitFiltersProps {
@@ -35,6 +38,7 @@ export function CircuitFilters({ circuits, onFilterChange }: CircuitFiltersProps
     selectedTags: [],
     neuronCountRange: "all",
     creator: "",
+    sortBy: "newest",
   });
 
   // Extract all unique tags from circuits
@@ -56,7 +60,30 @@ export function CircuitFilters({ circuits, onFilterChange }: CircuitFiltersProps
     return Array.from(creatorSet).sort();
   }, [circuits]);
 
-  // Apply filters
+  // Sort function
+  const sortCircuits = (circuitsToSort: SharedCircuit[], sortBy: SortOption): SharedCircuit[] => {
+    const sorted = [...circuitsToSort];
+    switch (sortBy) {
+      case "newest":
+        return sorted.sort((a, b) => 
+          new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+        );
+      case "oldest":
+        return sorted.sort((a, b) => 
+          new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
+        );
+      case "most-liked":
+        return sorted.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
+      case "most-neurons":
+        return sorted.sort((a, b) => b.neurons_used.length - a.neurons_used.length);
+      case "least-neurons":
+        return sorted.sort((a, b) => a.neurons_used.length - b.neurons_used.length);
+      default:
+        return sorted;
+    }
+  };
+
+  // Apply filters and sorting
   const applyFilters = (newFilters: FilterState) => {
     let filtered = [...circuits];
 
@@ -106,8 +133,16 @@ export function CircuitFilters({ circuits, onFilterChange }: CircuitFiltersProps
       );
     }
 
+    // Apply sorting
+    filtered = sortCircuits(filtered, newFilters.sortBy);
+
     onFilterChange(filtered);
   };
+
+  // Re-apply filters when circuits change
+  useEffect(() => {
+    applyFilters(filters);
+  }, [circuits]);
 
   const updateFilters = (updates: Partial<FilterState>) => {
     const newFilters = { ...filters, ...updates };
@@ -128,9 +163,10 @@ export function CircuitFilters({ circuits, onFilterChange }: CircuitFiltersProps
       selectedTags: [],
       neuronCountRange: "all",
       creator: "",
+      sortBy: "newest",
     };
     setFilters(clearedFilters);
-    onFilterChange(circuits);
+    onFilterChange(sortCircuits(circuits, "newest"));
   };
 
   const hasActiveFilters =
@@ -138,6 +174,16 @@ export function CircuitFilters({ circuits, onFilterChange }: CircuitFiltersProps
     filters.selectedTags.length > 0 ||
     filters.neuronCountRange !== "all" ||
     filters.creator;
+
+  const getSortLabel = (sort: SortOption) => {
+    switch (sort) {
+      case "newest": return "Newest";
+      case "oldest": return "Oldest";
+      case "most-liked": return "Most Liked";
+      case "most-neurons": return "Most Neurons";
+      case "least-neurons": return "Least Neurons";
+    }
+  };
 
   return (
     <div className="space-y-4 mb-6">
@@ -152,6 +198,49 @@ export function CircuitFilters({ circuits, onFilterChange }: CircuitFiltersProps
             className="pl-10 bg-card border-2 border-foreground"
           />
         </div>
+
+        {/* Sort Dropdown */}
+        <Select
+          value={filters.sortBy}
+          onValueChange={(value) => updateFilters({ sortBy: value as SortOption })}
+        >
+          <SelectTrigger className="w-[160px] border-2 border-foreground bg-card">
+            <ArrowUpDown className="w-4 h-4 mr-2" />
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest">
+              <span className="flex items-center gap-2">
+                <Clock className="w-3 h-3" />
+                Newest
+              </span>
+            </SelectItem>
+            <SelectItem value="oldest">
+              <span className="flex items-center gap-2">
+                <Clock className="w-3 h-3" />
+                Oldest
+              </span>
+            </SelectItem>
+            <SelectItem value="most-liked">
+              <span className="flex items-center gap-2">
+                <Heart className="w-3 h-3" />
+                Most Liked
+              </span>
+            </SelectItem>
+            <SelectItem value="most-neurons">
+              <span className="flex items-center gap-2">
+                <Zap className="w-3 h-3" />
+                Most Neurons
+              </span>
+            </SelectItem>
+            <SelectItem value="least-neurons">
+              <span className="flex items-center gap-2">
+                <Zap className="w-3 h-3" />
+                Least Neurons
+              </span>
+            </SelectItem>
+          </SelectContent>
+        </Select>
 
         {/* Filter Popover */}
         <Popover>
