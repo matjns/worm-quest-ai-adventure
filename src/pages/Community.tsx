@@ -7,6 +7,7 @@ import {
   Download, FileJson, Image
 } from "lucide-react";
 import { exportCircuitAsJSON, exportCircuitAsPNG } from "@/utils/circuitExport";
+import { SocialShareButtons } from "@/components/SocialShareButtons";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -157,6 +158,12 @@ function CircuitCard({
           <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); onGeneratePR(); }} title="Contribute to OpenWorm">
             <Github className="w-4 h-4" />
           </Button>
+          <SocialShareButtons
+            circuitId={circuit.id}
+            title={circuit.title}
+            description={circuit.description || undefined}
+            tags={circuit.tags || undefined}
+          />
           <Button variant="ghost" size="sm" onClick={onViewDetails} title="View details">
             <Eye className="w-4 h-4" />
           </Button>

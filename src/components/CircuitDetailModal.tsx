@@ -5,6 +5,7 @@ import {
   Github, GitFork, Send, Loader2, ExternalLink, Download, FileJson, Image 
 } from "lucide-react";
 import { exportCircuitAsJSON, exportCircuitAsPNG } from "@/utils/circuitExport";
+import { SocialShareButtons } from "@/components/SocialShareButtons";
 import {
   Dialog,
   DialogContent,
@@ -246,6 +247,13 @@ export function CircuitDetailModal({
                 <Github className="w-4 h-4 mr-1" />
                 PR
               </Button>
+              <SocialShareButtons
+                circuitId={circuit.id}
+                title={circuit.title}
+                description={circuit.description || undefined}
+                tags={circuit.tags || undefined}
+                variant="inline"
+              />
             </div>
           </div>
 
