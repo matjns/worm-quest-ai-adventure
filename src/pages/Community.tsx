@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { exportCircuitAsJSON, exportCircuitAsPNG } from "@/utils/circuitExport";
 import { SocialShareButtons } from "@/components/SocialShareButtons";
+import { CircuitPreviewTooltip } from "@/components/CircuitPreviewTooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -483,21 +484,29 @@ export default function CommunityPage() {
                 ) : (
                   <div className="grid md:grid-cols-3 gap-6">
                     {displayCircuits.map((circuit) => (
-                      <div key={circuit.id}>
-                        <CircuitCard
-                          circuit={circuit}
-                          isLiked={userLikes.has(circuit.id)}
-                          onLike={() => likeCircuit(circuit.id)}
-                          onGeneratePR={() => handleGeneratePR(circuit)}
-                          onFork={() => forkCircuit(circuit.id)}
-                          onUpdate={updateCircuit}
-                          onDelete={deleteCircuit}
-                          onViewDetails={() => handleViewDetails(circuit)}
-                          onExportJSON={() => exportCircuitAsJSON(circuit)}
-                          onExportPNG={() => exportCircuitAsPNG(circuit)}
-                          isOwnCircuit={circuit.user_id === user?.id}
-                        />
-                      </div>
+                      <CircuitPreviewTooltip
+                        key={circuit.id}
+                        circuitData={circuit.circuit_data}
+                        title={circuit.title}
+                        behavior={circuit.behavior}
+                        neuronsUsed={circuit.neurons_used}
+                      >
+                        <div>
+                          <CircuitCard
+                            circuit={circuit}
+                            isLiked={userLikes.has(circuit.id)}
+                            onLike={() => likeCircuit(circuit.id)}
+                            onGeneratePR={() => handleGeneratePR(circuit)}
+                            onFork={() => forkCircuit(circuit.id)}
+                            onUpdate={updateCircuit}
+                            onDelete={deleteCircuit}
+                            onViewDetails={() => handleViewDetails(circuit)}
+                            onExportJSON={() => exportCircuitAsJSON(circuit)}
+                            onExportPNG={() => exportCircuitAsPNG(circuit)}
+                            isOwnCircuit={circuit.user_id === user?.id}
+                          />
+                        </div>
+                      </CircuitPreviewTooltip>
                     ))}
                   </div>
                 )}
@@ -552,21 +561,29 @@ export default function CommunityPage() {
                     </div>
                     <div className="grid md:grid-cols-3 gap-6">
                       {displayMyCircuits.map((circuit) => (
-                        <div key={circuit.id}>
-                          <CircuitCard
-                            circuit={circuit}
-                            isLiked={userLikes.has(circuit.id)}
-                            onLike={() => likeCircuit(circuit.id)}
-                            onGeneratePR={() => handleGeneratePR(circuit)}
-                            onFork={() => forkCircuit(circuit.id)}
-                            onUpdate={updateCircuit}
-                            onDelete={deleteCircuit}
-                            onViewDetails={() => handleViewDetails(circuit)}
-                            onExportJSON={() => exportCircuitAsJSON(circuit)}
-                            onExportPNG={() => exportCircuitAsPNG(circuit)}
-                            isOwnCircuit={true}
-                          />
-                        </div>
+                        <CircuitPreviewTooltip
+                          key={circuit.id}
+                          circuitData={circuit.circuit_data}
+                          title={circuit.title}
+                          behavior={circuit.behavior}
+                          neuronsUsed={circuit.neurons_used}
+                        >
+                          <div>
+                            <CircuitCard
+                              circuit={circuit}
+                              isLiked={userLikes.has(circuit.id)}
+                              onLike={() => likeCircuit(circuit.id)}
+                              onGeneratePR={() => handleGeneratePR(circuit)}
+                              onFork={() => forkCircuit(circuit.id)}
+                              onUpdate={updateCircuit}
+                              onDelete={deleteCircuit}
+                              onViewDetails={() => handleViewDetails(circuit)}
+                              onExportJSON={() => exportCircuitAsJSON(circuit)}
+                              onExportPNG={() => exportCircuitAsPNG(circuit)}
+                              isOwnCircuit={true}
+                            />
+                          </div>
+                        </CircuitPreviewTooltip>
                       ))}
                     </div>
                   </div>
