@@ -4,15 +4,17 @@ import { OrbitControls, Environment, PerspectiveCamera } from "@react-three/drei
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Trophy, Flag, Timer, ArrowLeft, 
-  Crown, Medal, Zap 
+  Crown, Medal, Zap, Brain, ChevronDown, ChevronUp 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { RaceWorm } from "./RaceWorm";
 import { RaceTrack } from "./RaceTrack";
 import { PostRaceResults } from "./PostRaceResults";
+import { NeuronFiringPanel } from "./NeuronFiringPanel";
 import { useWormRace, RaceParticipant } from "@/hooks/useWormRace";
 import { useRaceRecording } from "@/hooks/useRaceRecording";
 import { useAuth } from "@/hooks/useAuth";
@@ -58,6 +60,7 @@ export function RaceGameplay({ raceId, onExit, onPlayAgain, className }: RaceGam
   const [hasFinished, setHasFinished] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [allFinished, setAllFinished] = useState(false);
+  const [showNeuronPanel, setShowNeuronPanel] = useState(true);
   const animationRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
   const speedMapRef = useRef<Map<string, number>>(new Map());
@@ -286,91 +289,132 @@ export function RaceGameplay({ raceId, onExit, onPlayAgain, className }: RaceGam
         </Canvas>
       </div>
 
-      {/* Leaderboard */}
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Progress bars */}
-        <Card>
-          <CardContent className="p-4 space-y-3">
-            <h3 className="font-semibold flex items-center gap-2">
-              <Zap className="w-4 h-4 text-primary" />
-              Race Progress
-            </h3>
-            {sortedParticipants.map((participant, index) => (
-              <div key={participant.id} className="space-y-1">
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="w-3 h-3 rounded-full" 
-                      style={{ backgroundColor: WORM_COLORS[participants.findIndex(p => p.id === participant.id) % WORM_COLORS.length] }}
-                    />
+      {/* Race Info Grid */}
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Left Column - Progress & Standings */}
+        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Progress bars */}
+          <Card>
+            <CardContent className="p-4 space-y-3">
+              <h3 className="font-semibold flex items-center gap-2">
+                <Zap className="w-4 h-4 text-primary" />
+                Race Progress
+              </h3>
+              {sortedParticipants.map((participant, index) => (
+                <div key={participant.id} className="space-y-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="w-3 h-3 rounded-full" 
+                        style={{ backgroundColor: WORM_COLORS[participants.findIndex(p => p.id === participant.id) % WORM_COLORS.length] }}
+                      />
+                      <span className={cn(
+                        participant.user_id === user?.id && "font-bold"
+                      )}>
+                        {participant.worm_name}
+                      </span>
+                      {participant.user_id === user?.id && (
+                        <Badge variant="outline" className="text-xs py-0">You</Badge>
+                      )}
+                    </div>
+                    <span className="text-muted-foreground">
+                      {Math.round(participant.position)}%
+                    </span>
+                  </div>
+                  <Progress 
+                    value={participant.position} 
+                    className="h-2"
+                  />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Standings */}
+          <Card>
+            <CardContent className="p-4 space-y-3">
+              <h3 className="font-semibold flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-yellow-500" />
+                Standings
+              </h3>
+              {sortedParticipants.map((participant, index) => (
+                <motion.div
+                  key={participant.id}
+                  layout
+                  className={cn(
+                    "flex items-center gap-3 p-2 rounded-lg",
+                    participant.user_id === user?.id ? "bg-primary/10" : "bg-muted/50",
+                    participant.finish_rank && "ring-1 ring-primary/50"
+                  )}
+                >
+                  <div className="w-6 flex justify-center">
+                    {participant.finish_rank ? getRankIcon(participant.finish_rank) : (
+                      <span className="text-xs text-muted-foreground">#{index + 1}</span>
+                    )}
+                  </div>
+                  <div 
+                    className="w-3 h-3 rounded-full" 
+                    style={{ backgroundColor: WORM_COLORS[participants.findIndex(p => p.id === participant.id) % WORM_COLORS.length] }}
+                  />
+                  <div className="flex-1">
                     <span className={cn(
+                      "font-medium",
                       participant.user_id === user?.id && "font-bold"
                     )}>
                       {participant.worm_name}
                     </span>
-                    {participant.user_id === user?.id && (
-                      <Badge variant="outline" className="text-xs py-0">You</Badge>
+                    {participant.user_id === race.host_id && (
+                      <Crown className="w-3 h-3 inline ml-1 text-yellow-500" />
                     )}
                   </div>
-                  <span className="text-muted-foreground">
-                    {Math.round(participant.position)}%
-                  </span>
-                </div>
-                <Progress 
-                  value={participant.position} 
-                  className="h-2"
-                />
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+                  {participant.finish_rank && (
+                    <Badge variant="secondary" className="text-xs">
+                      Finished!
+                    </Badge>
+                  )}
+                </motion.div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
 
-        {/* Standings */}
-        <Card>
-          <CardContent className="p-4 space-y-3">
-            <h3 className="font-semibold flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-yellow-500" />
-              Standings
-            </h3>
-            {sortedParticipants.map((participant, index) => (
-              <motion.div
-                key={participant.id}
-                layout
-                className={cn(
-                  "flex items-center gap-3 p-2 rounded-lg",
-                  participant.user_id === user?.id ? "bg-primary/10" : "bg-muted/50",
-                  participant.finish_rank && "ring-1 ring-primary/50"
-                )}
-              >
-                <div className="w-6 flex justify-center">
-                  {participant.finish_rank ? getRankIcon(participant.finish_rank) : (
-                    <span className="text-xs text-muted-foreground">#{index + 1}</span>
-                  )}
+        {/* Right Column - Neuron Activity */}
+        <div className="lg:col-span-1">
+          <Collapsible open={showNeuronPanel} onOpenChange={setShowNeuronPanel}>
+            <Card>
+              <CollapsibleTrigger asChild>
+                <CardContent className="p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold flex items-center gap-2 text-sm">
+                      <Brain className="w-4 h-4 text-primary" />
+                      Live Neuron Activity
+                    </h3>
+                    {showNeuronPanel ? (
+                      <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    )}
+                  </div>
+                </CardContent>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="px-3 pb-3 space-y-3 max-h-[400px] overflow-y-auto">
+                  {participants.map((participant, index) => (
+                    <NeuronFiringPanel
+                      key={participant.id}
+                      circuitData={participant.circuit_data}
+                      position={participant.position}
+                      speed={speedMapRef.current.get(participant.id) || 1}
+                      wormName={participant.worm_name}
+                      color={WORM_COLORS[index % WORM_COLORS.length]}
+                      isPlayer={participant.user_id === user?.id}
+                    />
+                  ))}
                 </div>
-                <div 
-                  className="w-3 h-3 rounded-full" 
-                  style={{ backgroundColor: WORM_COLORS[participants.findIndex(p => p.id === participant.id) % WORM_COLORS.length] }}
-                />
-                <div className="flex-1">
-                  <span className={cn(
-                    "font-medium",
-                    participant.user_id === user?.id && "font-bold"
-                  )}>
-                    {participant.worm_name}
-                  </span>
-                  {participant.user_id === race.host_id && (
-                    <Crown className="w-3 h-3 inline ml-1 text-yellow-500" />
-                  )}
-                </div>
-                {participant.finish_rank && (
-                  <Badge variant="secondary" className="text-xs">
-                    Finished!
-                  </Badge>
-                )}
-              </motion.div>
-            ))}
-          </CardContent>
-        </Card>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
+        </div>
       </div>
     </div>
   );
