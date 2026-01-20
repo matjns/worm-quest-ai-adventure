@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MessageSquare,
@@ -8,6 +8,9 @@ import {
   Trash2,
   Loader2,
   Save,
+  Users,
+  Wifi,
+  WifiOff,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -24,6 +27,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
 interface Annotation {
   id: string;
@@ -40,6 +44,14 @@ interface Annotation {
     display_name: string;
     avatar_url: string | null;
   };
+}
+
+interface PresenceUser {
+  id: string;
+  display_name: string;
+  avatar_url: string | null;
+  selectedNeuron: string | null;
+  online_at: string;
 }
 
 interface Neuron {
@@ -66,6 +78,19 @@ const annotationColors = [
   { id: "question", color: "hsl(var(--chart-3))", label: "Question" },
 ];
 
+// Generate consistent color for user based on their ID
+const getUserColor = (userId: string) => {
+  const colors = [
+    "hsl(var(--chart-1))",
+    "hsl(var(--chart-2))",
+    "hsl(var(--chart-3))",
+    "hsl(var(--chart-4))",
+    "hsl(var(--chart-5))",
+  ];
+  const hash = userId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return colors[hash % colors.length];
+};
+
 export function CircuitAnnotations({
   circuitId,
   neurons,
@@ -84,7 +109,12 @@ export function CircuitAnnotations({
   const [newColor, setNewColor] = useState("default");
   const [saving, setSaving] = useState(false);
   const [showAnnotations, setShowAnnotations] = useState(true);
+  const [isConnected, setIsConnected] = useState(false);
+  const [presenceUsers, setPresenceUsers] = useState<PresenceUser[]>([]);
+  const channelRef = useRef<RealtimeChannel | null>(null);
+  const presenceChannelRef = useRef<RealtimeChannel | null>(null);
 
+  // Fetch annotations with profile data
   const fetchAnnotations = useCallback(async () => {
     setLoading(true);
     try {
@@ -112,6 +142,159 @@ export function CircuitAnnotations({
     }
   }, [circuitId]);
 
+  // Set up real-time subscription for annotations
+  useEffect(() => {
+    fetchAnnotations();
+
+    // Subscribe to annotation changes
+    const channel = supabase
+      .channel(`annotations:${circuitId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'circuit_annotations',
+          filter: `circuit_id=eq.${circuitId}`,
+        },
+        async (payload) => {
+          console.log('Realtime annotation change:', payload);
+          
+          if (payload.eventType === 'INSERT') {
+            // Fetch the new annotation with profile data
+            const session = await supabase.auth.getSession();
+            const token = session.data.session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+            
+            const response = await fetch(
+              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/circuit_annotations?id=eq.${payload.new.id}&select=*,profiles(display_name,avatar_url)`,
+              {
+                headers: {
+                  'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+                  'Authorization': `Bearer ${token}`,
+                },
+              }
+            );
+            
+            if (response.ok) {
+              const [newAnnotation] = await response.json();
+              if (newAnnotation) {
+                setAnnotations((prev) => {
+                  // Avoid duplicates
+                  if (prev.some((a) => a.id === newAnnotation.id)) return prev;
+                  return [...prev, newAnnotation];
+                });
+                
+                // Show toast for other users' annotations
+                if (newAnnotation.user_id !== user?.id) {
+                  toast({
+                    title: "New Annotation",
+                    description: `${newAnnotation.profiles?.display_name || 'Someone'} added a note to ${newAnnotation.neuron_id}`,
+                  });
+                }
+              }
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            setAnnotations((prev) =>
+              prev.map((a) =>
+                a.id === payload.new.id
+                  ? { ...a, ...payload.new }
+                  : a
+              )
+            );
+          } else if (payload.eventType === 'DELETE') {
+            setAnnotations((prev) => prev.filter((a) => a.id !== payload.old.id));
+          }
+        }
+      )
+      .subscribe((status) => {
+        setIsConnected(status === 'SUBSCRIBED');
+        console.log('Annotation channel status:', status);
+      });
+
+    channelRef.current = channel;
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [circuitId, fetchAnnotations, toast, user?.id]);
+
+  // Set up presence channel for collaborative editing
+  useEffect(() => {
+    if (!isAuthenticated || !user) return;
+
+    const presenceChannel = supabase.channel(`presence:${circuitId}`);
+
+    presenceChannel
+      .on('presence', { event: 'sync' }, () => {
+        const state = presenceChannel.presenceState();
+        const users: PresenceUser[] = [];
+        
+        Object.values(state).forEach((presences) => {
+          (presences as unknown as PresenceUser[]).forEach((presence) => {
+            if (presence.id && presence.id !== user.id) {
+              users.push(presence);
+            }
+          });
+        });
+        
+        setPresenceUsers(users);
+      })
+      .on('presence', { event: 'join' }, ({ newPresences }) => {
+        console.log('User joined:', newPresences);
+      })
+      .on('presence', { event: 'leave' }, ({ leftPresences }) => {
+        console.log('User left:', leftPresences);
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          // Get user profile
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('display_name, avatar_url')
+            .eq('user_id', user.id)
+            .single();
+
+          await presenceChannel.track({
+            id: user.id,
+            display_name: profile?.display_name || 'Anonymous',
+            avatar_url: profile?.avatar_url,
+            selectedNeuron: null,
+            online_at: new Date().toISOString(),
+          });
+        }
+      });
+
+    presenceChannelRef.current = presenceChannel;
+
+    return () => {
+      presenceChannel.unsubscribe();
+    };
+  }, [circuitId, isAuthenticated, user]);
+
+  // Update presence when selected neuron changes
+  useEffect(() => {
+    if (!presenceChannelRef.current || !user) return;
+
+    const updatePresence = async () => {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('display_name, avatar_url')
+        .eq('user_id', user.id)
+        .single();
+
+      await presenceChannelRef.current?.track({
+        id: user.id,
+        display_name: profile?.display_name || 'Anonymous',
+        avatar_url: profile?.avatar_url,
+        selectedNeuron,
+        online_at: new Date().toISOString(),
+      });
+    };
+
+    updatePresence();
+  }, [selectedNeuron, user]);
+
+  // Initial fetch
   useEffect(() => {
     fetchAnnotations();
   }, [fetchAnnotations]);
@@ -246,10 +429,99 @@ export function CircuitAnnotations({
   const getColorValue = (colorId: string) =>
     annotationColors.find((c) => c.id === colorId)?.color || annotationColors[0].color;
 
+  // Get users currently looking at a specific neuron
+  const getUsersOnNeuron = (neuronId: string) =>
+    presenceUsers.filter((u) => u.selectedNeuron === neuronId);
+
   return (
     <div className={cn("relative", className)}>
-      {/* Toggle button */}
-      <div className="absolute top-2 right-2 z-10">
+      {/* Header with controls */}
+      <div className="absolute top-2 right-2 z-10 flex items-center gap-2">
+        {/* Connection status */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div
+                className={cn(
+                  "flex items-center gap-1 px-2 py-1 rounded text-xs",
+                  isConnected
+                    ? "bg-green-500/20 text-green-700 dark:text-green-400"
+                    : "bg-muted text-muted-foreground"
+                )}
+              >
+                {isConnected ? (
+                  <Wifi className="w-3 h-3" />
+                ) : (
+                  <WifiOff className="w-3 h-3" />
+                )}
+                <span className="hidden sm:inline">
+                  {isConnected ? "Live" : "Offline"}
+                </span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              {isConnected
+                ? "Real-time updates active"
+                : "Connecting to live updates..."}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* Active users */}
+        {presenceUsers.length > 0 && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-1 px-2 py-1 rounded bg-primary/10 text-primary text-xs">
+                  <Users className="w-3 h-3" />
+                  <span>{presenceUsers.length}</span>
+                  <div className="flex -space-x-2 ml-1">
+                    {presenceUsers.slice(0, 3).map((u) => (
+                      <Avatar
+                        key={u.id}
+                        className="w-5 h-5 border-2 border-background"
+                      >
+                        <AvatarImage src={u.avatar_url || undefined} />
+                        <AvatarFallback
+                          className="text-[8px]"
+                          style={{ backgroundColor: getUserColor(u.id) }}
+                        >
+                          {u.display_name?.charAt(0) || "?"}
+                        </AvatarFallback>
+                      </Avatar>
+                    ))}
+                    {presenceUsers.length > 3 && (
+                      <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[8px] border-2 border-background">
+                        +{presenceUsers.length - 3}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="font-medium mb-1">Collaborators online:</p>
+                <ul className="text-xs space-y-1">
+                  {presenceUsers.map((u) => (
+                    <li key={u.id} className="flex items-center gap-1">
+                      <span
+                        className="w-2 h-2 rounded-full"
+                        style={{ backgroundColor: getUserColor(u.id) }}
+                      />
+                      {u.display_name}
+                      {u.selectedNeuron && (
+                        <span className="text-muted-foreground">
+                          → {u.selectedNeuron}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
+        {/* Toggle button */}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -289,9 +561,60 @@ export function CircuitAnnotations({
               const pos = getNeuronPosition(neuron);
               const neuronAnnotations = getAnnotationsForNeuron(neuron.id);
               const hasAnnotations = neuronAnnotations.length > 0;
+              const usersOnNeuron = getUsersOnNeuron(neuron.id);
 
               return (
                 <g key={`annotation-marker-${neuron.id}`} className="pointer-events-auto">
+                  {/* Other users' cursors/presence on this neuron */}
+                  {usersOnNeuron.length > 0 && (
+                    <motion.g
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                    >
+                      {/* Pulsing ring to show active editing */}
+                      <motion.circle
+                        cx={pos.x}
+                        cy={pos.y}
+                        r={28}
+                        fill="transparent"
+                        stroke={getUserColor(usersOnNeuron[0].id)}
+                        strokeWidth={2}
+                        strokeDasharray="4 2"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                        style={{ transformOrigin: `${pos.x}px ${pos.y}px` }}
+                      />
+                      {/* User avatars around the neuron */}
+                      {usersOnNeuron.slice(0, 3).map((u, idx) => {
+                        const angle = (idx * 120 - 90) * (Math.PI / 180);
+                        const avatarX = pos.x + Math.cos(angle) * 35;
+                        const avatarY = pos.y + Math.sin(angle) * 35;
+                        return (
+                          <g key={u.id}>
+                            <circle
+                              cx={avatarX}
+                              cy={avatarY}
+                              r={10}
+                              fill={getUserColor(u.id)}
+                              stroke="hsl(var(--background))"
+                              strokeWidth={2}
+                            />
+                            <text
+                              x={avatarX}
+                              y={avatarY + 3}
+                              textAnchor="middle"
+                              fill="hsl(var(--background))"
+                              fontSize="8"
+                              fontWeight="bold"
+                            >
+                              {u.display_name?.charAt(0).toUpperCase() || "?"}
+                            </text>
+                          </g>
+                        );
+                      })}
+                    </motion.g>
+                  )}
+
                   {/* Annotation indicator */}
                   {hasAnnotations && (
                     <motion.g
