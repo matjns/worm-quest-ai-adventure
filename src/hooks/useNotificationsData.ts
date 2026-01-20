@@ -2,13 +2,13 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { toast } from "sonner";
-import { Heart, MessageCircle, AtSign, Reply, CheckCircle2 } from "lucide-react";
+import { Heart, MessageCircle, AtSign, Reply, CheckCircle2, ClipboardList } from "lucide-react";
 import { createElement } from "react";
 
 export interface Notification {
   id: string;
   user_id: string;
-  type: "like" | "comment" | "fork" | "feature" | "mention" | "reply" | "resolved";
+  type: "like" | "comment" | "fork" | "feature" | "mention" | "reply" | "resolved" | "assignment";
   title: string;
   message: string | null;
   circuit_id: string | null;
@@ -174,6 +174,8 @@ export function useNotificationsData() {
               ? createElement(AtSign, { className: "w-4 h-4 text-primary" })
               : newNotification.type === "reply"
               ? createElement(Reply, { className: "w-4 h-4 text-primary" })
+              : newNotification.type === "assignment"
+              ? createElement(ClipboardList, { className: "w-4 h-4 text-primary" })
               : createElement(MessageCircle, { className: "w-4 h-4 text-primary" });
 
           toast.success(newNotification.title, {
