@@ -620,6 +620,48 @@ export function CircuitAnnotations({
 
       if (!response.ok) throw new Error('Failed to update resolve status');
 
+      // Notify participants when resolving (not when reopening)
+      if (!currentlyResolved) {
+        const annotation = annotations.find((a) => a.id === annotationId);
+        if (annotation) {
+          // Get all replies to find participants
+          const replies = annotations.filter((a) => a.parent_id === annotationId);
+          
+          // Collect unique participant IDs (author + repliers), excluding resolver
+          const participantIds = new Set<string>();
+          participantIds.add(annotation.user_id);
+          replies.forEach((r) => participantIds.add(r.user_id));
+          participantIds.delete(user.id); // Don't notify self
+          
+          // Get current user's display name
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('display_name')
+            .eq('user_id', user.id)
+            .maybeSingle();
+          
+          const actorName = profile?.display_name || 'Someone';
+          const truncatedContent = annotation.content.length > 40 
+            ? annotation.content.slice(0, 40) + '...' 
+            : annotation.content;
+          
+          // Create notifications for all participants
+          if (participantIds.size > 0) {
+            const notifications = Array.from(participantIds).map((participantId) => ({
+              user_id: participantId,
+              type: 'resolved',
+              title: `${actorName} resolved a thread`,
+              message: `"${truncatedContent}" on neuron ${annotation.neuron_id}`,
+              circuit_id: circuitId,
+              actor_id: user.id,
+              read: false,
+            }));
+            
+            await supabase.from('notifications').insert(notifications);
+          }
+        }
+      }
+
       toast({ 
         title: currentlyResolved ? "Thread Reopened" : "Thread Resolved",
         description: currentlyResolved ? "This thread is now active again" : "This thread has been marked as resolved"
