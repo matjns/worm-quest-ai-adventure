@@ -25,6 +25,10 @@ interface GameState {
   // Achievements
   achievements: Achievement[];
   
+  // Celebration callbacks (set by CelebrationProvider)
+  onLevelUp?: (level: number) => void;
+  onAchievementUnlock?: (achievement: Achievement) => void;
+  
   // Actions
   addXp: (amount: number) => void;
   addPoints: (amount: number) => void;
@@ -32,6 +36,7 @@ interface GameState {
   unlockAchievement: (achievementId: string) => void;
   setGameMode: (mode: GameState["currentMode"]) => void;
   resetProgress: () => void;
+  setCelebrationCallbacks: (onLevelUp: (level: number) => void, onAchievementUnlock: (achievement: Achievement) => void) => void;
 }
 
 const DEFAULT_ACHIEVEMENTS: Achievement[] = [
@@ -88,12 +93,19 @@ export const useGameStore = create<GameState>()(
       currentMode: null,
       completedLessons: [],
       achievements: DEFAULT_ACHIEVEMENTS,
+      onLevelUp: undefined,
+      onAchievementUnlock: undefined,
+
+      setCelebrationCallbacks: (onLevelUp, onAchievementUnlock) => {
+        set({ onLevelUp, onAchievementUnlock });
+      },
 
       addXp: (amount) => {
         const state = get();
         let newXp = state.xp + amount;
         let newLevel = state.level;
         let newXpToNext = state.xpToNext;
+        const startLevel = state.level;
 
         while (newXp >= newXpToNext) {
           newXp -= newXpToNext;
@@ -106,6 +118,11 @@ export const useGameStore = create<GameState>()(
           level: newLevel,
           xpToNext: newXpToNext,
         });
+
+        // Trigger level up celebration if level increased
+        if (newLevel > startLevel && state.onLevelUp) {
+          state.onLevelUp(newLevel);
+        }
 
         // Check level achievement
         if (newLevel >= 10) {
@@ -136,11 +153,22 @@ export const useGameStore = create<GameState>()(
       },
 
       unlockAchievement: (achievementId) => {
-        set((state) => ({
-          achievements: state.achievements.map((a) =>
-            a.id === achievementId ? { ...a, unlocked: true } : a
-          ),
-        }));
+        const state = get();
+        const achievement = state.achievements.find(a => a.id === achievementId);
+        
+        // Only unlock if not already unlocked
+        if (achievement && !achievement.unlocked) {
+          set((state) => ({
+            achievements: state.achievements.map((a) =>
+              a.id === achievementId ? { ...a, unlocked: true } : a
+            ),
+          }));
+          
+          // Trigger celebration
+          if (state.onAchievementUnlock) {
+            state.onAchievementUnlock({ ...achievement, unlocked: true });
+          }
+        }
       },
 
       setGameMode: (mode) => {
@@ -161,6 +189,15 @@ export const useGameStore = create<GameState>()(
     }),
     {
       name: "wormquest-storage",
+      partialize: (state) => ({
+        level: state.level,
+        xp: state.xp,
+        xpToNext: state.xpToNext,
+        totalPoints: state.totalPoints,
+        currentMode: state.currentMode,
+        completedLessons: state.completedLessons,
+        achievements: state.achievements,
+      }),
     }
   )
 );
