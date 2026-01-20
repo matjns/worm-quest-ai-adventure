@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { Volume2, VolumeX, MessageCircle, Pause, Play } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSpeech } from "@/hooks/useSpeech";
+import { useMemo } from "react";
 
 interface TeacherScriptProps {
   script: string;
@@ -37,6 +38,51 @@ const ageStyles = {
   },
 };
 
+// Bold 2nd-person pronouns and action verbs for emphasis
+function formatScript(script: string): React.ReactNode {
+  // Patterns to bold: You, Your, you, your + action verbs
+  const patterns = [
+    /\b(You(?:'re|'ll|'ve)?)\b/gi,
+    /\b(Your)\b/gi,
+    /\b(watch|observe|see|look|notice)\b/gi,
+    /\b(tap|click|drag|touch|press|activate|connect|build|create|design)\b/gi,
+    /\b(perturb|manipulate|adjust|tweak|modify|change)\b/gi,
+    /\b(simulate|run|test|validate|experiment)\b/gi,
+  ];
+
+  // Split script into segments, bolding matches
+  let result: React.ReactNode[] = [];
+  let remaining = script;
+  let key = 0;
+
+  // Process each pattern
+  const combinedPattern = new RegExp(
+    patterns.map(p => p.source).join("|"),
+    "gi"
+  );
+
+  const parts = remaining.split(combinedPattern);
+  const matches = remaining.match(combinedPattern) || [];
+
+  parts.forEach((part, i) => {
+    if (part) {
+      result.push(<span key={`text-${key++}`}>{part}</span>);
+    }
+    if (matches[i]) {
+      result.push(
+        <strong 
+          key={`bold-${key++}`} 
+          className="font-black text-primary-foreground bg-foreground/20 px-1 rounded"
+        >
+          {matches[i]}
+        </strong>
+      );
+    }
+  });
+
+  return result;
+}
+
 export function TeacherScript({ 
   script, 
   ageGroup = "k5", 
@@ -47,6 +93,8 @@ export function TeacherScript({
   const { speak, stop, pause, resume, isSpeaking, isPaused, isSupported } = useSpeech({
     rate: style.rate,
   });
+
+  const formattedScript = useMemo(() => formatScript(script), [script]);
 
   const handleSpeakerClick = () => {
     if (isSpeaking && !isPaused) {
@@ -80,7 +128,7 @@ export function TeacherScript({
       <div className="flex items-start gap-3 pl-6">
         <div className={cn("flex-1", style.text, "text-foreground leading-relaxed")}>
           <MessageCircle className="inline w-4 h-4 mr-2 opacity-70" />
-          "{script}"
+          "{formattedScript}"
         </div>
         
         {showSpeaker && isSupported && (
