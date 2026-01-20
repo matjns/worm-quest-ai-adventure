@@ -42,6 +42,9 @@ interface Annotation {
   user_id: string;
   parent_id: string | null;
   is_pinned: boolean;
+  is_resolved: boolean;
+  resolved_at: string | null;
+  resolved_by: string | null;
   profiles?: {
     display_name: string;
     avatar_url: string | null;
@@ -582,17 +585,62 @@ export function CircuitAnnotations({
     }
   };
 
+  // Handle resolving/reopening an annotation thread
+  const handleToggleResolve = async (annotationId: string, currentlyResolved: boolean) => {
+    if (!user) return;
+    
+    try {
+      const session = await supabase.auth.getSession();
+      const token = session.data.session?.access_token;
+      
+      const updateData = currentlyResolved
+        ? { is_resolved: false, resolved_at: null, resolved_by: null }
+        : { is_resolved: true, resolved_at: new Date().toISOString(), resolved_by: user.id };
+      
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/circuit_annotations?id=eq.${annotationId}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updateData),
+        }
+      );
+
+      if (!response.ok) throw new Error('Failed to update resolve status');
+
+      toast({ 
+        title: currentlyResolved ? "Thread Reopened" : "Thread Resolved",
+        description: currentlyResolved ? "This thread is now active again" : "This thread has been marked as resolved"
+      });
+      await fetchAnnotations();
+    } catch (error) {
+      console.error("Error toggling resolve:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update resolve status",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getNeuronPosition = (neuron: Neuron) => ({
     x: (neuron.x / 100) * (viewBox.width - padding * 2) + padding,
     y: (neuron.y / 100) * (viewBox.height - padding * 2) + padding,
   });
 
-  // Get top-level annotations for a neuron (no parent), sorted by pinned first
+  // Get top-level annotations for a neuron (no parent), sorted: unresolved pinned first, then unresolved, then resolved
   const getAnnotationsForNeuron = (neuronId: string) =>
     annotations
       .filter((a) => a.neuron_id === neuronId && !a.parent_id)
       .sort((a, b) => {
-        // Pinned first
+        // Resolved at end
+        if (a.is_resolved && !b.is_resolved) return 1;
+        if (!a.is_resolved && b.is_resolved) return -1;
+        // Pinned first (among same resolved status)
         if (a.is_pinned && !b.is_pinned) return -1;
         if (!a.is_pinned && b.is_pinned) return 1;
         // Then by date
@@ -888,6 +936,7 @@ export function CircuitAnnotations({
                     onDelete={handleDeleteAnnotation}
                     onReply={handleAddReply}
                     onTogglePin={handleTogglePin}
+                    onToggleResolve={handleToggleResolve}
                     saving={saving}
                   />
                 ))}

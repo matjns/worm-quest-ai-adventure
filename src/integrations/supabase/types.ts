@@ -54,8 +54,11 @@ export type Database = {
           created_at: string
           id: string
           is_pinned: boolean | null
+          is_resolved: boolean | null
           neuron_id: string
           parent_id: string | null
+          resolved_at: string | null
+          resolved_by: string | null
           updated_at: string
           user_id: string
           x_offset: number | null
@@ -68,8 +71,11 @@ export type Database = {
           created_at?: string
           id?: string
           is_pinned?: boolean | null
+          is_resolved?: boolean | null
           neuron_id: string
           parent_id?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
           updated_at?: string
           user_id: string
           x_offset?: number | null
@@ -82,8 +88,11 @@ export type Database = {
           created_at?: string
           id?: string
           is_pinned?: boolean | null
+          is_resolved?: boolean | null
           neuron_id?: string
           parent_id?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
           updated_at?: string
           user_id?: string
           x_offset?: number | null

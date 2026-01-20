@@ -11,6 +11,8 @@ import {
   AtSign,
   Pin,
   PinOff,
+  CheckCircle2,
+  RotateCcw,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -32,6 +34,9 @@ interface Annotation {
   user_id: string;
   parent_id: string | null;
   is_pinned: boolean;
+  is_resolved: boolean;
+  resolved_at: string | null;
+  resolved_by: string | null;
   profiles?: {
     display_name: string;
     avatar_url: string | null;
@@ -50,6 +55,7 @@ interface AnnotationThreadProps {
   onDelete: (annotationId: string) => Promise<void>;
   onReply: (parentId: string, content: string) => Promise<void>;
   onTogglePin?: (annotationId: string, currentlyPinned: boolean) => Promise<void>;
+  onToggleResolve?: (annotationId: string, currentlyResolved: boolean) => Promise<void>;
   saving: boolean;
 }
 
@@ -65,6 +71,7 @@ export function AnnotationThread({
   onDelete,
   onReply,
   onTogglePin,
+  onToggleResolve,
   saving,
 }: AnnotationThreadProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -93,18 +100,29 @@ export function AnnotationThread({
   const canPin = (ann: Annotation) => 
     !ann.parent_id && (ann.user_id === currentUserId || circuitOwnerId === currentUserId);
 
+  // Check if user can resolve (annotation author, circuit owner, or any authenticated user)
+  const canResolve = (ann: Annotation) =>
+    !ann.parent_id && isAuthenticated && !readOnly;
+
   const renderAnnotationContent = (ann: Annotation, isReply = false) => (
     <div
       key={ann.id}
       className={cn(
-        "bg-muted/50 rounded p-2 text-sm relative",
+        "bg-muted/50 rounded p-2 text-sm relative transition-opacity",
         isReply && "ml-4 border-l-2 border-muted-foreground/20",
-        ann.is_pinned && !isReply && "ring-1 ring-primary/30 bg-primary/5"
+        ann.is_pinned && !isReply && "ring-1 ring-primary/30 bg-primary/5",
+        ann.is_resolved && !isReply && "opacity-60 bg-muted/30"
       )}
-      style={{ borderLeft: isReply ? undefined : `3px solid ${getColorValue(ann.color)}` }}
+      style={{ borderLeft: isReply ? undefined : `3px solid ${ann.is_resolved ? 'hsl(var(--muted-foreground))' : getColorValue(ann.color)}` }}
     >
+      {/* Resolved indicator */}
+      {ann.is_resolved && !isReply && (
+        <div className="absolute -top-1.5 -left-1.5 bg-green-500 text-white rounded-full p-0.5">
+          <CheckCircle2 className="w-2.5 h-2.5" />
+        </div>
+      )}
       {/* Pinned indicator */}
-      {ann.is_pinned && !isReply && (
+      {ann.is_pinned && !isReply && !ann.is_resolved && (
         <div className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground rounded-full p-0.5">
           <Pin className="w-2.5 h-2.5" />
         </div>
@@ -160,8 +178,20 @@ export function AnnotationThread({
               </span>
             </div>
             <div className="flex gap-0.5">
+              {/* Resolve button - only for top-level annotations */}
+              {canResolve(ann) && onToggleResolve && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn("h-5 w-5", ann.is_resolved && "text-green-500")}
+                  onClick={() => onToggleResolve(ann.id, ann.is_resolved)}
+                  title={ann.is_resolved ? "Reopen thread" : "Resolve thread"}
+                >
+                  {ann.is_resolved ? <RotateCcw className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
+                </Button>
+              )}
               {/* Pin button - only for top-level annotations, visible to author or circuit owner */}
-              {canPin(ann) && onTogglePin && !readOnly && (
+              {canPin(ann) && onTogglePin && !readOnly && !ann.is_resolved && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -172,8 +202,8 @@ export function AnnotationThread({
                   {ann.is_pinned ? <PinOff className="w-3 h-3" /> : <Pin className="w-3 h-3" />}
                 </Button>
               )}
-              {/* Reply button - only for top-level annotations */}
-              {!isReply && isAuthenticated && !readOnly && (
+              {/* Reply button - only for top-level annotations, not resolved */}
+              {!isReply && isAuthenticated && !readOnly && !ann.is_resolved && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -184,7 +214,7 @@ export function AnnotationThread({
                   <Reply className="w-3 h-3" />
                 </Button>
               )}
-              {ann.user_id === currentUserId && (
+              {ann.user_id === currentUserId && !ann.is_resolved && (
                 <>
                   <Button
                     variant="ghost"
