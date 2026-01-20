@@ -146,11 +146,6 @@ export function GlobalImpactCounter({ className, compact = false }: GlobalImpact
         </div>
 
         {/* Mission statement */}
-        <div className="mt-4 pt-3 border-t border-border">
-          <p className="text-xs text-muted-foreground text-center italic">
-            "Digitizing life to decode biology's code — advancing American innovation through open-source neuroscience."
-          </p>
-        </div>
       </div>
     </motion.div>
   );
