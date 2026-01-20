@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Trophy, Star, Zap, Target, Brain, Lock } from "lucide-react";
+import { Trophy, Star, Zap, Target, Brain, Lock, Flame, Crown, Gem, Rocket, Heart, Globe, Flag, Microscope, Dna } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const icons = {
@@ -8,6 +8,15 @@ const icons = {
   zap: Zap,
   target: Target,
   brain: Brain,
+  flame: Flame,
+  crown: Crown,
+  gem: Gem,
+  rocket: Rocket,
+  heart: Heart,
+  globe: Globe,
+  flag: Flag,
+  microscope: Microscope,
+  dna: Dna,
 };
 
 interface AchievementBadgeProps {
