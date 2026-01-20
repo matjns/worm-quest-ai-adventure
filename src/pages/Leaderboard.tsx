@@ -2,11 +2,12 @@ import { Header } from "@/components/Header";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Trophy, Medal, Crown, Star, Brain, Zap, TrendingUp, 
-  Users, Activity, Clock, Sparkles, Flag, BarChart3
+  Users, Activity, Clock, Sparkles, Flag, BarChart3, Award
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGameStore } from "@/stores/gameStore";
 import { useRaceLeaderboard, RacerStats, CircuitStats } from "@/hooks/useRaceLeaderboard";
+import { RaceAchievements } from "@/components/RaceAchievements";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -298,7 +299,7 @@ export default function LeaderboardPage() {
 
           {/* Tabs */}
           <Tabs defaultValue="winners" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="winners" className="flex items-center gap-2">
                 <Trophy className="w-4 h-4" />
                 <span className="hidden sm:inline">Top Winners</span>
@@ -313,6 +314,11 @@ export default function LeaderboardPage() {
                 <TrendingUp className="w-4 h-4" />
                 <span className="hidden sm:inline">Most Active</span>
                 <span className="sm:hidden">Active</span>
+              </TabsTrigger>
+              <TabsTrigger value="achievements" className="flex items-center gap-2">
+                <Award className="w-4 h-4" />
+                <span className="hidden sm:inline">Achievements</span>
+                <span className="sm:hidden">Badges</span>
               </TabsTrigger>
             </TabsList>
 
@@ -414,6 +420,11 @@ export default function LeaderboardPage() {
                   ))
                 )}
               </div>
+            </TabsContent>
+
+            {/* Achievements Tab */}
+            <TabsContent value="achievements">
+              <RaceAchievements showStats={true} />
             </TabsContent>
           </Tabs>
 

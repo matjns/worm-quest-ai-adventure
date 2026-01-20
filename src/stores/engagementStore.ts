@@ -185,6 +185,41 @@ const ALL_BADGES: Badge[] = [
   { id: "openworm-ally", name: "OpenWorm Ally", description: "Visit the OpenWorm GitHub", icon: "rocket", rarity: "common", category: "special" },
   { id: "science-supporter", name: "Science Supporter", description: "Learn about real C. elegans research", icon: "star", rarity: "common", category: "special" },
   { id: "ai-explorer", name: "AI Explorer", description: "Complete AI-related lessons", icon: "brain", rarity: "rare", category: "special" },
+
+  // Race Victory badges
+  { id: "first-victory", name: "First Victory", description: "Win your first race", icon: "trophy", rarity: "common", category: "achievement" },
+  { id: "triple-crown", name: "Triple Crown", description: "Win 3 races", icon: "crown", rarity: "rare", category: "achievement", progress: 0, maxProgress: 3 },
+  { id: "champion-racer", name: "Champion Racer", description: "Win 10 races", icon: "crown", rarity: "epic", category: "achievement", progress: 0, maxProgress: 10 },
+  { id: "legendary-champion", name: "Legendary Champion", description: "Win 50 races", icon: "gem", rarity: "legendary", category: "achievement", progress: 0, maxProgress: 50 },
+
+  // Race Speed badges
+  { id: "speed-demon-racer", name: "Speed Demon", description: "Finish a race in under 30 seconds", icon: "rocket", rarity: "epic", category: "skill" },
+  { id: "lightning-fast", name: "Lightning Fast", description: "Finish a race in under 20 seconds", icon: "zap", rarity: "legendary", category: "skill" },
+
+  // Race Participation badges
+  { id: "race-rookie", name: "Race Rookie", description: "Participate in your first race", icon: "star", rarity: "common", category: "dedication" },
+  { id: "regular-racer", name: "Regular Racer", description: "Participate in 10 races", icon: "flame", rarity: "rare", category: "dedication", progress: 0, maxProgress: 10 },
+  { id: "race-veteran", name: "Race Veteran", description: "Participate in 50 races", icon: "crown", rarity: "epic", category: "dedication", progress: 0, maxProgress: 50 },
+
+  // Race Special badges
+  { id: "podium-finisher", name: "Podium Finisher", description: "Finish in top 3", icon: "trophy", rarity: "common", category: "achievement" },
+  { id: "consistent-podium", name: "Consistent Podium", description: "Finish in top 3 five times", icon: "trophy", rarity: "rare", category: "achievement", progress: 0, maxProgress: 5 },
+  { id: "perfect-race", name: "Perfect Race", description: "Win a race with lead from start to finish", icon: "gem", rarity: "legendary", category: "skill" },
+  { id: "comeback-king", name: "Comeback King", description: "Win after being in last place", icon: "rocket", rarity: "epic", category: "skill" },
+
+  // Race Circuit badges
+  { id: "neural-architect-racer", name: "Neural Architect", description: "Win a race with 8+ neurons", icon: "brain", rarity: "rare", category: "skill" },
+  { id: "minimalist-winner", name: "Minimalist Winner", description: "Win a race with only 3 neurons", icon: "target", rarity: "epic", category: "skill" },
+  { id: "complex-champion", name: "Complex Champion", description: "Win a race with 12+ neurons", icon: "brain", rarity: "legendary", category: "skill" },
+
+  // Race Social badges
+  { id: "race-host", name: "Race Host", description: "Host your first race", icon: "star", rarity: "common", category: "social" },
+  { id: "popular-host", name: "Popular Host", description: "Host 10 races with 3+ participants", icon: "heart", rarity: "rare", category: "social", progress: 0, maxProgress: 10 },
+  { id: "spectator-star", name: "Spectator Star", description: "Watch 5 races as spectator", icon: "star", rarity: "common", category: "social", progress: 0, maxProgress: 5 },
+
+  // Race Streak badges
+  { id: "winning-streak", name: "Winning Streak", description: "Win 3 races in a row", icon: "flame", rarity: "epic", category: "achievement" },
+  { id: "undefeated", name: "Undefeated", description: "Win 5 races in a row", icon: "crown", rarity: "legendary", category: "achievement" },
 ];
 
 // Daily quest templates

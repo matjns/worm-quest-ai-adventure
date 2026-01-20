@@ -1,16 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
   Trophy, BarChart3, PlayCircle, Share2, 
-  ArrowLeft, Download, Sparkles 
+  ArrowLeft, Download, Sparkles, Award
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { RaceReplay } from "./RaceReplay";
 import { RaceAnalytics } from "./RaceAnalytics";
 import { SocialShareButtons } from "./SocialShareButtons";
 import { RaceRecording } from "@/hooks/useRaceRecording";
+import { useRaceAchievements, RaceResult } from "@/hooks/useRaceAchievements";
+import { useEngagementStore } from "@/stores/engagementStore";
 import { cn } from "@/lib/utils";
 
 interface PostRaceResultsProps {
@@ -19,6 +22,7 @@ interface PostRaceResultsProps {
   onPlayAgain?: () => void;
   onExit?: () => void;
   className?: string;
+  isHost?: boolean;
 }
 
 export function PostRaceResults({
@@ -27,13 +31,45 @@ export function PostRaceResults({
   onPlayAgain,
   onExit,
   className,
+  isHost = false,
 }: PostRaceResultsProps) {
   const [activeTab, setActiveTab] = useState<string>("results");
   const [showShare, setShowShare] = useState(false);
+  const [newBadges, setNewBadges] = useState<string[]>([]);
+  const { processRaceResult } = useRaceAchievements();
+  const { badges } = useEngagementStore();
 
   // Find current user's result
   const userResult = recording.finalResults.find(r => r.user_id === currentUserId);
   const isWinner = userResult?.finish_rank === 1;
+
+  // Process achievements when component mounts
+  useEffect(() => {
+    if (!userResult || !currentUserId) return;
+
+    const badgesBefore = badges.filter(b => b.unlockedAt).map(b => b.id);
+
+    const raceResult: RaceResult = {
+      finishRank: userResult.finish_rank || 999,
+      totalParticipants: recording.finalResults.length,
+      raceTimeSeconds: recording.duration / 1000,
+      neuronCount: userResult.neuronCount || 0,
+      wasInLead: true, // Simplified - would need tracking
+      wasInLastPlace: false, // Simplified - would need tracking
+      isHost,
+    };
+
+    processRaceResult(raceResult);
+
+    // Check for newly unlocked badges (after processing)
+    setTimeout(() => {
+      const badgesAfter = badges.filter(b => b.unlockedAt).map(b => b.id);
+      const newlyUnlocked = badgesAfter.filter(id => !badgesBefore.includes(id));
+      if (newlyUnlocked.length > 0) {
+        setNewBadges(newlyUnlocked);
+      }
+    }, 100);
+  }, [userResult, currentUserId, recording, isHost, processRaceResult, badges]);
 
   // Generate share text
   const shareText = userResult?.finish_rank
@@ -50,6 +86,9 @@ export function PostRaceResults({
     a.click();
     URL.revokeObjectURL(url);
   };
+
+  // Get newly unlocked badge details
+  const unlockedBadgeDetails = newBadges.map(id => badges.find(b => b.id === id)).filter(Boolean);
 
   return (
     <motion.div
@@ -79,6 +118,39 @@ export function PostRaceResults({
           <p className="text-muted-foreground">
             Your neural circuit powered "{userResult?.worm_name}" to victory!
           </p>
+        </motion.div>
+      )}
+
+      {/* New badges earned */}
+      {unlockedBadgeDetails.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4"
+        >
+          <Card className="border-2 border-primary/50 bg-primary/5">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Award className="w-5 h-5 text-primary" />
+                <h3 className="font-bold">New Achievements Unlocked!</h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {unlockedBadgeDetails.map((badge) => (
+                  <Badge
+                    key={badge!.id}
+                    className={cn(
+                      "animate-pulse",
+                      badge!.rarity === "legendary" && "bg-gradient-to-r from-amber-400 to-amber-600",
+                      badge!.rarity === "epic" && "bg-gradient-to-r from-purple-400 to-purple-600",
+                      badge!.rarity === "rare" && "bg-gradient-to-r from-blue-400 to-blue-600"
+                    )}
+                  >
+                    {badge!.name}
+                  </Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
       )}
 
