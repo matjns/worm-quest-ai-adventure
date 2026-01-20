@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Brain, Play, Pause, RotateCcw, Download, Upload, 
   TrendingUp, AlertTriangle, CheckCircle, Layers,
-  GitBranch, Cpu, Activity, Target
+  GitBranch, Cpu, Activity, Target, Share2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { ShareCreationDialog } from './ShareCreationDialog';
 
 interface Layer {
   id: string;
@@ -73,6 +74,16 @@ export function NeuralNetTrainer({ onNetworkChange, onTrainingComplete }: Neural
   const [currentEpoch, setCurrentEpoch] = useState(0);
   const [metrics, setMetrics] = useState<TrainingMetrics[]>([]);
   const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const getCreationData = () => ({
+    type: 'network' as const,
+    layers: layers.map(l => ({
+      id: l.id,
+      neurons: l.neurons,
+      activation: l.activation,
+    })),
+  });
 
   // Validate network architecture
   useEffect(() => {
@@ -238,10 +249,18 @@ export function NeuralNetTrainer({ onNetworkChange, onTrainingComplete }: Neural
           <Download className="w-4 h-4 mr-1" />
           Export
         </Button>
+
+        <ShareCreationDialog creationData={getCreationData()} canvasRef={containerRef}>
+          <Button variant="outline" size="sm" className="gap-1" disabled={isTraining}>
+            <Share2 className="w-4 h-4" />
+            Share
+          </Button>
+        </ShareCreationDialog>
       </div>
 
-      {/* Warnings */}
-      <AnimatePresence>
+      <div ref={containerRef} className="space-y-4">
+        {/* Warnings */}
+        <AnimatePresence>
         {validationWarnings.length > 0 && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
@@ -541,6 +560,7 @@ export function NeuralNetTrainer({ onNetworkChange, onTrainingComplete }: Neural
             </motion.div>
           )}
         </div>
+      </div>
       </div>
     </div>
   );
