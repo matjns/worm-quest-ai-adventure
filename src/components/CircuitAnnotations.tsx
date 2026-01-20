@@ -4,18 +4,14 @@ import {
   MessageSquare,
   Plus,
   X,
-  Edit2,
-  Trash2,
   Loader2,
-  Save,
   Users,
   Wifi,
   WifiOff,
   AtSign,
 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -28,8 +24,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { MentionInput, parseMentions, renderMentionText } from "./MentionInput";
+import { MentionInput, parseMentions } from "./MentionInput";
 import { findMentionedUserIds, notifyMentionedUsers } from "@/utils/mentionNotifications";
+import { AnnotationThread } from "./AnnotationThread";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
 interface Annotation {
@@ -43,6 +40,7 @@ interface Annotation {
   created_at: string;
   updated_at: string;
   user_id: string;
+  parent_id: string | null;
   profiles?: {
     display_name: string;
     avatar_url: string | null;
@@ -107,7 +105,6 @@ export function CircuitAnnotations({
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedNeuron, setSelectedNeuron] = useState<string | null>(null);
-  const [editingAnnotation, setEditingAnnotation] = useState<string | null>(null);
   const [newContent, setNewContent] = useState("");
   const [newColor, setNewColor] = useState("default");
   const [saving, setSaving] = useState(false);
@@ -377,6 +374,90 @@ export function CircuitAnnotations({
     }
   };
 
+  // Handle adding a reply to an annotation
+  const handleAddReply = async (parentId: string, content: string) => {
+    if (!content.trim() || !user) return;
+
+    // Find the parent annotation to get neuron_id
+    const parentAnnotation = annotations.find((a) => a.id === parentId);
+    if (!parentAnnotation) return;
+
+    setSaving(true);
+    try {
+      const session = await supabase.auth.getSession();
+      const token = session.data.session?.access_token;
+      
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/circuit_annotations`,
+        {
+          method: 'POST',
+          headers: {
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation',
+          },
+          body: JSON.stringify({
+            circuit_id: circuitId,
+            neuron_id: parentAnnotation.neuron_id,
+            content: content.trim(),
+            color: parentAnnotation.color, // Inherit parent color
+            user_id: user.id,
+            parent_id: parentId,
+          }),
+        }
+      );
+
+      if (!response.ok) throw new Error('Failed to add reply');
+
+      // Parse mentions and notify users
+      const mentions = parseMentions(content);
+      
+      // Also notify the parent annotation author if different from current user
+      const usersToNotify = [...mentions];
+      if (parentAnnotation.profiles?.display_name && parentAnnotation.user_id !== user.id) {
+        // The parent author gets notified via mention system
+      }
+      
+      if (mentions.length > 0) {
+        const mentionedUsers = await findMentionedUserIds(mentions);
+        
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('display_name')
+          .eq('user_id', user.id)
+          .single();
+        
+        await notifyMentionedUsers({
+          mentionedUserIds: mentionedUsers,
+          actorId: user.id,
+          actorName: profile?.display_name || 'Someone',
+          circuitId,
+          neuronId: parentAnnotation.neuron_id,
+          annotationPreview: content.trim(),
+        });
+      }
+
+      toast({
+        title: "Reply Added",
+        description: mentions.length > 0 
+          ? `Reply added and ${mentions.length} user(s) notified`
+          : "Reply added successfully",
+      });
+
+      await fetchAnnotations();
+    } catch (error) {
+      console.error("Error adding reply:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add reply",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleUpdateAnnotation = async (annotationId: string, content: string) => {
     if (!content.trim()) return;
 
@@ -401,7 +482,6 @@ export function CircuitAnnotations({
       if (!response.ok) throw new Error('Failed to update annotation');
 
       toast({ title: "Annotation Updated" });
-      setEditingAnnotation(null);
       await fetchAnnotations();
     } catch (error) {
       console.error("Error updating annotation:", error);
@@ -450,8 +530,13 @@ export function CircuitAnnotations({
     y: (neuron.y / 100) * (viewBox.height - padding * 2) + padding,
   });
 
+  // Get top-level annotations for a neuron (no parent)
   const getAnnotationsForNeuron = (neuronId: string) =>
-    annotations.filter((a) => a.neuron_id === neuronId);
+    annotations.filter((a) => a.neuron_id === neuronId && !a.parent_id);
+
+  // Get replies for a specific annotation
+  const getRepliesForAnnotation = (annotationId: string) =>
+    annotations.filter((a) => a.parent_id === annotationId);
 
   const getColorValue = (colorId: string) =>
     annotationColors.find((c) => c.id === colorId)?.color || annotationColors[0].color;
@@ -723,90 +808,21 @@ export function CircuitAnnotations({
 
             {/* Existing annotations for this neuron */}
             {getAnnotationsForNeuron(selectedNeuron).length > 0 && (
-              <div className="space-y-2 mb-3 max-h-40 overflow-y-auto">
+              <div className="space-y-3 mb-3 max-h-60 overflow-y-auto">
                 {getAnnotationsForNeuron(selectedNeuron).map((annotation) => (
-                  <div
+                  <AnnotationThread
                     key={annotation.id}
-                    className="bg-muted/50 rounded p-2 text-sm"
-                    style={{ borderLeft: `3px solid ${getColorValue(annotation.color)}` }}
-                  >
-                    {editingAnnotation === annotation.id ? (
-                      <div className="space-y-2">
-                        <Textarea
-                          defaultValue={annotation.content}
-                          className="min-h-[60px] text-xs"
-                          id={`edit-${annotation.id}`}
-                        />
-                        <div className="flex gap-1">
-                          <Button
-                            size="sm"
-                            variant="default"
-                            className="h-7 text-xs"
-                            disabled={saving}
-                            onClick={() => {
-                              const textarea = document.getElementById(
-                                `edit-${annotation.id}`
-                              ) as HTMLTextAreaElement;
-                              handleUpdateAnnotation(annotation.id, textarea.value);
-                            }}
-                          >
-                            {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-7 text-xs"
-                            onClick={() => setEditingAnnotation(null)}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <p className="text-xs mb-2">{renderMentionText(annotation.content)}</p>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Avatar className="w-4 h-4">
-                              <AvatarImage src={annotation.profiles?.avatar_url || undefined} />
-                              <AvatarFallback className="text-[8px]">
-                                {annotation.profiles?.display_name?.charAt(0) || "?"}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span className="truncate max-w-[80px]">
-                              {annotation.profiles?.display_name || "Anonymous"}
-                            </span>
-                            <span>•</span>
-                            <span>
-                              {formatDistanceToNow(new Date(annotation.created_at), {
-                                addSuffix: true,
-                              })}
-                            </span>
-                          </div>
-                          {annotation.user_id === user?.id && (
-                            <div className="flex gap-1">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-5 w-5"
-                                onClick={() => setEditingAnnotation(annotation.id)}
-                              >
-                                <Edit2 className="w-3 h-3" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-5 w-5 text-destructive"
-                                onClick={() => handleDeleteAnnotation(annotation.id)}
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      </>
-                    )}
-                  </div>
+                    annotation={annotation}
+                    replies={getRepliesForAnnotation(annotation.id)}
+                    currentUserId={user?.id}
+                    isAuthenticated={isAuthenticated}
+                    readOnly={readOnly}
+                    getColorValue={getColorValue}
+                    onEdit={handleUpdateAnnotation}
+                    onDelete={handleDeleteAnnotation}
+                    onReply={handleAddReply}
+                    saving={saving}
+                  />
                 ))}
               </div>
             )}

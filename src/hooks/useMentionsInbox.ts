@@ -10,6 +10,7 @@ interface MentionAnnotation {
   color: string;
   created_at: string;
   user_id: string;
+  parent_id: string | null;
   profiles: {
     display_name: string;
     avatar_url: string | null;
