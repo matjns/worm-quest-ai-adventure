@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { APIPlayground } from "@/components/APIPlayground";
+import { BatchSimulationUI } from "@/components/BatchSimulationUI";
+import { APIOnboardingWizard } from "@/components/APIOnboardingWizard";
 import { 
   Github, 
   Code2, 
@@ -453,9 +455,19 @@ npm run dev`}
                 </p>
               </div>
 
+              {/* API Onboarding Wizard */}
+              <div className="max-w-3xl mx-auto mb-12">
+                <APIOnboardingWizard />
+              </div>
+
               {/* Interactive API Playground */}
               <div className="max-w-3xl mx-auto mb-12">
                 <APIPlayground />
+              </div>
+
+              {/* Batch Simulation & Parameter Sweeps */}
+              <div className="max-w-4xl mx-auto mb-12">
+                <BatchSimulationUI />
               </div>
 
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
