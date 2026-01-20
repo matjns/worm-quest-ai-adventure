@@ -22,6 +22,7 @@ export type Database = {
           created_at: string
           id: string
           neuron_id: string
+          parent_id: string | null
           updated_at: string
           user_id: string
           x_offset: number | null
@@ -34,6 +35,7 @@ export type Database = {
           created_at?: string
           id?: string
           neuron_id: string
+          parent_id?: string | null
           updated_at?: string
           user_id: string
           x_offset?: number | null
@@ -46,6 +48,7 @@ export type Database = {
           created_at?: string
           id?: string
           neuron_id?: string
+          parent_id?: string | null
           updated_at?: string
           user_id?: string
           x_offset?: number | null
@@ -57,6 +60,13 @@ export type Database = {
             columns: ["circuit_id"]
             isOneToOne: false
             referencedRelation: "shared_circuits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "circuit_annotations_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "circuit_annotations"
             referencedColumns: ["id"]
           },
         ]
