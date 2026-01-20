@@ -3,11 +3,14 @@ import { motion } from "framer-motion";
 import { 
   Heart, MessageCircle, User, Clock, Zap, Tag, 
   Github, GitFork, Send, Loader2, ExternalLink, Download, FileJson, Image,
-  Play, Eye
+  Play, Eye, History
 } from "lucide-react";
 import { exportCircuitAsJSON, exportCircuitAsPNG } from "@/utils/circuitExport";
 import { SocialShareButtons } from "@/components/SocialShareButtons";
 import { CircuitSimulationPreview } from "@/components/CircuitSimulationPreview";
+import { CircuitVersionHistory } from "@/components/CircuitVersionHistory";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -48,11 +51,13 @@ export function CircuitDetailModal({
   addComment,
 }: CircuitDetailModalProps) {
   const { isAuthenticated, user } = useAuth();
+  const { toast } = useToast();
   const [comments, setComments] = useState<CircuitComment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [loadingComments, setLoadingComments] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
   const [showSimulation, setShowSimulation] = useState(false);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
 
   const loadComments = useCallback(async () => {
     if (!circuit) return;
@@ -80,6 +85,32 @@ export function CircuitDetailModal({
   };
 
   if (!circuit) return null;
+
+  const handleRestoreVersion = async (version: {
+    title: string;
+    description: string | null;
+    circuit_data: { neurons: Array<{ id: string; x: number; y: number; type?: string }>; connections: Array<{ from: string; to: string; type: string }> };
+    neurons_used: string[];
+    behavior: string;
+  }) => {
+    const { error } = await supabase
+      .from("shared_circuits")
+      .update({
+        title: version.title,
+        description: version.description,
+        circuit_data: version.circuit_data,
+        neurons_used: version.neurons_used,
+        behavior: version.behavior,
+      })
+      .eq("id", circuit.id);
+
+    if (error) throw error;
+
+    toast({
+      title: "Circuit Restored",
+      description: "The circuit has been restored to the selected version.",
+    });
+  };
 
   const neurons = circuit.circuit_data?.neurons || [];
   const connections = circuit.circuit_data?.connections || [];
@@ -284,6 +315,14 @@ export function CircuitDetailModal({
                 <Github className="w-4 h-4 mr-1" />
                 PR
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowVersionHistory(true)}
+                title="View version history"
+              >
+                <History className="w-4 h-4" />
+              </Button>
               <SocialShareButtons
                 circuitId={circuit.id}
                 title={circuit.title}
@@ -293,6 +332,16 @@ export function CircuitDetailModal({
               />
             </div>
           </div>
+
+          {/* Version History Dialog */}
+          <CircuitVersionHistory
+            circuitId={circuit.id}
+            circuitTitle={circuit.title}
+            open={showVersionHistory}
+            onOpenChange={setShowVersionHistory}
+            onRestore={handleRestoreVersion}
+            isOwner={circuit.user_id === user?.id}
+          />
 
           {/* Right: Comments */}
           <div className="flex flex-col h-[80vh] md:h-auto">
