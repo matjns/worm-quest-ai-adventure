@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { LearningStyleDetector } from '@/components/LearningStyleDetector';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import {
@@ -27,6 +28,7 @@ import {
   BookOpen,
   Zap,
   TrendingUp,
+  Eye,
 } from 'lucide-react';
 
 interface StudentProfile {
@@ -211,7 +213,11 @@ export function AIClassroomTools({ classroomId, gradeLevel, students }: AIClassr
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="styles" className="gap-2">
+            <Eye className="w-4 h-4" />
+            <span className="hidden sm:inline">Styles</span>
+          </TabsTrigger>
           <TabsTrigger value="personalize" className="gap-2">
             <Wand2 className="w-4 h-4" />
             <span className="hidden sm:inline">Personalize</span>
@@ -226,9 +232,92 @@ export function AIClassroomTools({ classroomId, gradeLevel, students }: AIClassr
           </TabsTrigger>
           <TabsTrigger value="demos" className="gap-2">
             <Video className="w-4 h-4" />
-            <span className="hidden sm:inline">Demo Videos</span>
+            <span className="hidden sm:inline">Demos</span>
           </TabsTrigger>
         </TabsList>
+
+        {/* Learning Styles Tab */}
+        <TabsContent value="styles" className="space-y-4">
+          <Card className="border-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Eye className="w-5 h-5 text-primary" />
+                Learning Style Detection
+              </CardTitle>
+              <CardDescription>
+                Automatically analyze student behavior to detect visual, auditory, reading, or kinesthetic preferences
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Select Student to Analyze</label>
+                <Select value={selectedStudent} onValueChange={setSelectedStudent}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a student" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {students.map(student => (
+                      <SelectItem key={student.id} value={student.id}>
+                        <div className="flex items-center gap-2">
+                          <span>{student.name}</span>
+                          <Badge variant="outline" className="text-xs">
+                            Level {student.skillLevel}
+                          </Badge>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {selectedStudent && (
+                <LearningStyleDetector
+                  studentId={selectedStudent}
+                  studentName={students.find(s => s.id === selectedStudent)?.name || 'Student'}
+                  gradeLevel={gradeLevel}
+                  onStyleDetected={(style) => {
+                    toast.success(`Detected: ${style.primary_style} learner (${style.confidence}% confidence)`);
+                  }}
+                />
+              )}
+
+              {!selectedStudent && (
+                <div className="p-8 text-center text-muted-foreground border-2 border-dashed rounded-lg">
+                  <Brain className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p>Select a student above to analyze their learning style</p>
+                  <p className="text-sm mt-1">
+                    The AI will analyze their behavior patterns across videos, simulations, reading, and hands-on activities
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Class Overview */}
+          <Card className="border-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-primary" />
+                Class Learning Style Distribution
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-4 gap-4">
+                {(['visual', 'auditory', 'reading', 'kinesthetic'] as const).map(style => {
+                  const count = students.filter(s => s.learningStyle === style).length;
+                  const percent = students.length > 0 ? Math.round((count / students.length) * 100) : 0;
+                  return (
+                    <div key={style} className="text-center p-3 rounded-lg bg-muted/50">
+                      <p className="text-2xl font-bold">{percent}%</p>
+                      <p className="text-xs capitalize text-muted-foreground">{style}</p>
+                      <p className="text-xs text-muted-foreground">({count} students)</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         {/* Personalize Tab */}
         <TabsContent value="personalize" className="space-y-4">
