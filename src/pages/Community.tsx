@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Users, Github, MessageCircle, Share2, Heart, ExternalLink, 
-  Code, BookOpen, Plus, Sparkles, Copy, Check, LogIn, GitFork
+  Code, BookOpen, Plus, Sparkles, Copy, Check, LogIn, GitFork, Pencil
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useCommunity, SharedCircuit } from "@/hooks/useCommunity";
+import { EditCircuitDialog } from "@/components/EditCircuitDialog";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -56,6 +57,8 @@ function CircuitCard({
   onLike,
   onGeneratePR,
   onFork,
+  onUpdate,
+  onDelete,
   isOwnCircuit
 }: { 
   circuit: SharedCircuit; 
@@ -63,6 +66,8 @@ function CircuitCard({
   onLike: () => void;
   onGeneratePR: () => void;
   onFork: () => void;
+  onUpdate: (circuitId: string, updates: { title?: string; description?: string; tags?: string[] }) => Promise<{ error: unknown; data: unknown }>;
+  onDelete: (circuitId: string) => Promise<{ error: unknown }>;
   isOwnCircuit: boolean;
 }) {
   return (
@@ -120,6 +125,13 @@ function CircuitCard({
         </Button>
         
         <div className="flex gap-1">
+          {isOwnCircuit && (
+            <EditCircuitDialog circuit={circuit} onUpdate={onUpdate} onDelete={onDelete}>
+              <Button variant="ghost" size="sm" title="Edit circuit">
+                <Pencil className="w-4 h-4" />
+              </Button>
+            </EditCircuitDialog>
+          )}
           {!isOwnCircuit && (
             <Button variant="ghost" size="sm" onClick={onFork} title="Fork this circuit">
               <GitFork className="w-4 h-4" />
@@ -196,6 +208,8 @@ export default function CommunityPage() {
     likeCircuit,
     shareCircuit,
     forkCircuit,
+    updateCircuit,
+    deleteCircuit,
     generateGitHubPRTemplate 
   } = useCommunity();
   
@@ -374,6 +388,8 @@ export default function CommunityPage() {
                           onLike={() => likeCircuit(circuit.id)}
                           onGeneratePR={() => handleGeneratePR(circuit)}
                           onFork={() => forkCircuit(circuit.id)}
+                          onUpdate={updateCircuit}
+                          onDelete={deleteCircuit}
                           isOwnCircuit={circuit.user_id === user?.id}
                         />
                       </div>

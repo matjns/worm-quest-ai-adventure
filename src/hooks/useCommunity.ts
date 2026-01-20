@@ -189,6 +189,80 @@ export function useCommunity() {
     }
   };
 
+  // Update an existing circuit
+  const updateCircuit = async (
+    circuitId: string,
+    updates: {
+      title?: string;
+      description?: string;
+      tags?: string[];
+      circuit_data?: SharedCircuit['circuit_data'];
+      behavior?: string;
+      neurons_used?: string[];
+    }
+  ) => {
+    if (!user) {
+      toast.error("Please sign in to update circuits");
+      return { error: new Error("Not authenticated"), data: null };
+    }
+
+    try {
+      // Verify ownership
+      const circuit = circuits.find(c => c.id === circuitId);
+      if (!circuit || circuit.user_id !== user.id) {
+        toast.error("You can only edit your own circuits");
+        return { error: new Error("Not authorized"), data: null };
+      }
+
+      const { data, error } = await supabase
+        .from("shared_circuits")
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", circuitId)
+        .eq("user_id", user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast.success("Circuit updated successfully!");
+      await fetchCircuits();
+      return { data, error: null };
+    } catch (error) {
+      console.error("Error updating circuit:", error);
+      toast.error("Failed to update circuit");
+      return { error, data: null };
+    }
+  };
+
+  // Delete a circuit
+  const deleteCircuit = async (circuitId: string) => {
+    if (!user) {
+      toast.error("Please sign in to delete circuits");
+      return { error: new Error("Not authenticated") };
+    }
+
+    try {
+      const { error } = await supabase
+        .from("shared_circuits")
+        .delete()
+        .eq("id", circuitId)
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+
+      toast.success("Circuit deleted");
+      await fetchCircuits();
+      return { error: null };
+    } catch (error) {
+      console.error("Error deleting circuit:", error);
+      toast.error("Failed to delete circuit");
+      return { error };
+    }
+  };
+
   // Like a circuit
   const likeCircuit = async (circuitId: string) => {
     if (!user) {
@@ -322,6 +396,8 @@ ${JSON.stringify(circuit.circuit_data, null, 2)}
     userLikes,
     shareCircuit,
     forkCircuit,
+    updateCircuit,
+    deleteCircuit,
     likeCircuit,
     addComment,
     fetchComments,
