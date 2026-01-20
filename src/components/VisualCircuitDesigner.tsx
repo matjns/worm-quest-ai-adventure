@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   NEURON_PALETTE, 
   NEURON_COLORS, 
@@ -13,24 +15,32 @@ import {
   type ConnectionData,
   type WormBehavior
 } from "@/data/neuronData";
+import { circuitTemplates, type CircuitTemplate } from "@/data/circuitTemplates";
 import { WormSimulator3D } from "@/components/WormSimulator3D";
+import { useCollaborativeCircuitDesigner } from "@/hooks/useCollaborativeCircuitDesigner";
 import { 
   Brain, 
   Zap, 
   Play, 
   RotateCcw, 
   Trash2, 
-  Save,
   Download,
-  Upload,
   MousePointer2,
   Link2,
-  Sparkles,
   Activity,
   Eye,
   Circle,
   ArrowRight,
-  Layers
+  Layers,
+  FileCode,
+  Users,
+  UserPlus,
+  Wifi,
+  WifiOff,
+  Copy,
+  Check,
+  Sparkles,
+  BookOpen
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -50,13 +60,28 @@ type StimulusType = "touch_head" | "touch_tail" | "smell_food" | "none";
 
 export function VisualCircuitDesigner() {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const [placedNeurons, setPlacedNeurons] = useState<PlacedNeuron[]>([]);
-  const [connections, setConnections] = useState<DesignerConnection[]>([]);
+  
+  // Local state (used when not in collab mode)
+  const [localNeurons, setLocalNeurons] = useState<PlacedNeuron[]>([]);
+  const [localConnections, setLocalConnections] = useState<DesignerConnection[]>([]);
+  
+  // Collaboration
+  const [collabRoomId, setCollabRoomId] = useState<string | null>(null);
+  const [roomInputValue, setRoomInputValue] = useState("");
+  const [copiedRoomId, setCopiedRoomId] = useState(false);
+  const collab = useCollaborativeCircuitDesigner(collabRoomId);
+  
+  // Use collaborative state when connected, else local
+  const placedNeurons = collabRoomId && collab.isConnected ? collab.neurons : localNeurons;
+  const connections = collabRoomId && collab.isConnected ? collab.connections : localConnections;
+  const setPlacedNeurons = collabRoomId && collab.isConnected ? collab.setNeurons : setLocalNeurons;
+  const setConnections = collabRoomId && collab.isConnected ? collab.setConnections : setLocalConnections;
+  
+  // UI state
   const [selectedNeuron, setSelectedNeuron] = useState<string | null>(null);
   const [connectingFrom, setConnectingFrom] = useState<string | null>(null);
   const [mode, setMode] = useState<DesignerMode>("select");
   const [draggedNeuron, setDraggedNeuron] = useState<NeuronData | null>(null);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [stimulus, setStimulus] = useState<StimulusType>("none");
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulationResult, setSimulationResult] = useState<{
@@ -66,6 +91,38 @@ export function VisualCircuitDesigner() {
   } | null>(null);
   const [connectionWeight, setConnectionWeight] = useState(8);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [templateFilter, setTemplateFilter] = useState<string>("all");
+
+  // Generate a new room ID
+  const generateRoomId = () => {
+    const id = `room_${Math.random().toString(36).substr(2, 8)}`;
+    setCollabRoomId(id);
+    setRoomInputValue(id);
+  };
+
+  // Join existing room
+  const joinRoom = () => {
+    if (roomInputValue.trim()) {
+      setCollabRoomId(roomInputValue.trim());
+    }
+  };
+
+  // Leave room
+  const leaveRoom = () => {
+    setCollabRoomId(null);
+    setRoomInputValue("");
+  };
+
+  // Copy room ID
+  const copyRoomId = () => {
+    if (collabRoomId) {
+      navigator.clipboard.writeText(collabRoomId);
+      setCopiedRoomId(true);
+      toast.success("Room ID copied!");
+      setTimeout(() => setCopiedRoomId(false), 2000);
+    }
+  };
 
   // Handle drag start from palette
   const handleDragStart = (neuron: NeuronData, e: React.DragEvent) => {
@@ -82,7 +139,6 @@ export function VisualCircuitDesigner() {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // Check if neuron already exists
     if (placedNeurons.find(n => n.id === draggedNeuron.id)) {
       toast.error(`${draggedNeuron.name} is already on the canvas`);
       return;
@@ -95,18 +151,26 @@ export function VisualCircuitDesigner() {
       isActive: false
     };
 
-    setPlacedNeurons(prev => [...prev, newNeuron]);
+    if (collabRoomId && collab.isConnected) {
+      collab.addNeuron(newNeuron);
+    } else {
+      setLocalNeurons(prev => [...prev, newNeuron]);
+    }
     setDraggedNeuron(null);
     toast.success(`Added ${draggedNeuron.name}`);
-  }, [draggedNeuron, placedNeurons]);
+  }, [draggedNeuron, placedNeurons, collabRoomId, collab]);
 
   // Handle neuron click based on mode
   const handleNeuronClick = (neuronId: string, e: React.MouseEvent) => {
     e.stopPropagation();
 
     if (mode === "delete") {
-      setPlacedNeurons(prev => prev.filter(n => n.id !== neuronId));
-      setConnections(prev => prev.filter(c => c.from !== neuronId && c.to !== neuronId));
+      if (collabRoomId && collab.isConnected) {
+        collab.removeNeuron(neuronId);
+      } else {
+        setLocalNeurons(prev => prev.filter(n => n.id !== neuronId));
+        setLocalConnections(prev => prev.filter(c => c.from !== neuronId && c.to !== neuronId));
+      }
       toast.info("Neuron removed");
       return;
     }
@@ -116,7 +180,6 @@ export function VisualCircuitDesigner() {
         setConnectingFrom(neuronId);
         toast.info(`Click another neuron to create synapse from ${neuronId}`);
       } else if (connectingFrom !== neuronId) {
-        // Check if connection already exists
         const exists = connections.find(
           c => c.from === connectingFrom && c.to === neuronId
         );
@@ -130,7 +193,11 @@ export function VisualCircuitDesigner() {
             type: "chemical",
             weight: connectionWeight
           };
-          setConnections(prev => [...prev, newConnection]);
+          if (collabRoomId && collab.isConnected) {
+            collab.addConnection(newConnection);
+          } else {
+            setLocalConnections(prev => [...prev, newConnection]);
+          }
           toast.success(`Synapse created: ${connectingFrom} → ${neuronId}`);
         }
         setConnectingFrom(null);
@@ -138,7 +205,6 @@ export function VisualCircuitDesigner() {
       return;
     }
 
-    // Select mode
     setSelectedNeuron(neuronId === selectedNeuron ? null : neuronId);
   };
 
@@ -159,12 +225,16 @@ export function VisualCircuitDesigner() {
     const handleMove = (moveE: MouseEvent) => {
       const newX = moveE.clientX - rect.left - offsetX;
       const newY = moveE.clientY - rect.top - offsetY;
+      const clampedX = Math.max(20, Math.min(newX, rect.width - 20));
+      const clampedY = Math.max(20, Math.min(newY, rect.height - 20));
 
-      setPlacedNeurons(prev =>
-        prev.map(n =>
-          n.id === neuronId ? { ...n, x: Math.max(20, Math.min(newX, rect.width - 20)), y: Math.max(20, Math.min(newY, rect.height - 20)) } : n
-        )
-      );
+      if (collabRoomId && collab.isConnected) {
+        collab.moveNeuron(neuronId, clampedX, clampedY);
+      } else {
+        setLocalNeurons(prev =>
+          prev.map(n => n.id === neuronId ? { ...n, x: clampedX, y: clampedY } : n)
+        );
+      }
     };
 
     const handleUp = () => {
@@ -192,6 +262,68 @@ export function VisualCircuitDesigner() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [connectingFrom]);
 
+  // Track cursor for collaboration
+  useEffect(() => {
+    if (!collabRoomId || !collab.isConnected || !canvasRef.current) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = canvasRef.current!.getBoundingClientRect();
+      if (
+        e.clientX >= rect.left &&
+        e.clientX <= rect.right &&
+        e.clientY >= rect.top &&
+        e.clientY <= rect.bottom
+      ) {
+        collab.updateCursor(e.clientX - rect.left, e.clientY - rect.top);
+      }
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [collabRoomId, collab]);
+
+  // Load template
+  const loadTemplate = (template: CircuitTemplate) => {
+    const canvasWidth = canvasRef.current?.offsetWidth || 600;
+    const canvasHeight = canvasRef.current?.offsetHeight || 400;
+    
+    // Convert template positions (percentages) to canvas coordinates
+    const neurons: PlacedNeuron[] = template.neurons.map(n => {
+      const neuronData = NEURON_PALETTE.find(np => np.id === n.id) || {
+        id: n.id,
+        name: n.id,
+        type: (n.type as NeuronData["type"]) || "interneuron",
+        function: "unknown",
+        description: `Neuron ${n.id}`,
+        position: { x: 0, y: 0 }
+      };
+      return {
+        ...neuronData,
+        x: (n.x / 100) * canvasWidth,
+        y: (n.y / 100) * canvasHeight,
+        isActive: false
+      };
+    });
+
+    const conns: DesignerConnection[] = template.connections.map((c, i) => ({
+      id: `${c.from}-${c.to}-${i}`,
+      from: c.from,
+      to: c.to,
+      type: "chemical" as const,
+      weight: 8
+    }));
+
+    if (collabRoomId && collab.isConnected) {
+      collab.loadFromTemplate(neurons, conns);
+    } else {
+      setLocalNeurons(neurons);
+      setLocalConnections(conns);
+    }
+    
+    setShowTemplates(false);
+    toast.success(`Loaded template: ${template.name}`);
+  };
+
   // Run simulation
   const runSimulation = useCallback(() => {
     if (placedNeurons.length === 0) {
@@ -207,7 +339,6 @@ export function VisualCircuitDesigner() {
       placedNeurons.map(n => n.id)
     );
 
-    // Animate signal propagation
     setTimeout(() => {
       setSimulationResult(result);
       setPlacedNeurons(prev =>
@@ -219,7 +350,7 @@ export function VisualCircuitDesigner() {
       setIsSimulating(false);
       toast.success(`Behavior: ${result.behavior.replace("_", " ")}`);
     }, 500);
-  }, [placedNeurons, connections, stimulus]);
+  }, [placedNeurons, connections, stimulus, setPlacedNeurons]);
 
   // Reset simulation
   const resetSimulation = () => {
@@ -229,8 +360,12 @@ export function VisualCircuitDesigner() {
 
   // Clear canvas
   const clearCanvas = () => {
-    setPlacedNeurons([]);
-    setConnections([]);
+    if (collabRoomId && collab.isConnected) {
+      collab.clearAll();
+    } else {
+      setLocalNeurons([]);
+      setLocalConnections([]);
+    }
     setSimulationResult(null);
     setSelectedNeuron(null);
     setConnectingFrom(null);
@@ -254,10 +389,8 @@ export function VisualCircuitDesigner() {
     toast.success("Circuit exported");
   };
 
-  // Get neuron color
   const getNeuronColor = (type: NeuronData["type"]) => NEURON_COLORS[type];
 
-  // Render connection line
   const renderConnection = (conn: DesignerConnection) => {
     const fromNeuron = placedNeurons.find(n => n.id === conn.from);
     const toNeuron = placedNeurons.find(n => n.id === conn.to);
@@ -282,14 +415,12 @@ export function VisualCircuitDesigner() {
           strokeOpacity={isActive ? 1 : 0.5}
           className={isActive ? "animate-pulse" : ""}
         />
-        {/* Arrow head */}
         <polygon
           points="-8,-4 0,0 -8,4"
           fill={isActive ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))"}
           transform={`translate(${toNeuron.x - 20 * Math.cos(angle * Math.PI / 180)}, ${toNeuron.y - 20 * Math.sin(angle * Math.PI / 180)}) rotate(${angle})`}
           fillOpacity={isActive ? 1 : 0.5}
         />
-        {/* Weight label */}
         <text
           x={(fromNeuron.x + toNeuron.x) / 2}
           y={(fromNeuron.y + toNeuron.y) / 2 - 8}
@@ -311,10 +442,14 @@ export function VisualCircuitDesigner() {
     motor: NEURON_PALETTE.filter(n => n.type === "motor"),
   };
 
+  const filteredTemplates = templateFilter === "all" 
+    ? circuitTemplates 
+    : circuitTemplates.filter(t => t.category === templateFilter || t.difficulty === templateFilter);
+
   return (
     <Card className="border-3 border-foreground">
       <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/10 rounded-lg">
               <Layers className="w-6 h-6 text-primary" />
@@ -323,13 +458,176 @@ export function VisualCircuitDesigner() {
               <CardTitle className="text-xl flex items-center gap-2">
                 Visual Circuit Designer
                 <Badge variant="outline" className="ml-2">Interactive</Badge>
+                {collabRoomId && collab.isConnected && (
+                  <Badge variant="secondary" className="gap-1">
+                    <Wifi className="w-3 h-3" />
+                    Live
+                  </Badge>
+                )}
               </CardTitle>
               <p className="text-sm text-muted-foreground">
                 Drag neurons, create synapses, preview worm behavior in real-time
               </p>
             </div>
           </div>
-          <div className="flex gap-2">
+          
+          <div className="flex gap-2 flex-wrap">
+            {/* Collaboration Controls */}
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1">
+                  <Users className="w-4 h-4" />
+                  {collab.isConnected ? `${collab.collaborators.length + 1} Online` : "Collaborate"}
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Users className="w-5 h-5" />
+                    Multiplayer Collaboration
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  {!collabRoomId ? (
+                    <>
+                      <div className="space-y-2">
+                        <p className="text-sm text-muted-foreground">
+                          Create a new room or join an existing one to build circuits together in real-time.
+                        </p>
+                        <Button onClick={generateRoomId} className="w-full gap-2">
+                          <UserPlus className="w-4 h-4" />
+                          Create New Room
+                        </Button>
+                      </div>
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <span className="w-full border-t" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-background px-2 text-muted-foreground">Or</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Enter room ID..."
+                          value={roomInputValue}
+                          onChange={(e) => setRoomInputValue(e.target.value)}
+                        />
+                        <Button onClick={joinRoom} disabled={!roomInputValue.trim()}>
+                          Join
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
+                        {collab.isConnected ? (
+                          <Wifi className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <WifiOff className="w-4 h-4 text-muted-foreground" />
+                        )}
+                        <span className="font-mono text-sm flex-1">{collabRoomId}</span>
+                        <Button variant="ghost" size="sm" onClick={copyRoomId}>
+                          {copiedRoomId ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                        </Button>
+                      </div>
+                      
+                      {collab.collaborators.length > 0 && (
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-medium">Collaborators</h4>
+                          <div className="space-y-1">
+                            {collab.collaborators.map(c => (
+                              <div key={c.id} className="flex items-center gap-2 p-2 bg-muted/50 rounded">
+                                <div 
+                                  className="w-3 h-3 rounded-full" 
+                                  style={{ backgroundColor: c.color }}
+                                />
+                                <span className="text-sm">{c.name}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      <Button variant="outline" onClick={leaveRoom} className="w-full">
+                        Leave Room
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* Template Button */}
+            <Dialog open={showTemplates} onOpenChange={setShowTemplates}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1">
+                  <FileCode className="w-4 h-4" />
+                  Templates
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-3xl max-h-[80vh]">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <BookOpen className="w-5 h-5" />
+                    Circuit Templates
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  {/* Filter */}
+                  <div className="flex gap-2 flex-wrap">
+                    {["all", "beginner", "intermediate", "advanced", "sensory", "motor", "reflex"].map(f => (
+                      <Button
+                        key={f}
+                        variant={templateFilter === f ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setTemplateFilter(f)}
+                        className="capitalize"
+                      >
+                        {f}
+                      </Button>
+                    ))}
+                  </div>
+                  
+                  {/* Template Grid */}
+                  <ScrollArea className="h-[400px]">
+                    <div className="grid md:grid-cols-2 gap-4 pr-4">
+                      {filteredTemplates.map(template => (
+                        <Card 
+                          key={template.id} 
+                          className="border border-border/50 hover:border-primary/50 transition-colors cursor-pointer"
+                          onClick={() => loadTemplate(template)}
+                        >
+                          <CardContent className="p-4 space-y-2">
+                            <div className="flex items-start justify-between">
+                              <h4 className="font-bold">{template.name}</h4>
+                              <Badge variant="outline" className="capitalize text-xs">
+                                {template.difficulty}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground line-clamp-2">
+                              {template.description}
+                            </p>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Badge variant="secondary" className="text-xs">
+                                {template.neurons.length} neurons
+                              </Badge>
+                              <Badge variant="secondary" className="text-xs">
+                                {template.connections.length} synapses
+                              </Badge>
+                            </div>
+                            <p className="text-xs italic text-muted-foreground border-l-2 border-primary/30 pl-2">
+                              {template.scientificNote.slice(0, 100)}...
+                            </p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </div>
+              </DialogContent>
+            </Dialog>
+            
             <Button variant="outline" size="sm" onClick={exportCircuit}>
               <Download className="w-4 h-4 mr-1" />
               Export
@@ -451,7 +749,7 @@ export function VisualCircuitDesigner() {
                 <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
                   <div className="text-center">
                     <Brain className="w-12 h-12 mx-auto mb-2 opacity-30" />
-                    <p className="text-sm">Drag neurons here to build your circuit</p>
+                    <p className="text-sm">Drag neurons here or load a template</p>
                   </div>
                 </div>
               )}
@@ -460,7 +758,6 @@ export function VisualCircuitDesigner() {
               <svg className="absolute inset-0 w-full h-full pointer-events-none">
                 {connections.map(renderConnection)}
                 
-                {/* Connecting line preview */}
                 {connectingFrom && (() => {
                   const fromNeuron = placedNeurons.find(n => n.id === connectingFrom);
                   if (!fromNeuron) return null;
@@ -478,6 +775,34 @@ export function VisualCircuitDesigner() {
                   );
                 })()}
               </svg>
+
+              {/* Collaborator Cursors */}
+              {collab.collaborators.map(c => c.cursor && (
+                <div
+                  key={c.id}
+                  className="absolute pointer-events-none transition-all duration-75"
+                  style={{
+                    left: c.cursor.x,
+                    top: c.cursor.y,
+                    transform: "translate(-2px, -2px)"
+                  }}
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M5 3L19 12L12 13L9 20L5 3Z"
+                      fill={c.color}
+                      stroke="white"
+                      strokeWidth="1.5"
+                    />
+                  </svg>
+                  <span 
+                    className="absolute left-4 top-4 text-xs px-1 py-0.5 rounded text-white whitespace-nowrap"
+                    style={{ backgroundColor: c.color }}
+                  >
+                    {c.name}
+                  </span>
+                </div>
+              ))}
 
               {/* Neurons */}
               {placedNeurons.map(neuron => (
@@ -581,7 +906,6 @@ export function VisualCircuitDesigner() {
               )}
             </div>
 
-            {/* 3D Worm Preview */}
             <div className="h-[200px] rounded-xl border-2 border-border bg-gradient-to-br from-muted/50 to-background overflow-hidden">
               <WormSimulator3D 
                 behavior={simulationResult?.behavior || "no_movement"} 
@@ -592,7 +916,6 @@ export function VisualCircuitDesigner() {
               />
             </div>
 
-            {/* Signal Path */}
             {simulationResult && (
               <Card className="border border-border/50">
                 <CardContent className="p-3 space-y-2">
@@ -625,7 +948,6 @@ export function VisualCircuitDesigner() {
               </Card>
             )}
 
-            {/* Active Neurons */}
             {simulationResult && (
               <Card className="border border-border/50">
                 <CardContent className="p-3 space-y-2">
@@ -655,7 +977,6 @@ export function VisualCircuitDesigner() {
               </Card>
             )}
 
-            {/* Stats */}
             <div className="grid grid-cols-2 gap-2">
               <Card className="border border-border/50">
                 <CardContent className="p-3 text-center">
