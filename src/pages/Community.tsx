@@ -29,6 +29,7 @@ import { CircuitFilters } from "@/components/CircuitFilters";
 import { CircuitDetailModal } from "@/components/CircuitDetailModal";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { ImportCircuitDialog } from "@/components/ImportCircuitDialog";
 
 const communityStats = [
   { value: "15K+", label: "Community Members", icon: Users },
@@ -381,63 +382,77 @@ export default function CommunityPage() {
                 </TabsList>
                 
                 {isAuthenticated && (
-                  <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        <Plus className="w-4 h-4 mr-2" />
-                        Share Your Circuit
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Share Your Circuit</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div>
-                          <label className="text-sm font-medium">Title</label>
-                          <Input
-                            value={shareForm.title}
-                            onChange={(e) => setShareForm({ ...shareForm, title: e.target.value })}
-                            placeholder="Chemotaxis Navigator"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium">Description</label>
-                          <Textarea
-                            value={shareForm.description}
-                            onChange={(e) => setShareForm({ ...shareForm, description: e.target.value })}
-                            placeholder="A neural pathway that mimics real C. elegans behavior..."
-                          />
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium">Tags (comma separated)</label>
-                          <Input
-                            value={shareForm.tags}
-                            onChange={(e) => setShareForm({ ...shareForm, tags: e.target.value })}
-                            placeholder="chemotaxis, sensory, movement"
-                          />
-                        </div>
-                        <Button 
-                          className="w-full" 
-                          onClick={async () => {
-                            await shareCircuit({
-                              title: shareForm.title,
-                              description: shareForm.description,
-                              circuit_data: { neurons: [], connections: [] },
-                              behavior: "custom",
-                              neurons_used: [],
-                              tags: shareForm.tags.split(",").map(t => t.trim()).filter(Boolean),
-                            });
-                            setShowShareDialog(false);
-                            setShareForm({ title: "", description: "", tags: "" });
-                          }}
-                        >
-                          <Share2 className="w-4 h-4 mr-2" />
-                          Share Circuit
+                  <div className="flex gap-2">
+                    <ImportCircuitDialog
+                      onImport={async (circuit) => {
+                        await shareCircuit({
+                          title: circuit.title,
+                          description: circuit.description,
+                          circuit_data: circuit.circuit_data,
+                          behavior: circuit.behavior,
+                          neurons_used: circuit.neurons_used,
+                          tags: circuit.tags,
+                        });
+                      }}
+                    />
+                    <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <Plus className="w-4 h-4 mr-2" />
+                          Share Your Circuit
                         </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Share Your Circuit</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="text-sm font-medium">Title</label>
+                            <Input
+                              value={shareForm.title}
+                              onChange={(e) => setShareForm({ ...shareForm, title: e.target.value })}
+                              placeholder="Chemotaxis Navigator"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium">Description</label>
+                            <Textarea
+                              value={shareForm.description}
+                              onChange={(e) => setShareForm({ ...shareForm, description: e.target.value })}
+                              placeholder="A neural pathway that mimics real C. elegans behavior..."
+                            />
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium">Tags (comma separated)</label>
+                            <Input
+                              value={shareForm.tags}
+                              onChange={(e) => setShareForm({ ...shareForm, tags: e.target.value })}
+                              placeholder="chemotaxis, sensory, movement"
+                            />
+                          </div>
+                          <Button 
+                            className="w-full" 
+                            onClick={async () => {
+                              await shareCircuit({
+                                title: shareForm.title,
+                                description: shareForm.description,
+                                circuit_data: { neurons: [], connections: [] },
+                                behavior: "custom",
+                                neurons_used: [],
+                                tags: shareForm.tags.split(",").map(t => t.trim()).filter(Boolean),
+                              });
+                              setShowShareDialog(false);
+                              setShareForm({ title: "", description: "", tags: "" });
+                            }}
+                          >
+                            <Share2 className="w-4 h-4 mr-2" />
+                            Share Circuit
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 )}
               </div>
 
