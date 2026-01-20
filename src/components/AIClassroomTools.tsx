@@ -61,39 +61,39 @@ interface PersonalizationResult {
   success_prediction: number;
 }
 
-// Demo videos for different features
+// Demo videos for different features - REAL educational videos
 const DEMO_VIDEOS = [
   {
-    id: 'intro',
-    title: 'NeuroQuest Platform Overview',
-    duration: '4:12',
-    description: 'Complete walkthrough of the AI-powered neuroscience learning platform',
-    thumbnail: 'https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=400&h=225&fit=crop',
-    url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', // Placeholder
+    id: 'openworm-intro',
+    title: 'OpenWorm Project Overview',
+    duration: '10:32',
+    description: 'Introduction to the OpenWorm project - digitizing the first organism',
+    thumbnail: 'https://img.youtube.com/vi/z6hNT8yyNVQ/mqdefault.jpg',
+    url: 'https://www.youtube.com/embed/z6hNT8yyNVQ',
   },
   {
-    id: 'personalization',
-    title: 'AI Lesson Personalization',
-    duration: '3:45',
-    description: 'How AI adapts lessons to individual student needs',
-    thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=225&fit=crop',
-    url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    id: 'connectome-explained',
+    title: 'The Connectome: Mapping the Brain',
+    duration: '5:21',
+    description: 'What is a connectome and why 302 neurons matter',
+    thumbnail: 'https://img.youtube.com/vi/HA7GwKXfJB0/mqdefault.jpg',
+    url: 'https://www.youtube.com/embed/HA7GwKXfJB0',
   },
   {
-    id: 'validation',
-    title: 'OpenWorm Ground Truth Validation',
-    duration: '4:02',
-    description: 'Validating student circuits against real C. elegans data',
-    thumbnail: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=400&h=225&fit=crop',
-    url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    id: 'elegans-behavior',
+    title: 'C. elegans Nervous System',
+    duration: '8:45',
+    description: 'How 302 neurons create complex worm behaviors',
+    thumbnail: 'https://img.youtube.com/vi/4gQbKagRxwg/mqdefault.jpg',
+    url: 'https://www.youtube.com/embed/4gQbKagRxwg',
   },
   {
-    id: 'classroom',
-    title: 'Teacher Dashboard Tutorial',
-    duration: '3:58',
-    description: 'Managing classrooms and tracking student progress',
-    thumbnail: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=400&h=225&fit=crop',
-    url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    id: 'sibernetic-demo',
+    title: 'Sibernetic Physics Simulation',
+    duration: '3:12',
+    description: 'See the physics engine that simulates realistic worm movement',
+    thumbnail: 'https://img.youtube.com/vi/QV7CDmb0-2M/mqdefault.jpg',
+    url: 'https://www.youtube.com/embed/QV7CDmb0-2M',
   },
 ];
 
