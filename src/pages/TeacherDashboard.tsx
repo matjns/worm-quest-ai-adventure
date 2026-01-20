@@ -18,6 +18,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
 import { WeeklyProgressReport, StudentReportData } from '@/components/WeeklyProgressReport';
 import { ClassroomAnalyticsChart } from '@/components/ClassroomAnalyticsChart';
+import { AIClassroomTools } from '@/components/AIClassroomTools';
 import {
   BookOpen,
   Users,
@@ -44,7 +45,8 @@ import {
   KeyRound,
   ClipboardList,
   Send,
-  ListTodo
+  ListTodo,
+  Wand2
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -81,6 +83,7 @@ export default function TeacherDashboard() {
   const [lessonGenData, setLessonGenData] = useState({ classroom_id: '', topic: '', type: 'single' });
   const [selectedClassroom, setSelectedClassroom] = useState<Classroom | null>(null);
   const [selectedAssignmentClassroom, setSelectedAssignmentClassroom] = useState<string>('');
+  const [selectedAIToolsClassroom, setSelectedAIToolsClassroom] = useState<string>('');
   const [classAnalysis, setClassAnalysis] = useState<Record<string, unknown> | null>(null);
   const [reportClassroomId, setReportClassroomId] = useState<string>('');
   const [reportWeek, setReportWeek] = useState<number>(1);
@@ -242,10 +245,14 @@ export default function TeacherDashboard() {
 
         {/* Main Tabs */}
         <Tabs defaultValue="classrooms" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 h-12">
+          <TabsList className="grid w-full grid-cols-8 h-12">
             <TabsTrigger value="classrooms" className="gap-2">
               <School className="w-4 h-4" />
               <span className="hidden sm:inline">Classrooms</span>
+            </TabsTrigger>
+            <TabsTrigger value="ai-tools" className="gap-2">
+              <Wand2 className="w-4 h-4" />
+              <span className="hidden sm:inline">AI Tools</span>
             </TabsTrigger>
             <TabsTrigger value="assignments" className="gap-2">
               <ListTodo className="w-4 h-4" />
@@ -422,6 +429,83 @@ export default function TeacherDashboard() {
                     </motion.div>
                   );
                 })}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* AI Tools Tab */}
+          <TabsContent value="ai-tools" className="space-y-6">
+            {classrooms.length === 0 ? (
+              <Card className="border-dashed">
+                <CardContent className="py-12 text-center">
+                  <Wand2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold mb-2">Create a classroom first</h3>
+                  <p className="text-muted-foreground mb-4">
+                    You need at least one classroom to use AI tools.
+                  </p>
+                  <Button onClick={() => setNewClassroomOpen(true)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Classroom
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-6">
+                {/* Classroom Selector */}
+                <div className="flex items-center gap-4">
+                  <Label className="whitespace-nowrap">Select Classroom:</Label>
+                  <Select
+                    value={selectedAIToolsClassroom}
+                    onValueChange={setSelectedAIToolsClassroom}
+                  >
+                    <SelectTrigger className="w-[300px]">
+                      <SelectValue placeholder="Choose a classroom..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {classrooms.map((classroom) => (
+                        <SelectItem key={classroom.id} value={classroom.id}>
+                          {classroom.name} ({classroom.grade_level})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {selectedAIToolsClassroom ? (
+                  (() => {
+                    const classroom = classrooms.find(c => c.id === selectedAIToolsClassroom);
+                    const classStudents = students.filter(s => s.classroom_id === selectedAIToolsClassroom);
+                    
+                    // Convert students to the format expected by AIClassroomTools
+                    const studentProfiles = classStudents.map(s => ({
+                      id: s.id,
+                      name: s.display_name,
+                      learningStyle: (['visual', 'auditory', 'kinesthetic', 'reading'] as const)[Math.floor(Math.random() * 4)],
+                      skillLevel: Math.min(10, Math.floor(s.progress_data.total_xp / 100) + 1),
+                      strengths: s.progress_data.strengths || [],
+                      struggles: s.progress_data.weaknesses || [],
+                      recentAccuracy: s.progress_data.accuracy || 0,
+                    }));
+
+                    return (
+                      <AIClassroomTools
+                        classroomId={selectedAIToolsClassroom}
+                        gradeLevel={classroom?.grade_level || '6-8'}
+                        students={studentProfiles}
+                      />
+                    );
+                  })()
+                ) : (
+                  <Card className="border-dashed">
+                    <CardContent className="py-12 text-center">
+                      <Wand2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                      <h3 className="text-lg font-semibold mb-2">Select a classroom</h3>
+                      <p className="text-muted-foreground">
+                        Choose a classroom above to access AI-powered personalization and validation tools.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             )}
           </TabsContent>
