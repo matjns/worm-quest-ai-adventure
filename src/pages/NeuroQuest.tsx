@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { CircuitBuilder } from "@/components/CircuitBuilder";
 import { WormSimulator3D } from "@/components/WormSimulator3D";
@@ -6,7 +6,9 @@ import { AITutor } from "@/components/AITutor";
 import { MissionBriefing } from "@/components/MissionBriefing";
 import { MissionComplete } from "@/components/MissionComplete";
 import { ProgressTracker } from "@/components/ProgressTracker";
+import { SkillDashboard } from "@/components/SkillDashboard";
 import { useGameStore } from "@/stores/gameStore";
+import { useLearningStore } from "@/stores/learningStore";
 import { MISSIONS, getMissionById, isMissionComplete } from "@/data/missionData";
 import { simulateCircuit, ConnectionData, WormBehavior } from "@/data/neuronData";
 import { Button } from "@/components/ui/button";
@@ -19,7 +21,9 @@ import {
   CheckCircle2, 
   Zap,
   RotateCcw,
-  FlaskConical
+  FlaskConical,
+  TrendingUp,
+  Sparkles
 } from "lucide-react";
 
 type GamePhase = "select" | "briefing" | "playing" | "complete";
@@ -32,10 +36,14 @@ interface PlacedNeuron {
 
 export default function NeuroQuestPage() {
   const { level, xp, xpToNext, totalPoints, achievements, completedLessons, addXp, addPoints, completeLesson } = useGameStore();
+  const { profile, recordAttempt, getAdaptedMissionConfig, startSession, generateLearningPath } = useLearningStore();
   
   const [phase, setPhase] = useState<GamePhase>("select");
   const [currentMissionId, setCurrentMissionId] = useState<number | null>(null);
   const [attempts, setAttempts] = useState(0);
+  const [hintsUsed, setHintsUsed] = useState(0);
+  const [missionStartTime, setMissionStartTime] = useState<number>(0);
+  const [errorsBeforeSuccess, setErrorsBeforeSuccess] = useState(0);
   
   // Circuit state
   const [placedNeurons, setPlacedNeurons] = useState<PlacedNeuron[]>([]);
@@ -49,6 +57,15 @@ export default function NeuroQuestPage() {
 
   const currentMission = currentMissionId ? getMissionById(currentMissionId) : null;
   const completedMissionIds = completedLessons.map(l => parseInt(l.replace("mission-", "")));
+  
+  // Start session on mount
+  useEffect(() => {
+    startSession();
+  }, [startSession]);
+  
+  // Get adaptive config for current mission
+  const adaptiveConfig = currentMissionId ? getAdaptedMissionConfig(currentMissionId) : null;
+  const recommendedPath = generateLearningPath();
 
   const handleCircuitChange = useCallback((neurons: PlacedNeuron[], conns: ConnectionData[]) => {
     setPlacedNeurons(neurons);
@@ -75,16 +92,36 @@ export default function NeuroQuestPage() {
     const isComplete = isMissionComplete(connections, currentMission, result.behavior);
     
     if (isComplete) {
+      // Record successful attempt for adaptive learning
+      const timeSpent = Math.round((Date.now() - missionStartTime) / 1000);
+      recordAttempt({
+        missionId: currentMission.id,
+        timestamp: Date.now(),
+        success: true,
+        timeSpentSeconds: timeSpent,
+        hintsUsed,
+        neuronsPlaced: placedNeurons.length,
+        connectionsCreated: connections.length,
+        errorsBeforeSuccess,
+      });
+      
       setTimeout(() => {
         setPhase("complete");
         addXp(currentMission.xpReward);
         addPoints(currentMission.xpReward * 2);
         completeLesson(`mission-${currentMission.id}`);
       }, 2000);
+    } else {
+      // Track failed attempts
+      setErrorsBeforeSuccess(prev => prev + 1);
     }
     
     setTimeout(() => setIsSimulating(false), 3000);
   };
+  
+  const handleHintUsed = useCallback(() => {
+    setHintsUsed(prev => prev + 1);
+  }, []);
 
   const resetCircuit = () => {
     setPlacedNeurons([]);
@@ -99,11 +136,14 @@ export default function NeuroQuestPage() {
     setCurrentMissionId(missionId);
     setPhase("briefing");
     setAttempts(0);
+    setHintsUsed(0);
+    setErrorsBeforeSuccess(0);
     resetCircuit();
   };
 
   const startMission = () => {
     setPhase("playing");
+    setMissionStartTime(Date.now());
   };
 
   const nextMission = () => {
@@ -190,6 +230,12 @@ export default function NeuroQuestPage() {
                               {mission.xpReward} XP
                             </span>
                             <span>Difficulty: {mission.difficulty}/5</span>
+                            {recommendedPath.includes(mission.id) && (
+                              <Badge variant="outline" className="text-xs text-primary border-primary/50">
+                                <Sparkles className="w-2 h-2 mr-1" />
+                                Recommended
+                              </Badge>
+                            )}
                           </div>
                         </motion.div>
                       );
@@ -197,13 +243,16 @@ export default function NeuroQuestPage() {
                   </div>
                 </div>
                 
-                <ProgressTracker
-                  level={level}
-                  xp={xp}
-                  xpToNext={xpToNext}
-                  totalPoints={totalPoints}
-                  achievements={achievements}
-                />
+                <div className="space-y-4">
+                  <SkillDashboard />
+                  <ProgressTracker
+                    level={level}
+                    xp={xp}
+                    xpToNext={xpToNext}
+                    totalPoints={totalPoints}
+                    achievements={achievements}
+                  />
+                </div>
               </div>
             </motion.div>
           )}
