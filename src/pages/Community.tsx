@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Users, Github, MessageCircle, Share2, Heart, ExternalLink, 
   Code, BookOpen, Plus, Sparkles, Copy, Check, LogIn, GitFork, Pencil, User, FolderOpen, Eye,
-  Download, FileJson, Image, GitCompare, Merge
+  Download, FileJson, Image, GitCompare, Merge, Library
 } from "lucide-react";
 import { exportCircuitAsJSON, exportCircuitAsPNG } from "@/utils/circuitExport";
 import { SocialShareButtons } from "@/components/SocialShareButtons";
@@ -32,6 +32,8 @@ import { toast } from "sonner";
 import { ImportCircuitDialog } from "@/components/ImportCircuitDialog";
 import { CircuitCompareDialog } from "@/components/CircuitCompareDialog";
 import { CircuitMergeDialog } from "@/components/CircuitMergeDialog";
+import { CircuitTemplateLibrary } from "@/components/CircuitTemplateLibrary";
+import { CircuitTemplate } from "@/data/circuitTemplates";
 
 const communityStats = [
   { value: "15K+", label: "Community Members", icon: Users },
@@ -253,6 +255,7 @@ export default function CommunityPage() {
   const [showPRDialog, setShowPRDialog] = useState(false);
   const [showCompareDialog, setShowCompareDialog] = useState(false);
   const [showMergeDialog, setShowMergeDialog] = useState(false);
+  const [showTemplateLibrary, setShowTemplateLibrary] = useState(false);
   const [activeTab, setActiveTab] = useState<'featured' | 'my-creations'>('featured');
   const [filteredCircuits, setFilteredCircuits] = useState<SharedCircuit[]>([]);
   const [filteredMyCircuits, setFilteredMyCircuits] = useState<SharedCircuit[]>([]);
@@ -407,6 +410,14 @@ export default function CommunityPage() {
                         </Button>
                       </>
                     )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowTemplateLibrary(true)}
+                    >
+                      <Library className="w-4 h-4 mr-2" />
+                      Templates
+                    </Button>
                     <ImportCircuitDialog
                       onImport={async (circuit) => {
                         await shareCircuit({
@@ -790,6 +801,25 @@ export default function CommunityPage() {
             behavior: mergedCircuit.behavior,
             neurons_used: mergedCircuit.neurons_used,
             tags: mergedCircuit.tags,
+          });
+        }}
+      />
+
+      {/* Circuit Template Library */}
+      <CircuitTemplateLibrary
+        open={showTemplateLibrary}
+        onOpenChange={setShowTemplateLibrary}
+        onUseTemplate={async (template: CircuitTemplate) => {
+          await shareCircuit({
+            title: template.name,
+            description: template.description,
+            circuit_data: {
+              neurons: template.neurons.map(n => ({ id: n.id, x: n.x, y: n.y })),
+              connections: template.connections,
+            },
+            behavior: template.behavior,
+            neurons_used: template.neurons_used,
+            tags: [...template.tags, "from-template"],
           });
         }}
       />
