@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Trophy } from "lucide-react";
+import { ArrowLeft, Trophy, Eye, Gamepad2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WormRaceLobby } from "@/components/WormRaceLobby";
 import { RaceGameplay } from "@/components/RaceGameplay";
+import { SpectatorView } from "@/components/SpectatorView";
+import { SpectatorRaceList } from "@/components/SpectatorRaceList";
 import { GlobalImpactCounter } from "@/components/GlobalImpactCounter";
 import { useWormRace } from "@/hooks/useWormRace";
 
@@ -14,6 +17,8 @@ export default function Race() {
   const navigate = useNavigate();
   const [activeRaceId, setActiveRaceId] = useState<string | undefined>(raceId);
   const [showGameplay, setShowGameplay] = useState(false);
+  const [spectatingRaceId, setSpectatingRaceId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("race");
   
   const { race } = useWormRace(activeRaceId);
 
@@ -23,6 +28,15 @@ export default function Race() {
       setActiveRaceId(raceId);
     }
   }, [raceId]);
+
+  // Check for spectate query param
+  useEffect(() => {
+    const spectateId = searchParams.get("spectate");
+    if (spectateId) {
+      setSpectatingRaceId(spectateId);
+      setActiveTab("spectate");
+    }
+  }, [searchParams]);
 
   // Watch for race start
   useEffect(() => {
@@ -48,7 +62,16 @@ export default function Race() {
 
   const handlePlayAgain = () => {
     setShowGameplay(false);
-    // Stay in lobby to create/join new race
+  };
+
+  const handleSpectate = (raceId: string) => {
+    setSpectatingRaceId(raceId);
+    navigate(`/race?spectate=${raceId}`, { replace: true });
+  };
+
+  const handleExitSpectate = () => {
+    setSpectatingRaceId(null);
+    navigate("/race", { replace: true });
   };
 
   return (
@@ -85,31 +108,75 @@ export default function Race() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          {showGameplay && activeRaceId ? (
+          {/* If spectating a specific race */}
+          {spectatingRaceId ? (
+            <SpectatorView 
+              raceId={spectatingRaceId}
+              onExit={handleExitSpectate}
+            />
+          ) : showGameplay && activeRaceId ? (
             <RaceGameplay 
               raceId={activeRaceId} 
               onExit={handleExitRace}
               onPlayAgain={handlePlayAgain}
             />
           ) : (
-            <div className="max-w-2xl mx-auto">
-              <WormRaceLobby
-                raceId={activeRaceId}
-                onRaceStart={handleRaceStart}
-                onJoinRace={handleJoinRace}
-              />
-              
-              {/* Instructions */}
-              <div className="mt-8 p-6 rounded-xl bg-muted/30 border border-border">
-                <h3 className="font-semibold mb-3">How to Race</h3>
-                <ol className="space-y-2 text-sm text-muted-foreground">
-                  <li>1. Create a race or join an existing one</li>
-                  <li>2. Your worm's speed is determined by your neural circuit configuration</li>
-                  <li>3. More neurons and connections = faster worm!</li>
-                  <li>4. Wait for the host to start the race</li>
-                  <li>5. Watch your worm race to the finish line!</li>
-                </ol>
-              </div>
+            <div className="max-w-4xl mx-auto">
+              {/* Tabs for Race vs Spectate */}
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+                <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
+                  <TabsTrigger value="race" className="flex items-center gap-2">
+                    <Gamepad2 className="w-4 h-4" />
+                    Race
+                  </TabsTrigger>
+                  <TabsTrigger value="spectate" className="flex items-center gap-2">
+                    <Eye className="w-4 h-4" />
+                    Spectate
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="race" className="mt-6">
+                  <div className="max-w-2xl mx-auto">
+                    <WormRaceLobby
+                      raceId={activeRaceId}
+                      onRaceStart={handleRaceStart}
+                      onJoinRace={handleJoinRace}
+                    />
+                    
+                    {/* Instructions */}
+                    <div className="mt-8 p-6 rounded-xl bg-muted/30 border border-border">
+                      <h3 className="font-semibold mb-3">How to Race</h3>
+                      <ol className="space-y-2 text-sm text-muted-foreground">
+                        <li>1. Create a race or join an existing one</li>
+                        <li>2. Build your worm's neural circuit to determine its speed</li>
+                        <li>3. More neurons and connections = faster worm!</li>
+                        <li>4. Wait for the host to start the race</li>
+                        <li>5. Watch your worm race to the finish line!</li>
+                      </ol>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="spectate" className="mt-6">
+                  <div className="max-w-2xl mx-auto">
+                    <SpectatorRaceList onSelectRace={handleSpectate} />
+                    
+                    {/* Spectator Info */}
+                    <div className="mt-8 p-6 rounded-xl bg-muted/30 border border-border">
+                      <h3 className="font-semibold mb-3 flex items-center gap-2">
+                        <Eye className="w-4 h-4 text-primary" />
+                        Spectator Mode
+                      </h3>
+                      <ul className="space-y-2 text-sm text-muted-foreground">
+                        <li>• Watch live races in real-time</li>
+                        <li>• See all participants' progress and standings</li>
+                        <li>• View neuron activity for each worm</li>
+                        <li>• Spectators don't affect the race outcome</li>
+                      </ul>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
           )}
         </motion.div>
