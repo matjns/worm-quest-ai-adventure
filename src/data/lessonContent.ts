@@ -42,6 +42,7 @@ export const LESSON_CONTENT: LessonContent[] = [
       {
         title: "What is C. elegans?",
         content: "C. elegans (Caenorhabditis elegans) is a tiny, transparent roundworm about 1mm long — roughly the width of a pencil tip. Despite being smaller than a grain of rice, this microscopic creature has taught scientists more about how brains work than almost any other organism on Earth!",
+        videoUrl: "https://www.youtube.com/embed/BAg8d2pNI4k",
         funFact: "C. elegans lives in soil and eats bacteria. You could fit 10 of them on your fingernail!"
       },
       {
@@ -52,7 +53,8 @@ export const LESSON_CONTENT: LessonContent[] = [
       },
       {
         title: "The Worm's Superpower: Simplicity",
-        content: "Your brain has about 86 billion neurons. That's way too many to study one by one! But C. elegans has only 302 neurons, making it the ONLY organism where scientists have mapped every neuron and every connection. This complete 'wiring diagram' is called the connectome. OpenWorm is building the world's first digital version of this worm!"
+        content: "Your brain has about 86 billion neurons. That's way too many to study one by one! But C. elegans has only 302 neurons, making it the ONLY organism where scientists have mapped every neuron and every connection. This complete 'wiring diagram' is called the connectome. OpenWorm is building the world's first digital version of this worm!",
+        videoUrl: "https://www.youtube.com/embed/vTk-gS5nP_0"
       }
     ],
     questions: [
@@ -175,11 +177,13 @@ export const LESSON_CONTENT: LessonContent[] = [
       {
         title: "Mapping Every Connection",
         content: "In the 1970s-80s, scientists John White, Eileen Southgate, and colleagues spent over a decade slicing a worm into 20,000 ultra-thin sections and photographing each one with an electron microscope. They traced every neuron and connection by hand — a heroic feat that created the first complete connectome!",
+        videoUrl: "https://www.youtube.com/embed/Ti4eo4OVhog",
         funFact: "The original connectome paper was published in 1986 and is still cited in research today!"
       },
       {
         title: "Connectome Structure",
         content: "The connectome shows that C. elegans' brain isn't random — it has organized circuits for specific behaviors:\n\n• TOUCH CIRCUIT: ALM/AVM neurons → AVA/AVD interneurons → DA/VA motor neurons\n• FOOD SENSING: ASE chemosensory → AIY/AIZ → head movement\n• LOCOMOTION: AVB command → B-type motors (forward) or AVA command → A-type motors (backward)\n\nThese circuits are what you'll build in NeuroQuest missions!",
+        videoUrl: "https://www.youtube.com/embed/3uV3yTmUlgo",
         funFact: "The touch reflex circuit involves only about 10 neurons but produces complex escape behavior!"
       },
       {
@@ -307,11 +311,13 @@ export const LESSON_CONTENT: LessonContent[] = [
       {
         title: "The Worm's Senses",
         content: "C. elegans can detect touch, temperature, chemicals (smell/taste), oxygen levels, and even light — all with just 86 sensory neurons! The worm's 'nose' is at its head, where specialized amphid neurons detect chemicals in the environment. This helps the worm find food and avoid danger.",
+        videoUrl: "https://www.youtube.com/embed/oE3sD61QPy4",
         funFact: "C. elegans can smell over 1,000 different odors!"
       },
       {
         title: "Touch Neurons: ALM, AVM, PLM",
         content: "The worm has 6 touch receptor neurons:\n\n• ALM (left/right): Detect gentle touch on the anterior (head) end\n• AVM: Detects ventral (belly-side) touch\n• PLM (left/right): Detect touch on the posterior (tail) end\n• PVM: Detects additional posterior touch\n\nWhen touched on the head, the worm reverses. When touched on the tail, it moves forward. This is the escape reflex you'll wire in NeuroQuest!",
+        videoUrl: "https://www.youtube.com/embed/T8lJnN7c0g8",
         funFact: "Touch neurons are among the largest cells in the worm's body!"
       },
       {
@@ -373,6 +379,7 @@ export const LESSON_CONTENT: LessonContent[] = [
       {
         title: "The Worm's Movement System",
         content: "C. elegans moves by creating waves along its body — like a swimming snake. This requires precise coordination of 95 body wall muscles controlled by 113 motor neurons. The worm can move forward, backward, turn, and even swim (when in liquid)!",
+        videoUrl: "https://www.youtube.com/embed/xt98n3E9yp4",
         funFact: "The worm moves faster backward than forward — useful for escape!"
       },
       {
@@ -382,7 +389,8 @@ export const LESSON_CONTENT: LessonContent[] = [
       },
       {
         title: "Command Interneurons: The Decision Makers",
-        content: "Five pairs of command interneurons control the entire locomotion system:\n\n• AVA: Backward command (drives A-type motors)\n• AVB: Forward command (drives B-type motors)\n• AVD: Backward reinforcement\n• PVC: Forward reinforcement\n• AVE: Additional backward control\n\nThese are the neurons you connect to motor neurons in NeuroQuest to make the worm move!"
+        content: "Five pairs of command interneurons control the entire locomotion system:\n\n• AVA: Backward command (drives A-type motors)\n• AVB: Forward command (drives B-type motors)\n• AVD: Backward reinforcement\n• PVC: Forward reinforcement\n• AVE: Additional backward control\n\nThese are the neurons you connect to motor neurons in NeuroQuest to make the worm move!",
+        videoUrl: "https://www.youtube.com/embed/3uV3yTmUlgo"
       }
     ],
     questions: [
@@ -510,11 +518,13 @@ export const LESSON_CONTENT: LessonContent[] = [
       {
         title: "OpenWorm's Approach",
         content: "OpenWorm doesn't train the worm brain from scratch — instead, it uses the real connectome weights! By setting artificial neuron connections to match real synaptic weights from the biological data, the simulated worm behaves like the real one. This is called 'biologically constrained' modeling.\n\nYou can see this in action at github.com/openworm/c302!",
+        videoUrl: "https://www.youtube.com/embed/3uV3yTmUlgo",
         funFact: "OpenWorm's Sibernetic simulation runs the worm in a realistic virtual fluid environment!"
       },
       {
         title: "The Future: Digital Life",
-        content: "OpenWorm's Massive Transformational Purpose: 'Digitize Life.' Starting with C. elegans, the goal is to simulate every organism to decode biology's code. Why? Because digital organisms can:\n\n• Test drugs without real animals\n• Model diseases like Alzheimer's\n• Accelerate brain-computer interface development\n• Democratize biological knowledge\n\nYou're learning the foundation of a revolution in biology and AI!"
+        content: "OpenWorm's Massive Transformational Purpose: 'Digitize Life: Simulate Every Organism to Decode Biology's Code and Conquer the Brain.' Starting with C. elegans, the goal is to simulate every organism to decode biology's code. Why? Because digital organisms can:\n\n• Test drugs without real animals\n• Model diseases like Alzheimer's\n• Accelerate brain-computer interface development\n• Democratize biological knowledge\n\nYou're learning the foundation of a revolution in biology and AI!",
+        videoUrl: "https://www.youtube.com/embed/vTk-gS5nP_0"
       }
     ],
     questions: [
