@@ -1,9 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Palette, Sparkles, Wand2, Eraser, RotateCcw, Volume2, VolumeX, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { ShareCreationDialog } from './ShareCreationDialog';
+import { DiscoveryHintBubble } from './DiscoveryHintBubble';
+import { useDiscoveryHints } from '@/hooks/useDiscoveryHints';
 
 interface Neuron {
   id: string;
@@ -17,6 +19,7 @@ interface Neuron {
 
 interface FreePlayCanvasProps {
   onCreationSaved?: (creation: { neurons: Neuron[]; name: string }) => void;
+  ageGroup?: 'prek' | 'k5' | 'middle' | 'high';
 }
 
 const NEURON_COLORS = [
@@ -28,7 +31,7 @@ const NEURON_COLORS = [
   { name: 'Orange', value: 'hsl(30, 100%, 60%)', emoji: '🧡' },
 ];
 
-export function FreePlayCanvas({ onCreationSaved }: FreePlayCanvasProps) {
+export function FreePlayCanvas({ onCreationSaved, ageGroup = 'k5' }: FreePlayCanvasProps) {
   const [neurons, setNeurons] = useState<Neuron[]>([]);
   const [selectedColor, setSelectedColor] = useState(NEURON_COLORS[0]);
   const [neuronSize, setNeuronSize] = useState([40]);
@@ -37,6 +40,8 @@ export function FreePlayCanvas({ onCreationSaved }: FreePlayCanvasProps) {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [connectingFrom, setConnectingFrom] = useState<string | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+
+  const { currentHint, isLoading, isVisible, getHint, dismissHint, clearHints } = useDiscoveryHints(ageGroup);
 
   const getCreationData = () => ({
     type: 'canvas' as const,
@@ -135,6 +140,24 @@ export function FreePlayCanvas({ onCreationSaved }: FreePlayCanvasProps) {
   const clearCanvas = () => {
     setNeurons([]);
     setConnectingFrom(null);
+    clearHints();
+  };
+
+  const getCircuitState = () => ({
+    neurons: neurons.map(n => ({
+      id: n.id,
+      color: n.color,
+      size: n.size,
+      x: n.x,
+      y: n.y,
+    })),
+    connections: neurons.flatMap(n => 
+      n.connections.map(targetId => ({ from: n.id, to: targetId }))
+    ),
+  });
+
+  const handleGetHint = () => {
+    getHint(getCircuitState());
   };
 
   const addMagicNeurons = () => {
@@ -230,6 +253,17 @@ export function FreePlayCanvas({ onCreationSaved }: FreePlayCanvasProps) {
         >
           {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
         </Button>
+
+        <div className="w-px h-8 bg-border" />
+
+        {/* Discovery Hint Button */}
+        <DiscoveryHintBubble
+          hint={currentHint}
+          isVisible={isVisible}
+          isLoading={isLoading}
+          onDismiss={dismissHint}
+          onGetHint={handleGetHint}
+        />
 
         {neurons.length > 0 && (
           <ShareCreationDialog creationData={getCreationData()} canvasRef={canvasRef}>
