@@ -18,6 +18,7 @@ import {
 import { circuitTemplates, type CircuitTemplate } from "@/data/circuitTemplates";
 import { WormSimulator3D } from "@/components/WormSimulator3D";
 import { CircuitValidationPanel } from "@/components/CircuitValidationPanel";
+import { AICircuitCoach } from "@/components/AICircuitCoach";
 import { useCollaborativeCircuitDesigner } from "@/hooks/useCollaborativeCircuitDesigner";
 import { 
   Brain, 
@@ -894,17 +895,21 @@ export function VisualCircuitDesigner() {
             </div>
           </div>
 
-          {/* 3D Preview, Validation & Results */}
+          {/* 3D Preview, Validation, AI Coach & Results */}
           <div className="space-y-4">
             <Tabs defaultValue="preview" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="preview" className="text-xs gap-1">
                   <Eye className="w-3 h-3" />
-                  3D Preview
+                  Preview
                 </TabsTrigger>
                 <TabsTrigger value="validation" className="text-xs gap-1">
                   <FlaskConical className="w-3 h-3" />
-                  Validation
+                  Validate
+                </TabsTrigger>
+                <TabsTrigger value="coach" className="text-xs gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  AI Coach
                 </TabsTrigger>
               </TabsList>
 
@@ -1012,6 +1017,13 @@ export function VisualCircuitDesigner() {
                     }
                     toast.success(`Added connection: ${from} → ${to}`);
                   }}
+                />
+              </TabsContent>
+
+              <TabsContent value="coach" className="mt-3">
+                <AICircuitCoach
+                  neurons={placedNeurons.map(n => ({ id: n.id, type: n.type }))}
+                  connections={connections.map(c => ({ from: c.from, to: c.to, weight: c.weight }))}
                 />
               </TabsContent>
             </Tabs>
