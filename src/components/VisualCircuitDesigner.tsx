@@ -20,7 +20,7 @@ import { WormSimulator3D } from "@/components/WormSimulator3D";
 import { CircuitValidationPanel } from "@/components/CircuitValidationPanel";
 import { AICircuitCoach } from "@/components/AICircuitCoach";
 import { NeuroMLExportDialog } from "@/components/NeuroMLExportDialog";
-import { NeuroMLImportDialog } from "@/components/NeuroMLImportDialog";
+import { ImportMergeDialog } from "@/components/ImportMergeDialog";
 import { useCollaborativeCircuitDesigner } from "@/hooks/useCollaborativeCircuitDesigner";
 import { 
   Brain, 
@@ -634,11 +634,13 @@ export function VisualCircuitDesigner() {
               </DialogContent>
             </Dialog>
             
-            {/* NeuroML Import */}
-            <NeuroMLImportDialog
+            {/* NeuroML Import with Merge */}
+            <ImportMergeDialog
+              existingNeurons={placedNeurons}
+              existingConnections={connections}
               canvasWidth={canvasRef.current?.offsetWidth || 600}
               canvasHeight={canvasRef.current?.offsetHeight || 400}
-              onImport={(neurons, conns) => {
+              onMerge={(neurons, conns) => {
                 if (collabRoomId && collab.isConnected) {
                   collab.loadFromTemplate(neurons, conns);
                 } else {
