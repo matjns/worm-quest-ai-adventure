@@ -31,6 +31,7 @@ import Research from "./pages/Research";
 import EducationHub from "./pages/EducationHub";
 import ChallengeSubmission from "./pages/ChallengeSubmission";
 import SimulationMastery from "./pages/SimulationMastery";
+import EnterpriseMOOC from "./pages/EnterpriseMOOC";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ const App = () => (
                 <Route path="/education" element={<EducationHub />} />
                 <Route path="/challenge" element={<ChallengeSubmission />} />
                 <Route path="/simulation" element={<SimulationMastery />} />
+                <Route path="/enterprise" element={<EnterpriseMOOC />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
