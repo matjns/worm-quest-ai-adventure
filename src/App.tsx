@@ -30,6 +30,7 @@ import CollabSandbox from "./pages/CollabSandbox";
 import Research from "./pages/Research";
 import EducationHub from "./pages/EducationHub";
 import ChallengeSubmission from "./pages/ChallengeSubmission";
+import SimulationMastery from "./pages/SimulationMastery";
 
 const queryClient = new QueryClient();
 
@@ -68,6 +69,7 @@ const App = () => (
                 <Route path="/research" element={<Research />} />
                 <Route path="/education" element={<EducationHub />} />
                 <Route path="/challenge" element={<ChallengeSubmission />} />
+                <Route path="/simulation" element={<SimulationMastery />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
