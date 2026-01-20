@@ -20,6 +20,7 @@ import { WormSimulator3D } from "@/components/WormSimulator3D";
 import { CircuitValidationPanel } from "@/components/CircuitValidationPanel";
 import { AICircuitCoach } from "@/components/AICircuitCoach";
 import { NeuroMLExportDialog } from "@/components/NeuroMLExportDialog";
+import { NeuroMLImportDialog } from "@/components/NeuroMLImportDialog";
 import { useCollaborativeCircuitDesigner } from "@/hooks/useCollaborativeCircuitDesigner";
 import { 
   Brain, 
@@ -28,6 +29,7 @@ import {
   RotateCcw, 
   Trash2, 
   Download,
+  Upload,
   MousePointer2,
   Link2,
   Activity,
@@ -632,6 +634,26 @@ export function VisualCircuitDesigner() {
               </DialogContent>
             </Dialog>
             
+            {/* NeuroML Import */}
+            <NeuroMLImportDialog
+              canvasWidth={canvasRef.current?.offsetWidth || 600}
+              canvasHeight={canvasRef.current?.offsetHeight || 400}
+              onImport={(neurons, conns) => {
+                if (collabRoomId && collab.isConnected) {
+                  collab.loadFromTemplate(neurons, conns);
+                } else {
+                  setLocalNeurons(neurons);
+                  setLocalConnections(conns);
+                }
+              }}
+              trigger={
+                <Button variant="outline" size="sm" className="gap-1">
+                  <Upload className="w-4 h-4" />
+                  Import
+                </Button>
+              }
+            />
+            
             {/* NeuroML Export */}
             <NeuroMLExportDialog
               neurons={placedNeurons.map(n => ({ id: n.id, type: n.type, x: n.x, y: n.y }))}
@@ -639,7 +661,7 @@ export function VisualCircuitDesigner() {
               trigger={
                 <Button variant="outline" size="sm" className="gap-1">
                   <FileCode className="w-4 h-4" />
-                  NeuroML
+                  Export
                 </Button>
               }
             />
