@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Users, Play, Plus, Trophy, Loader2, LogOut, 
-  Crown, Timer, Flag, Zap 
+  Crown, Timer, Flag, Zap, Brain, ArrowLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { RaceCircuitSetup } from "./RaceCircuitSetup";
 import { useWormRace, RaceSession } from "@/hooks/useWormRace";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
@@ -50,9 +51,9 @@ export function WormRaceLobby({
   
   const [availableRaces, setAvailableRaces] = useState<RaceSession[]>([]);
   const [newRaceName, setNewRaceName] = useState("");
-  const [wormName, setWormName] = useState("Speedy");
   const [isCreating, setIsCreating] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showCircuitSetup, setShowCircuitSetup] = useState(false);
 
   // Fetch available races on mount
   useEffect(() => {
@@ -87,10 +88,11 @@ export function WormRaceLobby({
     }
   };
 
-  const handleJoinAsParticipant = async () => {
-    // TODO: Get circuit data from current circuit builder
-    const mockCircuitData = { neurons: [], connections: [] };
-    await joinRace(mockCircuitData, wormName);
+  const handleCircuitComplete = async (circuitData: Record<string, unknown>, wormName: string) => {
+    const success = await joinRace(circuitData, wormName);
+    if (success) {
+      setShowCircuitSetup(false);
+    }
   };
 
   if (!isAuthenticated) {
@@ -101,6 +103,36 @@ export function WormRaceLobby({
           <p className="text-muted-foreground">
             Sign in to join multiplayer worm races!
           </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show circuit setup flow
+  if (showCircuitSetup && raceId && race) {
+    return (
+      <Card className={cn("border-2 border-foreground", className)}>
+        <CardHeader className="pb-2">
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setShowCircuitSetup(false)}
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back
+            </Button>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="w-5 h-5 text-primary" />
+              Build Your Racer
+            </CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <RaceCircuitSetup
+            onComplete={handleCircuitComplete}
+            onCancel={() => setShowCircuitSetup(false)}
+          />
         </CardContent>
       </Card>
     );
@@ -163,9 +195,15 @@ export function WormRaceLobby({
                           <Crown className="w-4 h-4 text-yellow-500" />
                         )}
                       </div>
-                      <span className="text-xs text-muted-foreground">
-                        {participant.profiles?.display_name || "Anonymous"}
-                      </span>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>{participant.profiles?.display_name || "Anonymous"}</span>
+                        {participant.circuit_data && (
+                          <Badge variant="outline" className="text-[10px] py-0">
+                            <Brain className="w-2 h-2 mr-1" />
+                            {((participant.circuit_data as any)?.neurons?.length || 0)} neurons
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                     {participant.finish_rank && (
                       <Badge variant="outline">
@@ -178,22 +216,17 @@ export function WormRaceLobby({
             </div>
           </div>
 
-          {/* Join or leave */}
+          {/* Join with circuit builder or leave */}
           {race.status === "waiting" && (
             <div className="flex gap-2">
               {!myParticipant ? (
-                <div className="flex-1 flex gap-2">
-                  <Input
-                    placeholder="Worm name..."
-                    value={wormName}
-                    onChange={(e) => setWormName(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button onClick={handleJoinAsParticipant}>
-                    <Zap className="w-4 h-4 mr-2" />
-                    Join
-                  </Button>
-                </div>
+                <Button 
+                  onClick={() => setShowCircuitSetup(true)}
+                  className="flex-1"
+                >
+                  <Brain className="w-4 h-4 mr-2" />
+                  Build & Join Race
+                </Button>
               ) : (
                 <Button variant="outline" onClick={leaveRace} className="flex-1">
                   <LogOut className="w-4 h-4 mr-2" />
