@@ -464,6 +464,50 @@ export type Database = {
           },
         ]
       }
+      module_assignments: {
+        Row: {
+          assigned_by: string
+          classroom_id: string
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          module_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_by: string
+          classroom_id: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          module_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_by?: string
+          classroom_id?: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          module_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "module_assignments_classroom_id_fkey"
+            columns: ["classroom_id"]
+            isOneToOne: false
+            referencedRelation: "classrooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       module_progress: {
         Row: {
           completed_at: string
@@ -818,6 +862,60 @@ export type Database = {
           website_url?: string | null
         }
         Relationships: []
+      }
+      student_assignment_progress: {
+        Row: {
+          assignment_id: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          score: number | null
+          started_at: string | null
+          status: string
+          student_id: string
+          time_spent_seconds: number | null
+          updated_at: string
+        }
+        Insert: {
+          assignment_id: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          score?: number | null
+          started_at?: string | null
+          status?: string
+          student_id: string
+          time_spent_seconds?: number | null
+          updated_at?: string
+        }
+        Update: {
+          assignment_id?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          score?: number | null
+          started_at?: string | null
+          status?: string
+          student_id?: string
+          time_spent_seconds?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_assignment_progress_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "module_assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_assignment_progress_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       student_submissions: {
         Row: {
