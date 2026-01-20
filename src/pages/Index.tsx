@@ -6,6 +6,8 @@ import DisplayCards from "@/components/DisplayCards";
 import { BentoCard, BentoGrid } from "@/components/BentoGrid";
 import { ExpandableTabs } from "@/components/ExpandableTabs";
 import { WormCanvas } from "@/components/WormCanvas";
+import { AIChallengeBanner } from "@/components/AIChallengeBanner";
+import neuroQuestLogo from "@/assets/neuroquest-logo.png";
 import { 
   Brain, 
   Sparkles, 
@@ -17,7 +19,8 @@ import {
   Play,
   BookOpen,
   Zap,
-  Target
+  Target,
+  Volume2
 } from "lucide-react";
 
 const navTabs = [
@@ -44,12 +47,12 @@ const features = [
   {
     Icon: Sparkles,
     name: "AI-Powered Learning",
-    description: "Grok AI adapts to your pace, generates challenges, and validates your simulations in real-time.",
+    description: "AI adapts to your pace, generates challenges, and validates your simulations in real-time.",
     href: "/play",
     cta: "Experience AI",
     className: "lg:col-start-1 lg:col-end-2 lg:row-start-1 lg:row-end-3",
     background: (
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10" />
     ),
   },
   {
@@ -60,7 +63,7 @@ const features = [
     cta: "View Achievements",
     className: "lg:col-start-1 lg:col-end-2 lg:row-start-3 lg:row-end-4",
     background: (
-      <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-transparent" />
     ),
   },
   {
@@ -71,7 +74,7 @@ const features = [
     cta: "Choose Your Level",
     className: "lg:col-start-3 lg:col-end-3 lg:row-start-1 lg:row-end-2",
     background: (
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
     ),
   },
   {
@@ -82,7 +85,7 @@ const features = [
     cta: "Join Community",
     className: "lg:col-start-3 lg:col-end-3 lg:row-start-2 lg:row-end-4",
     background: (
-      <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-primary/5" />
+      <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-primary/10" />
     ),
   },
 ];
@@ -94,9 +97,14 @@ const stats = [
   { value: "∞", label: "Possibilities", icon: Rocket },
 ];
 
+const ghostColors = ["🔴", "🩷", "🩵", "🟠"];
+
 export default function Index() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background dark:bg-[hsl(250_50%_4%)] relative">
+      {/* Arcade pellet background pattern */}
+      <div className="fixed inset-0 pellet-bg opacity-30 pointer-events-none" />
+      
       <Header />
 
       {/* Hero Section */}
@@ -114,27 +122,49 @@ export default function Index() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
             >
+              {/* Arcade Logo */}
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.2, type: "spring" }}
+                className="mb-6"
+              >
+                <img 
+                  src={neuroQuestLogo} 
+                  alt="NeuroQuest" 
+                  className="h-16 md:h-20 w-auto drop-shadow-[0_0_30px_hsl(340_100%_60%/0.5)]"
+                />
+              </motion.div>
+
               {/* Menu Bar */}
               <div className="mb-8">
                 <ExpandableTabs tabs={navTabs} className="inline-flex" />
               </div>
 
-              <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-6 leading-[0.9]">
-                <span className="block">Ignite</span>
-                <span className="block text-primary">Humanity's</span>
-                <span className="block">Future</span>
+              <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-6 leading-[0.9]">
+                <span className="block text-foreground">Digitize</span>
+                <span className="block text-primary text-neon-pink">Life</span>
+                <span className="block text-accent">Decode Biology</span>
               </h1>
 
-              <p className="text-xl text-muted-foreground mb-8 max-w-lg">
-                A lowly worm with 302 neurons sparks your journey into AI & neuroscience. 
-                The complete C. elegans brain — gamified, AI-powered, and addictively fun.
+              <p className="text-lg text-muted-foreground mb-4 max-w-lg font-mono">
+                🐛 A tiny worm with 302 neurons unlocks the secrets of the brain. 
+                Build neural circuits. Train AI. Conquer neuroscience.
               </p>
 
+              {/* MTP Callout */}
+              <div className="bg-muted/50 border-2 border-primary/30 rounded-lg p-3 mb-6 max-w-lg">
+                <p className="text-xs font-arcade text-primary mb-1">MASSIVE TRANSFORMATIVE PURPOSE</p>
+                <p className="text-sm text-muted-foreground italic">
+                  "Simulate every organism to decode biology's code and conquer the brain."
+                </p>
+              </div>
+
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/play">
-                  <Button variant="hero" size="xl" className="w-full sm:w-auto">
+                <Link to="/neuroquest">
+                  <Button variant="hero" size="xl" className="w-full sm:w-auto glow-neon-pink">
                     <Rocket className="w-5 h-5 mr-2" />
-                    Start Your Quest
+                    Start Quest
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </Link>
@@ -146,7 +176,7 @@ export default function Index() {
                 </Link>
               </div>
 
-              {/* Stats */}
+              {/* Stats - Arcade style */}
               <div className="grid grid-cols-4 gap-4 mt-12">
                 {stats.map((stat, i) => (
                   <motion.div
@@ -154,26 +184,47 @@ export default function Index() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 + i * 0.1 }}
-                    className="text-center"
+                    className="text-center p-3 bg-card/50 border-2 border-foreground rounded-lg"
                   >
                     <stat.icon className="w-5 h-5 mx-auto mb-1 text-primary" />
-                    <p className="text-2xl font-bold">{stat.value}</p>
-                    <p className="text-xs font-mono text-muted-foreground uppercase">{stat.label}</p>
+                    <p className="text-xl font-arcade text-accent">{stat.value}</p>
+                    <p className="text-[10px] font-mono text-muted-foreground uppercase">{stat.label}</p>
                   </motion.div>
                 ))}
               </div>
             </motion.div>
 
-            {/* Right: Display Cards */}
+            {/* Right: Display Cards + AI Challenge */}
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="hidden lg:block"
+              className="hidden lg:flex flex-col gap-6"
             >
               <DisplayCards />
+              <AIChallengeBanner 
+                ageGroup="middle" 
+                topic="neurons and neural circuits"
+                onChallengeStart={(challenge) => {
+                  console.log("Starting challenge:", challenge);
+                }}
+              />
             </motion.div>
           </div>
+        </div>
+
+        {/* Floating ghost decorations */}
+        <div className="absolute top-32 right-10 text-3xl animate-bounce opacity-60" style={{ animationDelay: "0s" }}>
+          {ghostColors[0]}
+        </div>
+        <div className="absolute top-48 left-10 text-3xl animate-bounce opacity-60" style={{ animationDelay: "0.3s" }}>
+          {ghostColors[1]}
+        </div>
+        <div className="absolute bottom-32 right-20 text-3xl animate-bounce opacity-60" style={{ animationDelay: "0.6s" }}>
+          {ghostColors[2]}
+        </div>
+        <div className="absolute bottom-48 left-20 text-3xl animate-bounce opacity-60" style={{ animationDelay: "0.9s" }}>
+          {ghostColors[3]}
         </div>
       </section>
 

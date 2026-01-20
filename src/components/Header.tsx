@@ -1,12 +1,14 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Brain, Menu, X, Trophy, BookOpen, Users, Settings } from "lucide-react";
+import { Brain, Menu, X, Trophy, BookOpen, Users, Settings, Gamepad2 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import neuroQuestLogo from "@/assets/neuroquest-logo.png";
 
 const navItems = [
   { label: "Learn", href: "/learn", icon: BookOpen },
-  { label: "Play", href: "/play", icon: Brain },
+  { label: "Play", href: "/play", icon: Gamepad2 },
+  { label: "NeuroQuest", href: "/neuroquest", icon: Brain },
   { label: "Leaderboard", href: "/leaderboard", icon: Trophy },
   { label: "Community", href: "/community", icon: Users },
 ];
@@ -16,15 +18,16 @@ export function Header() {
   const location = useLocation();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b-2 border-foreground">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b-3 border-foreground">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-primary border-2 border-foreground flex items-center justify-center shadow-[2px_2px_0px_hsl(var(--foreground))] group-hover:shadow-[4px_4px_0px_hsl(var(--foreground))] group-hover:translate-x-[-2px] group-hover:translate-y-[-2px] transition-all">
-              <Brain className="w-6 h-6 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold uppercase tracking-tight hidden sm:block">WormQuest</span>
+            <img 
+              src={neuroQuestLogo} 
+              alt="NeuroQuest" 
+              className="h-8 w-auto drop-shadow-[0_0_10px_hsl(340_100%_60%/0.5)] group-hover:drop-shadow-[0_0_20px_hsl(340_100%_60%/0.7)] transition-all"
+            />
           </Link>
 
           {/* Desktop Navigation */}
@@ -56,8 +59,9 @@ export function Header() {
                 <Settings className="w-5 h-5" />
               </Button>
             </Link>
-            <Link to="/play">
-              <Button variant="hero" size="sm" className="hidden sm:flex">
+            <Link to="/neuroquest">
+              <Button variant="hero" size="sm" className="hidden sm:flex glow-neon-pink">
+                <Brain className="w-4 h-4 mr-1" />
                 Start Quest
               </Button>
             </Link>
@@ -92,8 +96,9 @@ export function Header() {
                   </Link>
                 );
               })}
-              <Link to="/play" onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="hero" className="w-full mt-2">
+              <Link to="/neuroquest" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="hero" className="w-full mt-2 glow-neon-pink">
+                  <Brain className="w-4 h-4 mr-2" />
                   Start Quest
                 </Button>
               </Link>
