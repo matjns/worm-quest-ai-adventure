@@ -78,6 +78,56 @@ export type Database = {
           },
         ]
       }
+      circuit_versions: {
+        Row: {
+          behavior: string
+          change_summary: string | null
+          circuit_data: Json
+          circuit_id: string
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          neurons_used: string[]
+          title: string
+          version_number: number
+        }
+        Insert: {
+          behavior: string
+          change_summary?: string | null
+          circuit_data: Json
+          circuit_id: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          neurons_used: string[]
+          title: string
+          version_number?: number
+        }
+        Update: {
+          behavior?: string
+          change_summary?: string | null
+          circuit_data?: Json
+          circuit_id?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          neurons_used?: string[]
+          title?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "circuit_versions_circuit_id_fkey"
+            columns: ["circuit_id"]
+            isOneToOne: false
+            referencedRelation: "shared_circuits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       classroom_analytics: {
         Row: {
           active_students: number | null
