@@ -66,12 +66,20 @@ export default function StudentDashboard() {
     xpInCurrentLevel,
     loading
   } = useStudentProgress();
-  const { notifications } = useNotificationsData();
+  const { notifications, markAsRead } = useNotificationsData();
   
-  // Count unread assignment notifications
-  const unreadAssignmentCount = notifications.filter(
+  // Get unread assignment notifications
+  const unreadAssignmentNotifications = notifications.filter(
     n => n.type === 'assignment' && !n.read
-  ).length;
+  );
+  const unreadAssignmentCount = unreadAssignmentNotifications.length;
+
+  // Mark all assignment notifications as read
+  const handleTabChange = (value: string) => {
+    if (value === 'assignments' && unreadAssignmentCount > 0) {
+      unreadAssignmentNotifications.forEach(n => markAsRead(n.id));
+    }
+  };
 
   if (authLoading || loading) {
     return (
@@ -210,7 +218,7 @@ export default function StudentDashboard() {
         </motion.div>
 
         {/* Main Tabs */}
-        <Tabs defaultValue="overview" className="space-y-6">
+        <Tabs defaultValue="overview" className="space-y-6" onValueChange={handleTabChange}>
           <TabsList className="grid w-full grid-cols-5 h-12">
             <TabsTrigger value="overview" className="gap-2">
               <BarChart3 className="w-4 h-4" />
