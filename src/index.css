@@ -1,10 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* WormQuest Design System - Brutalist Apple-like Aesthetic */
+/* NeuroQuest Design System - 80s Arcade meets Modern Pop */
 
 @layer base {
   :root {
@@ -17,7 +18,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 8%;
 
-    --primary: 200 98% 39%;
+    --primary: 280 85% 60%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 14% 96%;
@@ -26,7 +27,7 @@
     --muted: 220 14% 96%;
     --muted-foreground: 220 8% 46%;
 
-    --accent: 142 76% 36%;
+    --accent: 175 80% 45%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -34,103 +35,115 @@
 
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 200 98% 39%;
+    --ring: 280 85% 60%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
     /* Sidebar */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 222 47% 8%;
-    --sidebar-primary: 200 98% 39%;
+    --sidebar-primary: 280 85% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 14% 96%;
     --sidebar-accent-foreground: 222 47% 11%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 200 98% 39%;
+    --sidebar-ring: 280 85% 60%;
     --sidebar: 0 0% 100%;
 
-    /* Charts */
-    --chart-1: 200 98% 39%;
-    --chart-2: 142 76% 36%;
-    --chart-3: 280 65% 60%;
-    --chart-4: 35 92% 50%;
-    --chart-5: 340 82% 52%;
+    /* Charts - Arcade colors */
+    --chart-1: 280 85% 60%;
+    --chart-2: 175 80% 45%;
+    --chart-3: 45 100% 55%;
+    --chart-4: 340 85% 60%;
+    --chart-5: 200 95% 55%;
 
     /* Fonts */
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'Space Mono', ui-monospace, SFMono-Regular, monospace;
+    --font-arcade: 'Press Start 2P', monospace;
 
-    /* WormQuest Custom Tokens */
-    --worm-glow: 200 100% 50%;
-    --neuron-pulse: 142 90% 45%;
-    --synapse-spark: 280 80% 65%;
+    /* NeuroQuest Arcade Tokens */
+    --neon-pink: 340 85% 60%;
+    --neon-cyan: 175 80% 50%;
+    --neon-purple: 280 85% 60%;
+    --neon-yellow: 45 100% 55%;
+    --neon-green: 145 75% 50%;
+    --worm-glow: 175 100% 50%;
+    --neuron-pulse: 280 90% 65%;
+    --synapse-spark: 45 100% 60%;
     --quest-gold: 45 100% 50%;
-    --quest-purple: 280 65% 50%;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(200 98% 39%), hsl(220 90% 50%));
-    --gradient-accent: linear-gradient(135deg, hsl(142 76% 36%), hsl(180 70% 40%));
+    /* Gradients - Pop arcade */
+    --gradient-primary: linear-gradient(135deg, hsl(280 85% 60%), hsl(340 85% 60%));
+    --gradient-accent: linear-gradient(135deg, hsl(175 80% 45%), hsl(200 90% 50%));
+    --gradient-arcade: linear-gradient(135deg, hsl(280 85% 60%), hsl(175 80% 45%));
     --gradient-hero: linear-gradient(180deg, hsl(210 20% 98%) 0%, hsl(220 20% 95%) 100%);
-    --gradient-dark: linear-gradient(180deg, hsl(222 47% 11%) 0%, hsl(222 47% 5%) 100%);
+    --gradient-neon: linear-gradient(90deg, hsl(340 85% 60%), hsl(280 85% 60%), hsl(175 80% 50%));
 
-    /* Shadows - Sharp brutalist */
+    /* Shadows - Neon glow effects */
     --shadow-brutal: 4px 4px 0px hsl(222 47% 8%);
     --shadow-brutal-sm: 2px 2px 0px hsl(222 47% 8%);
     --shadow-brutal-lg: 8px 8px 0px hsl(222 47% 8%);
-    --shadow-glow: 0 0 30px hsl(200 98% 39% / 0.3);
-    --shadow-neuron: 0 0 20px hsl(142 76% 36% / 0.4);
+    --shadow-neon-pink: 0 0 20px hsl(340 85% 60% / 0.5), 0 0 40px hsl(340 85% 60% / 0.3);
+    --shadow-neon-cyan: 0 0 20px hsl(175 80% 50% / 0.5), 0 0 40px hsl(175 80% 50% / 0.3);
+    --shadow-neon-purple: 0 0 20px hsl(280 85% 60% / 0.5), 0 0 40px hsl(280 85% 60% / 0.3);
+    --shadow-glow: 0 0 30px hsl(280 85% 60% / 0.4);
+    --shadow-neuron: 0 0 20px hsl(175 80% 45% / 0.5);
   }
 
   .dark {
-    --background: 222 47% 5%;
+    --background: 250 30% 6%;
     --foreground: 210 20% 98%;
 
-    --card: 222 47% 8%;
+    --card: 250 25% 10%;
     --card-foreground: 210 20% 98%;
 
-    --popover: 222 47% 8%;
+    --popover: 250 25% 10%;
     --popover-foreground: 210 20% 98%;
 
-    --primary: 200 95% 55%;
-    --primary-foreground: 222 47% 5%;
+    --primary: 280 85% 65%;
+    --primary-foreground: 250 30% 6%;
 
-    --secondary: 220 20% 15%;
+    --secondary: 250 20% 15%;
     --secondary-foreground: 210 20% 98%;
 
-    --muted: 220 20% 15%;
+    --muted: 250 20% 15%;
     --muted-foreground: 220 13% 65%;
 
-    --accent: 142 76% 45%;
-    --accent-foreground: 222 47% 5%;
+    --accent: 175 80% 50%;
+    --accent-foreground: 250 30% 6%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 20% 20%;
-    --input: 220 20% 20%;
-    --ring: 200 95% 55%;
+    --border: 250 20% 20%;
+    --input: 250 20% 20%;
+    --ring: 280 85% 65%;
 
-    --sidebar-background: 222 47% 8%;
+    --sidebar-background: 250 25% 10%;
     --sidebar-foreground: 210 20% 98%;
-    --sidebar-primary: 200 95% 55%;
-    --sidebar-primary-foreground: 222 47% 5%;
-    --sidebar-accent: 220 20% 15%;
+    --sidebar-primary: 280 85% 65%;
+    --sidebar-primary-foreground: 250 30% 6%;
+    --sidebar-accent: 250 20% 15%;
     --sidebar-accent-foreground: 210 20% 98%;
-    --sidebar-border: 220 20% 20%;
-    --sidebar-ring: 200 95% 55%;
-    --sidebar: 222 47% 8%;
+    --sidebar-border: 250 20% 20%;
+    --sidebar-ring: 280 85% 65%;
+    --sidebar: 250 25% 10%;
 
-    --chart-1: 200 95% 55%;
-    --chart-2: 142 76% 45%;
-    --chart-3: 280 65% 65%;
-    --chart-4: 35 92% 55%;
-    --chart-5: 340 82% 55%;
+    --chart-1: 280 85% 65%;
+    --chart-2: 175 80% 50%;
+    --chart-3: 45 100% 60%;
+    --chart-4: 340 85% 65%;
+    --chart-5: 200 95% 60%;
 
     --shadow-brutal: 4px 4px 0px hsl(0 0% 0%);
     --shadow-brutal-sm: 2px 2px 0px hsl(0 0% 0%);
     --shadow-brutal-lg: 8px 8px 0px hsl(0 0% 0%);
-    --shadow-glow: 0 0 40px hsl(200 95% 55% / 0.4);
-    --shadow-neuron: 0 0 25px hsl(142 76% 45% / 0.5);
+    --shadow-glow: 0 0 40px hsl(280 85% 65% / 0.5);
+    --shadow-neuron: 0 0 25px hsl(175 80% 50% / 0.6);
+    --shadow-neon-pink: 0 0 25px hsl(340 85% 65% / 0.6), 0 0 50px hsl(340 85% 65% / 0.4);
+    --shadow-neon-cyan: 0 0 25px hsl(175 80% 55% / 0.6), 0 0 50px hsl(175 80% 55% / 0.4);
+    --shadow-neon-purple: 0 0 25px hsl(280 85% 65% / 0.6), 0 0 50px hsl(280 85% 65% / 0.4);
   }
 }
 
@@ -173,11 +186,42 @@
     box-shadow: var(--shadow-neuron);
   }
 
+  .glow-neon-pink {
+    box-shadow: var(--shadow-neon-pink);
+  }
+
+  .glow-neon-cyan {
+    box-shadow: var(--shadow-neon-cyan);
+  }
+
+  .glow-neon-purple {
+    box-shadow: var(--shadow-neon-purple);
+  }
+
   .gradient-text {
     background: var(--gradient-primary);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  .gradient-arcade {
+    background: var(--gradient-arcade);
+  }
+
+  .gradient-neon {
+    background: var(--gradient-neon);
+  }
+
+  .font-arcade {
+    font-family: var(--font-arcade);
+  }
+
+  .text-neon-glow {
+    text-shadow: 
+      0 0 10px currentColor,
+      0 0 20px currentColor,
+      0 0 40px currentColor;
   }
 
   .loader {
@@ -197,14 +241,56 @@
   }
 
   @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 20px hsl(var(--primary) / 0.3); }
-    50% { box-shadow: 0 0 40px hsl(var(--primary) / 0.6); }
+    0%, 100% { 
+      box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
+      filter: brightness(1);
+    }
+    50% { 
+      box-shadow: 0 0 50px hsl(var(--primary) / 0.8);
+      filter: brightness(1.1);
+    }
+  }
+
+  @keyframes neon-flicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+      text-shadow: 
+        0 0 4px currentColor,
+        0 0 11px currentColor,
+        0 0 19px currentColor,
+        0 0 40px hsl(var(--primary));
+    }
+    20%, 24%, 55% {
+      text-shadow: none;
+    }
   }
 
   @keyframes wiggle {
     0%, 100% { transform: translateX(0) rotate(0deg); }
-    25% { transform: translateX(-2px) rotate(-1deg); }
-    75% { transform: translateX(2px) rotate(1deg); }
+    25% { transform: translateX(-3px) rotate(-2deg); }
+    75% { transform: translateX(3px) rotate(2deg); }
+  }
+
+  @keyframes arcade-pulse {
+    0%, 100% { 
+      transform: scale(1);
+      box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+    }
+    50% { 
+      transform: scale(1.02);
+      box-shadow: 0 0 40px hsl(var(--primary) / 0.6);
+    }
+  }
+
+  @keyframes rainbow-border {
+    0% { border-color: hsl(var(--neon-pink)); }
+    33% { border-color: hsl(var(--neon-purple)); }
+    66% { border-color: hsl(var(--neon-cyan)); }
+    100% { border-color: hsl(var(--neon-pink)); }
+  }
+
+  @keyframes scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100vh); }
   }
 
   .animate-pulse-glow {
@@ -213,6 +299,42 @@
 
   .animate-wiggle {
     animation: wiggle 0.5s ease-in-out infinite;
+  }
+
+  .animate-neon-flicker {
+    animation: neon-flicker 1.5s infinite alternate;
+  }
+
+  .animate-arcade-pulse {
+    animation: arcade-pulse 2s ease-in-out infinite;
+  }
+
+  .animate-rainbow-border {
+    animation: rainbow-border 3s linear infinite;
+  }
+
+  /* Arcade scanline overlay effect */
+  .scanlines::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* Retro grid background */
+  .retro-grid {
+    background-image: 
+      linear-gradient(hsl(var(--primary) / 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--primary) / 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
   }
 }
 
