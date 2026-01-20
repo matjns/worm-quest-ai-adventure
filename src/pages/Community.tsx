@@ -3,8 +3,10 @@ import { Header } from "@/components/Header";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Users, Github, MessageCircle, Share2, Heart, ExternalLink, 
-  Code, BookOpen, Plus, Sparkles, Copy, Check, LogIn, GitFork, Pencil, User, FolderOpen, Eye
+  Code, BookOpen, Plus, Sparkles, Copy, Check, LogIn, GitFork, Pencil, User, FolderOpen, Eye,
+  Download, FileJson, Image
 } from "lucide-react";
+import { exportCircuitAsJSON, exportCircuitAsPNG } from "@/utils/circuitExport";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,6 +65,8 @@ function CircuitCard({
   onUpdate,
   onDelete,
   onViewDetails,
+  onExportJSON,
+  onExportPNG,
   isOwnCircuit
 }: { 
   circuit: SharedCircuit; 
@@ -73,6 +77,8 @@ function CircuitCard({
   onUpdate: (circuitId: string, updates: { title?: string; description?: string; tags?: string[] }) => Promise<{ error: unknown; data: unknown }>;
   onDelete: (circuitId: string) => Promise<{ error: unknown }>;
   onViewDetails: () => void;
+  onExportJSON: () => void;
+  onExportPNG: () => void;
   isOwnCircuit: boolean;
 }) {
   return (
@@ -142,6 +148,12 @@ function CircuitCard({
               <GitFork className="w-4 h-4" />
             </Button>
           )}
+          <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); onExportJSON(); }} title="Export as JSON">
+            <FileJson className="w-4 h-4" />
+          </Button>
+          <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); onExportPNG(); }} title="Export as PNG">
+            <Image className="w-4 h-4" />
+          </Button>
           <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); onGeneratePR(); }} title="Contribute to OpenWorm">
             <Github className="w-4 h-4" />
           </Button>
@@ -451,6 +463,8 @@ export default function CommunityPage() {
                           onUpdate={updateCircuit}
                           onDelete={deleteCircuit}
                           onViewDetails={() => handleViewDetails(circuit)}
+                          onExportJSON={() => exportCircuitAsJSON(circuit)}
+                          onExportPNG={() => exportCircuitAsPNG(circuit)}
                           isOwnCircuit={circuit.user_id === user?.id}
                         />
                       </div>
@@ -518,6 +532,8 @@ export default function CommunityPage() {
                             onUpdate={updateCircuit}
                             onDelete={deleteCircuit}
                             onViewDetails={() => handleViewDetails(circuit)}
+                            onExportJSON={() => exportCircuitAsJSON(circuit)}
+                            onExportPNG={() => exportCircuitAsPNG(circuit)}
                             isOwnCircuit={true}
                           />
                         </div>
