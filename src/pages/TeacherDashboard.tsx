@@ -12,6 +12,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTeacherDashboard, Classroom, LessonPlan, Student } from '@/hooks/useTeacherDashboard';
+import { useModuleAssignments } from '@/hooks/useModuleAssignments';
+import { ModuleAssignmentManager } from '@/components/ModuleAssignmentManager';
 import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
 import { WeeklyProgressReport, StudentReportData } from '@/components/WeeklyProgressReport';
@@ -41,7 +43,8 @@ import {
   Copy,
   KeyRound,
   ClipboardList,
-  Send
+  Send,
+  ListTodo
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -77,11 +80,20 @@ export default function TeacherDashboard() {
   const [lessonGenOpen, setLessonGenOpen] = useState(false);
   const [lessonGenData, setLessonGenData] = useState({ classroom_id: '', topic: '', type: 'single' });
   const [selectedClassroom, setSelectedClassroom] = useState<Classroom | null>(null);
+  const [selectedAssignmentClassroom, setSelectedAssignmentClassroom] = useState<string>('');
   const [classAnalysis, setClassAnalysis] = useState<Record<string, unknown> | null>(null);
   const [reportClassroomId, setReportClassroomId] = useState<string>('');
   const [reportWeek, setReportWeek] = useState<number>(1);
   const [studentReports, setStudentReports] = useState<Map<string, StudentReportData>>(new Map());
   const [generatingReportFor, setGeneratingReportFor] = useState<string | null>(null);
+
+  // Module assignments hook
+  const {
+    assignments,
+    loading: assignmentsLoading,
+    createAssignment,
+    deleteAssignment,
+  } = useModuleAssignments(selectedAssignmentClassroom || undefined);
 
   if (authLoading) {
     return (
@@ -230,10 +242,14 @@ export default function TeacherDashboard() {
 
         {/* Main Tabs */}
         <Tabs defaultValue="classrooms" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 h-12">
+          <TabsList className="grid w-full grid-cols-7 h-12">
             <TabsTrigger value="classrooms" className="gap-2">
               <School className="w-4 h-4" />
               <span className="hidden sm:inline">Classrooms</span>
+            </TabsTrigger>
+            <TabsTrigger value="assignments" className="gap-2">
+              <ListTodo className="w-4 h-4" />
+              <span className="hidden sm:inline">Assignments</span>
             </TabsTrigger>
             <TabsTrigger value="lessons" className="gap-2">
               <BookOpen className="w-4 h-4" />
@@ -406,6 +422,67 @@ export default function TeacherDashboard() {
                     </motion.div>
                   );
                 })}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Assignments Tab */}
+          <TabsContent value="assignments" className="space-y-6">
+            {classrooms.length === 0 ? (
+              <Card className="border-dashed">
+                <CardContent className="py-12 text-center">
+                  <School className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold mb-2">Create a classroom first</h3>
+                  <p className="text-muted-foreground mb-4">
+                    You need at least one classroom to assign modules to students.
+                  </p>
+                  <Button onClick={() => setNewClassroomOpen(true)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Classroom
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-6">
+                {/* Classroom Selector */}
+                <div className="flex items-center gap-4">
+                  <Label className="whitespace-nowrap">Select Classroom:</Label>
+                  <Select
+                    value={selectedAssignmentClassroom}
+                    onValueChange={setSelectedAssignmentClassroom}
+                  >
+                    <SelectTrigger className="w-[300px]">
+                      <SelectValue placeholder="Choose a classroom..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {classrooms.map((classroom) => (
+                        <SelectItem key={classroom.id} value={classroom.id}>
+                          {classroom.name} ({classroom.grade_level})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {selectedAssignmentClassroom ? (
+                  <ModuleAssignmentManager
+                    classroomId={selectedAssignmentClassroom}
+                    assignments={assignments}
+                    loading={assignmentsLoading}
+                    onCreateAssignment={createAssignment}
+                    onDeleteAssignment={deleteAssignment}
+                  />
+                ) : (
+                  <Card className="border-dashed">
+                    <CardContent className="py-12 text-center">
+                      <ListTodo className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                      <h3 className="text-lg font-semibold mb-2">Select a classroom</h3>
+                      <p className="text-muted-foreground">
+                        Choose a classroom above to manage module assignments
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             )}
           </TabsContent>
