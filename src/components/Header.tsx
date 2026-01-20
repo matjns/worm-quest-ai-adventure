@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Brain, Menu, X, Trophy, BookOpen, Users, Settings, Gamepad2, LogIn, User, GraduationCap } from "lucide-react";
+import { Brain, Menu, X, Trophy, BookOpen, Users, Settings, Gamepad2, LogIn, User, GraduationCap, BarChart3 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import neuroQuestLogo from "@/assets/neuroquest-logo.png";
@@ -79,6 +79,12 @@ export function Header() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem asChild>
+                        <Link to="/progress" className="w-full">
+                          <BarChart3 className="w-4 h-4 mr-2" />
+                          My Progress
+                        </Link>
+                      </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link to="/settings" className="w-full">
                           <Settings className="w-4 h-4 mr-2" />
