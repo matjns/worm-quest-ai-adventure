@@ -160,9 +160,9 @@ export default function Index() {
 
               {/* MTP Callout */}
               <div className="bg-muted/50 border-2 border-primary/30 rounded-lg p-3 mb-6 max-w-lg">
-                <p className="text-xs font-arcade text-primary mb-1">MASSIVE TRANSFORMATIVE PURPOSE</p>
+                <p className="text-xs font-bold text-primary mb-1 uppercase tracking-wide">Our Mission</p>
                 <p className="text-sm text-muted-foreground italic">
-                  "Simulate every organism to decode biology's code and conquer the brain."
+                  "Simulate organisms to decode biology."
                 </p>
               </div>
 

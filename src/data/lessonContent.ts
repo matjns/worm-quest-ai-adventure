@@ -523,7 +523,7 @@ export const LESSON_CONTENT: LessonContent[] = [
       },
       {
         title: "The Future: Digital Life",
-        content: "OpenWorm's Massive Transformational Purpose: 'Digitize Life: Simulate Every Organism to Decode Biology's Code and Conquer the Brain.' Starting with C. elegans, the goal is to simulate every organism to decode biology's code. Why? Because digital organisms can:\n\n• Test drugs without real animals\n• Model diseases like Alzheimer's\n• Accelerate brain-computer interface development\n• Democratize biological knowledge\n\nYou're learning the foundation of a revolution in biology and AI!",
+        content: "OpenWorm's Mission: 'Simulate organisms to decode biology.' Starting with C. elegans, the goal is to create accurate biological simulations. Why? Because digital organisms can:\n\n• Test drugs without real animals\n• Model diseases like Alzheimer's\n• Accelerate brain-computer interface development\n• Democratize biological knowledge\n\nYou're learning the foundation of a revolution in biology and AI!",
         videoUrl: "https://www.youtube.com/embed/vTk-gS5nP_0"
       }
     ],
@@ -564,7 +564,7 @@ export const LESSON_CONTENT: LessonContent[] = [
           { id: "d", text: "To make worms extinct" }
         ],
         correctId: "b",
-        explanation: "OpenWorm aims to 'Digitize Life' — creating accurate simulations to accelerate drug discovery, disease research, and biological understanding!",
+        explanation: "OpenWorm aims to simulate organisms to decode biology — creating accurate simulations to accelerate drug discovery, disease research, and biological understanding!",
         points: 40
       }
     ],
@@ -588,5 +588,5 @@ export const OPENWORM_RESOURCES = {
     openWormIntro: "https://www.youtube.com/embed/vTk-gS5nP_0",
     sibernetic: "https://www.youtube.com/embed/3uV3yTmUlgo"
   },
-  mtp: "OpenWorm's MTP: 'Digitize Life: Simulate Every Organism to Decode Biology's Code and Conquer the Brain.' Starts with C. elegans—1,000-cell nematode, full connectome mapped—as gateway to multiscale bio-sims. Accelerates reverse-engineering neural circuits, unlocks predictive models for neurodegeneration, drug discovery, and brain-machine interfaces. Open-source core democratizes data for global innovation."
+  mtp: "OpenWorm's Mission: 'Simulate organisms to decode biology.' Starting with C. elegans—1,000-cell nematode, full connectome mapped—as gateway to multiscale bio-sims. Accelerates reverse-engineering neural circuits, unlocks predictive models for neurodegeneration, drug discovery, and brain-machine interfaces. Open-source core democratizes data for global innovation."
 };
