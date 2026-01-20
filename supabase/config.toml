@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.discovery-hints]
 verify_jwt = false
+
+[functions.openworm-simulate]
+verify_jwt = false

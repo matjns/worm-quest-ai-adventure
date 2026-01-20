@@ -8,6 +8,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Play, 
   Copy, 
@@ -19,7 +20,9 @@ import {
   Code2,
   Terminal,
   RotateCcw,
-  Loader2
+  Loader2,
+  Wifi,
+  WifiOff
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -145,14 +148,47 @@ export function APIPlayground() {
     setResponse(null);
     const startTime = Date.now();
 
-    // Simulate API call with mock response
-    await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 700));
+    try {
+      // Call the real OpenWorm simulation edge function
+      const requestBody = {
+        neurons: selectedNeurons,
+        stimulus: {
+          type: stimulusType,
+          value: stimulusValue
+        },
+        duration_ms: duration,
+        include_physics: includePhysics
+      };
 
-    const mockResponse = generateMockResponse();
-    setResponse(mockResponse);
-    setResponseTime(Date.now() - startTime);
-    setIsLoading(false);
-    toast.success("Simulation complete!");
+      const { data, error } = await supabase.functions.invoke('openworm-simulate', {
+        body: {
+          ...requestBody,
+          endpoint: selectedEndpoint
+        }
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      setResponse(data);
+      setResponseTime(Date.now() - startTime);
+      toast.success("Simulation complete!", {
+        description: `Computed in ${data.compute_time_ms || (Date.now() - startTime)}ms`
+      });
+    } catch (error) {
+      console.error('Simulation error:', error);
+      toast.error("Simulation failed", {
+        description: error instanceof Error ? error.message : "Unknown error"
+      });
+      setResponse({ 
+        success: false, 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+      setResponseTime(Date.now() - startTime);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const generateMockResponse = () => {
