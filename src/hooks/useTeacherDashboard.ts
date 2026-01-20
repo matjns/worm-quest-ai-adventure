@@ -11,6 +11,7 @@ export interface Classroom {
   school_name: string | null;
   school_district: string | null;
   student_count: number;
+  join_code: string | null;
   created_at: string;
 }
 
