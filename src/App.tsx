@@ -38,7 +38,7 @@ import OpenPlatform from "./pages/OpenPlatform";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+  <ThemeProvider attribute="class" defaultTheme="system" enableSystem={true}>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <CelebrationProvider>
