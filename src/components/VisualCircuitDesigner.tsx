@@ -19,6 +19,7 @@ import { circuitTemplates, type CircuitTemplate } from "@/data/circuitTemplates"
 import { WormSimulator3D } from "@/components/WormSimulator3D";
 import { CircuitValidationPanel } from "@/components/CircuitValidationPanel";
 import { AICircuitCoach } from "@/components/AICircuitCoach";
+import { NeuroMLExportDialog } from "@/components/NeuroMLExportDialog";
 import { useCollaborativeCircuitDesigner } from "@/hooks/useCollaborativeCircuitDesigner";
 import { 
   Brain, 
@@ -631,9 +632,21 @@ export function VisualCircuitDesigner() {
               </DialogContent>
             </Dialog>
             
+            {/* NeuroML Export */}
+            <NeuroMLExportDialog
+              neurons={placedNeurons.map(n => ({ id: n.id, type: n.type, x: n.x, y: n.y }))}
+              connections={connections}
+              trigger={
+                <Button variant="outline" size="sm" className="gap-1">
+                  <FileCode className="w-4 h-4" />
+                  NeuroML
+                </Button>
+              }
+            />
+            
             <Button variant="outline" size="sm" onClick={exportCircuit}>
               <Download className="w-4 h-4 mr-1" />
-              Export
+              JSON
             </Button>
             <Button variant="outline" size="sm" onClick={clearCanvas}>
               <Trash2 className="w-4 h-4 mr-1" />
