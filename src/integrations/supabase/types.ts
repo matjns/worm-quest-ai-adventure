@@ -14,7 +14,160 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      circuit_comments: {
+        Row: {
+          circuit_id: string
+          content: string
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          circuit_id: string
+          content: string
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          circuit_id?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "circuit_comments_circuit_id_fkey"
+            columns: ["circuit_id"]
+            isOneToOne: false
+            referencedRelation: "shared_circuits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      circuit_likes: {
+        Row: {
+          circuit_id: string
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          circuit_id: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          circuit_id?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "circuit_likes_circuit_id_fkey"
+            columns: ["circuit_id"]
+            isOneToOne: false
+            referencedRelation: "shared_circuits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          circuits_shared: number | null
+          created_at: string | null
+          display_name: string
+          github_username: string | null
+          id: string
+          total_likes: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          circuits_shared?: number | null
+          created_at?: string | null
+          display_name: string
+          github_username?: string | null
+          id?: string
+          total_likes?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          circuits_shared?: number | null
+          created_at?: string | null
+          display_name?: string
+          github_username?: string | null
+          id?: string
+          total_likes?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      shared_circuits: {
+        Row: {
+          behavior: string
+          circuit_data: Json
+          created_at: string | null
+          description: string | null
+          github_pr_url: string | null
+          id: string
+          is_featured: boolean | null
+          likes_count: number | null
+          neurons_used: string[]
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          user_id: string
+          views_count: number | null
+        }
+        Insert: {
+          behavior: string
+          circuit_data: Json
+          created_at?: string | null
+          description?: string | null
+          github_pr_url?: string | null
+          id?: string
+          is_featured?: boolean | null
+          likes_count?: number | null
+          neurons_used: string[]
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+          views_count?: number | null
+        }
+        Update: {
+          behavior?: string
+          circuit_data?: Json
+          created_at?: string | null
+          description?: string | null
+          github_pr_url?: string | null
+          id?: string
+          is_featured?: boolean | null
+          likes_count?: number | null
+          neurons_used?: string[]
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+          views_count?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

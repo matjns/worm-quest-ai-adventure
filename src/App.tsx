@@ -17,6 +17,7 @@ import K5Game from "./pages/games/K5Game";
 import MiddleSchoolGame from "./pages/games/MiddleSchoolGame";
 import HighSchoolGame from "./pages/games/HighSchoolGame";
 import NeuroQuest from "./pages/NeuroQuest";
+import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
 
@@ -39,7 +40,9 @@ const App = () => (
             <Route path="/learn/:lessonId" element={<LessonView />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/community" element={<Community />} />
+            <Route path="/auth" element={<Auth />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="*" element={<NotFound />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
