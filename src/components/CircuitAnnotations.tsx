@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MessageSquare,
@@ -9,6 +9,8 @@ import {
   Wifi,
   WifiOff,
   AtSign,
+  CheckCircle2,
+  Circle,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -115,6 +117,7 @@ export function CircuitAnnotations({
   const [newColor, setNewColor] = useState("default");
   const [saving, setSaving] = useState(false);
   const [showAnnotations, setShowAnnotations] = useState(true);
+  const [hideResolved, setHideResolved] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [presenceUsers, setPresenceUsers] = useState<PresenceUser[]>([]);
   const channelRef = useRef<RealtimeChannel | null>(null);
@@ -633,9 +636,11 @@ export function CircuitAnnotations({
   });
 
   // Get top-level annotations for a neuron (no parent), sorted: unresolved pinned first, then unresolved, then resolved
-  const getAnnotationsForNeuron = (neuronId: string) =>
+  // Optionally filter out resolved based on hideResolved state
+  const getAnnotationsForNeuron = useCallback((neuronId: string) =>
     annotations
       .filter((a) => a.neuron_id === neuronId && !a.parent_id)
+      .filter((a) => !hideResolved || !a.is_resolved)
       .sort((a, b) => {
         // Resolved at end
         if (a.is_resolved && !b.is_resolved) return 1;
@@ -645,7 +650,18 @@ export function CircuitAnnotations({
         if (!a.is_pinned && b.is_pinned) return 1;
         // Then by date
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      });
+      }), [annotations, hideResolved]);
+
+  // Count of resolved annotations (for badge display)
+  const resolvedCount = useMemo(() => 
+    annotations.filter((a) => !a.parent_id && a.is_resolved).length,
+    [annotations]
+  );
+
+  const activeCount = useMemo(() => 
+    annotations.filter((a) => !a.parent_id && !a.is_resolved).length,
+    [annotations]
+  );
 
   // Get replies for a specific annotation
   const getRepliesForAnnotation = (annotationId: string) =>
@@ -757,9 +773,9 @@ export function CircuitAnnotations({
                 className="gap-1"
               >
                 <MessageSquare className="w-4 h-4" />
-                {annotations.length > 0 && (
+                {activeCount > 0 && (
                   <Badge variant="secondary" className="text-xs px-1">
-                    {annotations.length}
+                    {activeCount}
                   </Badge>
                 )}
               </Button>
@@ -769,6 +785,35 @@ export function CircuitAnnotations({
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
+
+        {/* Resolved filter toggle */}
+        {resolvedCount > 0 && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={hideResolved ? "outline" : "secondary"}
+                  size="sm"
+                  onClick={() => setHideResolved(!hideResolved)}
+                  className="gap-1"
+                >
+                  {hideResolved ? (
+                    <Circle className="w-4 h-4" />
+                  ) : (
+                    <CheckCircle2 className="w-4 h-4" />
+                  )}
+                  <span className="text-xs">{resolvedCount}</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {hideResolved 
+                  ? `Show ${resolvedCount} resolved thread${resolvedCount !== 1 ? 's' : ''}`
+                  : `Hide ${resolvedCount} resolved thread${resolvedCount !== 1 ? 's' : ''}`
+                }
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
       </div>
 
       {/* SVG Overlay for annotation markers */}
