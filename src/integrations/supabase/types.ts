@@ -508,6 +508,54 @@ export type Database = {
           },
         ]
       }
+      player_ratings: {
+        Row: {
+          best_streak: number
+          created_at: string
+          elo_rating: number
+          id: string
+          last_race_at: string | null
+          losses: number
+          rating_deviation: number
+          tier: string
+          total_races: number
+          updated_at: string
+          user_id: string
+          win_streak: number
+          wins: number
+        }
+        Insert: {
+          best_streak?: number
+          created_at?: string
+          elo_rating?: number
+          id?: string
+          last_race_at?: string | null
+          losses?: number
+          rating_deviation?: number
+          tier?: string
+          total_races?: number
+          updated_at?: string
+          user_id: string
+          win_streak?: number
+          wins?: number
+        }
+        Update: {
+          best_streak?: number
+          created_at?: string
+          elo_rating?: number
+          id?: string
+          last_race_at?: string | null
+          losses?: number
+          rating_deviation?: number
+          tier?: string
+          total_races?: number
+          updated_at?: string
+          user_id?: string
+          win_streak?: number
+          wins?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -612,9 +660,13 @@ export type Database = {
           finished_at: string | null
           host_id: string
           id: string
+          is_ranked: boolean | null
+          max_elo: number | null
           max_players: number
+          min_elo: number | null
           name: string
           race_distance: number
+          skill_tier: string | null
           started_at: string | null
           status: string
         }
@@ -623,9 +675,13 @@ export type Database = {
           finished_at?: string | null
           host_id: string
           id?: string
+          is_ranked?: boolean | null
+          max_elo?: number | null
           max_players?: number
+          min_elo?: number | null
           name: string
           race_distance?: number
+          skill_tier?: string | null
           started_at?: string | null
           status?: string
         }
@@ -634,9 +690,13 @@ export type Database = {
           finished_at?: string | null
           host_id?: string
           id?: string
+          is_ranked?: boolean | null
+          max_elo?: number | null
           max_players?: number
+          min_elo?: number | null
           name?: string
           race_distance?: number
+          skill_tier?: string | null
           started_at?: string | null
           status?: string
         }
@@ -833,7 +893,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_elo_change: {
+        Args: { k_factor?: number; loser_elo: number; winner_elo: number }
+        Returns: number
+      }
       generate_join_code: { Args: never; Returns: string }
+      get_tier_from_elo: { Args: { elo_rating: number }; Returns: string }
       increment_simulation_count: { Args: never; Returns: undefined }
     }
     Enums: {

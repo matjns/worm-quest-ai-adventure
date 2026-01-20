@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Users, Play, Plus, Trophy, Loader2, LogOut, 
-  Crown, Timer, Flag, Zap, Brain, ArrowLeft
+  Crown, Timer, Flag, Brain, ArrowLeft, Target
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +20,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { RaceCircuitSetup } from "./RaceCircuitSetup";
+import { SkillTierBadge } from "./SkillTierBadge";
 import { useWormRace, RaceSession } from "@/hooks/useWormRace";
+import { useMatchmaking } from "@/hooks/useMatchmaking";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
@@ -35,7 +39,7 @@ export function WormRaceLobby({
   onJoinRace,
   className 
 }: WormRaceLobbyProps) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { 
     race, 
     participants, 
@@ -49,11 +53,15 @@ export function WormRaceLobby({
     fetchAvailableRaces 
   } = useWormRace(raceId);
   
+  const { playerRating, getRatingsForUsers } = useMatchmaking();
+  
   const [availableRaces, setAvailableRaces] = useState<RaceSession[]>([]);
   const [newRaceName, setNewRaceName] = useState("");
+  const [isRanked, setIsRanked] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showCircuitSetup, setShowCircuitSetup] = useState(false);
+  const [participantRatings, setParticipantRatings] = useState<Map<string, any>>(new Map());
 
   // Fetch available races on mount
   useEffect(() => {
@@ -61,6 +69,14 @@ export function WormRaceLobby({
       fetchAvailableRaces().then(setAvailableRaces);
     }
   }, [raceId, fetchAvailableRaces]);
+
+  // Fetch participant ratings when participants change
+  useEffect(() => {
+    if (participants.length > 0) {
+      const userIds = participants.map(p => p.user_id);
+      getRatingsForUsers(userIds).then(setParticipantRatings);
+    }
+  }, [participants, getRatingsForUsers]);
 
   // Handle race status changes
   useEffect(() => {
@@ -73,9 +89,13 @@ export function WormRaceLobby({
     if (!newRaceName.trim()) return;
     
     setIsCreating(true);
-    const id = await createRace(newRaceName.trim());
+    const id = await createRace(newRaceName.trim(), 4, {
+      isRanked,
+      playerElo: playerRating?.elo_rating,
+    });
     setIsCreating(false);
     setShowCreateDialog(false);
+    setIsRanked(true); // Reset for next time
     
     if (id && onJoinRace) {
       onJoinRace(id);
@@ -197,6 +217,14 @@ export function WormRaceLobby({
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span>{participant.profiles?.display_name || "Anonymous"}</span>
+                        {participantRatings.get(participant.user_id) && (
+                          <SkillTierBadge
+                            tier={participantRatings.get(participant.user_id).tier}
+                            elo={participantRatings.get(participant.user_id).elo_rating}
+                            size="sm"
+                            showElo
+                          />
+                        )}
                         {participant.circuit_data && (
                           <Badge variant="outline" className="text-[10px] py-0">
                             <Brain className="w-2 h-2 mr-1" />
@@ -278,6 +306,33 @@ export function WormRaceLobby({
                   value={newRaceName}
                   onChange={(e) => setNewRaceName(e.target.value)}
                 />
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-2">
+                    <Target className="w-4 h-4 text-primary" />
+                    <div>
+                      <Label htmlFor="ranked-mode" className="font-medium">Ranked Mode</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Match with similar skill players, affects ELO
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    id="ranked-mode"
+                    checked={isRanked}
+                    onCheckedChange={setIsRanked}
+                  />
+                </div>
+                {playerRating && (
+                  <div className="flex items-center justify-center gap-2 p-2 rounded-lg bg-muted/30">
+                    <span className="text-sm text-muted-foreground">Your rank:</span>
+                    <SkillTierBadge
+                      tier={playerRating.tier}
+                      elo={playerRating.elo_rating}
+                      size="sm"
+                      showElo
+                    />
+                  </div>
+                )}
                 <Button 
                   onClick={handleCreateRace} 
                   disabled={!newRaceName.trim() || isCreating}
@@ -288,7 +343,7 @@ export function WormRaceLobby({
                   ) : (
                     <Flag className="w-4 h-4 mr-2" />
                   )}
-                  Create Race
+                  Create {isRanked ? "Ranked" : "Casual"} Race
                 </Button>
               </div>
             </DialogContent>
