@@ -48,13 +48,12 @@ export function useAIChallenge() {
 
       if (!response.ok) {
         if (response.status === 429) {
-          toast.error("Too many requests. Please wait a moment and try again.");
-          throw new Error("Rate limit exceeded");
+          toast.info("High demand—retrying automatically...");
+          // Auto-retry after brief delay for free access
+          await new Promise(r => setTimeout(r, 1000));
+          return callAI(type, ageGroup, options);
         }
-        if (response.status === 402) {
-          toast.error("AI credits depleted. Please add more credits.");
-          throw new Error("Payment required");
-        }
+        // No payment walls - AI features are free per EO 14277
         throw new Error("Failed to get AI response");
       }
 

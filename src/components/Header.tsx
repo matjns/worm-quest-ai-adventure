@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import neuroQuestLogo from "@/assets/neuroquest-logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { NotificationCenter } from "@/components/NotificationCenter";
+import { DarkModeToggle } from "@/components/DarkModeToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -176,6 +177,7 @@ export function Header() {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
+            <DarkModeToggle />
             <NotificationCenter />
             
             {!loading && (
