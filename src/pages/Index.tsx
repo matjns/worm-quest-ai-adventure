@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
@@ -11,6 +12,7 @@ import { GlobalImpactCounter } from "@/components/GlobalImpactCounter";
 import { WormRaceLobby } from "@/components/WormRaceLobby";
 import { ChallengeShowcase } from "@/components/ChallengeShowcase";
 import { DopamineBooster } from "@/components/DopamineBooster";
+import { SplashIntro, useSplashIntro } from "@/components/SplashIntro";
 import neuroQuestLogo from "@/assets/neuroquest-logo.png";
 import { 
   Brain, 
@@ -106,14 +108,20 @@ const stats = [
 const ghostColors = ["🔴", "🩷", "🩵", "🟠"];
 
 export default function Index() {
-  return (
-    <div className="min-h-screen bg-background dark:bg-[hsl(250_50%_4%)] relative">
-      {/* Arcade pellet background pattern */}
-      <div className="fixed inset-0 pellet-bg opacity-30 pointer-events-none" />
-      
-      <Header />
+  const { showSplash, setShowSplash } = useSplashIntro();
 
-      {/* Hero Section */}
+  return (
+    <>
+      {/* Splash Intro - Shows once on first visit */}
+      <AnimatePresence>
+        {showSplash && (
+          <SplashIntro onComplete={() => setShowSplash(false)} />
+        )}
+      </AnimatePresence>
+
+      <div className="min-h-screen bg-background dark:bg-[hsl(250_50%_4%)] relative">
+        {/* Arcade pellet background pattern */}
+        <div className="fixed inset-0 pellet-bg opacity-30 pointer-events-none" />
       <section className="relative pt-24 pb-20 px-4 overflow-hidden">
         {/* Background canvas */}
         <div className="absolute inset-0 opacity-20">
@@ -457,5 +465,6 @@ export default function Index() {
         </div>
       </footer>
     </div>
+    </>
   );
 }

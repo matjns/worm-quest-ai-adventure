@@ -20,7 +20,7 @@ interface DesignerConnection {
   id: string;
   from: string;
   to: string;
-  type: string;
+  type: "chemical" | "electrical";
   weight: number;
 }
 
