@@ -12,13 +12,16 @@ import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { RaceWorm } from "./RaceWorm";
 import { RaceTrack } from "./RaceTrack";
+import { PostRaceResults } from "./PostRaceResults";
 import { useWormRace, RaceParticipant } from "@/hooks/useWormRace";
+import { useRaceRecording } from "@/hooks/useRaceRecording";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
 interface RaceGameplayProps {
   raceId: string;
   onExit?: () => void;
+  onPlayAgain?: () => void;
   className?: string;
 }
 
@@ -32,7 +35,7 @@ const WORM_COLORS = [
   "#fb923c", // orange
 ];
 
-export function RaceGameplay({ raceId, onExit, className }: RaceGameplayProps) {
+export function RaceGameplay({ raceId, onExit, onPlayAgain, className }: RaceGameplayProps) {
   const { user } = useAuth();
   const { 
     race, 
@@ -42,11 +45,22 @@ export function RaceGameplay({ raceId, onExit, className }: RaceGameplayProps) {
     finishRace 
   } = useWormRace(raceId);
   
+  const {
+    isRecording,
+    recording,
+    startRecording,
+    recordFrame,
+    stopRecording,
+  } = useRaceRecording();
+  
   const [countdown, setCountdown] = useState<number | null>(3);
   const [raceTime, setRaceTime] = useState(0);
   const [hasFinished, setHasFinished] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const [allFinished, setAllFinished] = useState(false);
   const animationRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
+  const speedMapRef = useRef<Map<string, number>>(new Map());
 
   // Simulate worm movement based on circuit configuration
   const simulateWormSpeed = useCallback((circuitData: Record<string, unknown>): number => {
@@ -61,7 +75,7 @@ export function RaceGameplay({ raceId, onExit, className }: RaceGameplayProps) {
     return 0.8 + neuronBonus + connectionBonus + randomVariation;
   }, []);
 
-  // Race countdown
+  // Race countdown and start recording
   useEffect(() => {
     if (race?.status !== "racing") return;
     
@@ -76,11 +90,13 @@ export function RaceGameplay({ raceId, onExit, className }: RaceGameplayProps) {
         setCountdown(null);
         clearInterval(countdownInterval);
         startTimeRef.current = Date.now();
+        // Start recording when race begins
+        startRecording(raceId, race.name, race.race_distance);
       }
     }, 1000);
 
     return () => clearInterval(countdownInterval);
-  }, [race?.status]);
+  }, [race?.status, raceId, race?.name, race?.race_distance, startRecording]);
 
   // Race simulation loop
   useEffect(() => {
@@ -89,6 +105,11 @@ export function RaceGameplay({ raceId, onExit, className }: RaceGameplayProps) {
     const raceDistance = race.race_distance;
     let currentPosition = myParticipant?.position || 0;
     const speed = simulateWormSpeed(myParticipant?.circuit_data || {});
+
+    // Track speed for all participants
+    participants.forEach((p) => {
+      speedMapRef.current.set(p.id, simulateWormSpeed(p.circuit_data));
+    });
 
     const animate = () => {
       if (!startTimeRef.current) return;
@@ -100,6 +121,11 @@ export function RaceGameplay({ raceId, onExit, className }: RaceGameplayProps) {
       // Move worm forward
       currentPosition = Math.min(currentPosition + speed * 0.5, 100);
       updatePosition(currentPosition);
+      
+      // Record frame for replay
+      if (isRecording) {
+        recordFrame(participants, speedMapRef.current);
+      }
       
       // Check if finished
       if (currentPosition >= 100 && !hasFinished) {
@@ -118,7 +144,25 @@ export function RaceGameplay({ raceId, onExit, className }: RaceGameplayProps) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [race?.status, countdown, hasFinished, myParticipant, updatePosition, finishRace, simulateWormSpeed]);
+  }, [race?.status, countdown, hasFinished, myParticipant, participants, updatePosition, finishRace, simulateWormSpeed, isRecording, recordFrame]);
+
+  // Check if all participants finished and stop recording
+  useEffect(() => {
+    if (!race || race.status !== "racing") return;
+    
+    const allDone = participants.length > 0 && participants.every((p) => p.finished_at);
+    
+    if (allDone && !allFinished) {
+      setAllFinished(true);
+      const finalRecording = stopRecording(participants);
+      if (finalRecording) {
+        // Small delay to show final positions before results
+        setTimeout(() => {
+          setShowResults(true);
+        }, 1500);
+      }
+    }
+  }, [participants, race, allFinished, stopRecording]);
 
   // Sort participants by position for leaderboard
   const sortedParticipants = [...participants].sort((a, b) => {
@@ -143,6 +187,19 @@ export function RaceGameplay({ raceId, onExit, className }: RaceGameplayProps) {
       <div className="flex items-center justify-center h-96">
         <div className="animate-pulse text-muted-foreground">Loading race...</div>
       </div>
+    );
+  }
+
+  // Show post-race results with replay and analytics
+  if (showResults && recording) {
+    return (
+      <PostRaceResults
+        recording={recording}
+        currentUserId={user?.id}
+        onPlayAgain={onPlayAgain}
+        onExit={onExit}
+        className={className}
+      />
     );
   }
 
