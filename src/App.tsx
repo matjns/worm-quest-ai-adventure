@@ -20,6 +20,7 @@ import NeuroQuest from "./pages/NeuroQuest";
 import Auth from "./pages/Auth";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import JoinClassroomPage from "./pages/JoinClassroom";
+import StudentDashboard from "./pages/StudentDashboard";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,8 @@ const App = () => (
             <Route path="/settings" element={<Settings />} />
             <Route path="/teacher" element={<TeacherDashboard />} />
             <Route path="/join" element={<JoinClassroomPage />} />
+            <Route path="/progress" element={<StudentDashboard />} />
+            <Route path="*" element={<NotFound />} />
             <Route path="*" element={<NotFound />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
