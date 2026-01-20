@@ -9,11 +9,13 @@ import { ProgressTracker } from "@/components/ProgressTracker";
 import { SkillDashboard } from "@/components/SkillDashboard";
 import { useGameStore } from "@/stores/gameStore";
 import { useLearningStore } from "@/stores/learningStore";
+import { useProgressTracker } from "@/hooks/useProgressTracker";
 import { MISSIONS, getMissionById, isMissionComplete } from "@/data/missionData";
 import { simulateCircuit, ConnectionData, WormBehavior } from "@/data/neuronData";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import { 
   ArrowLeft, 
   Play, 
@@ -37,6 +39,7 @@ interface PlacedNeuron {
 export default function NeuroQuestPage() {
   const { level, xp, xpToNext, totalPoints, achievements, completedLessons, addXp, addPoints, completeLesson } = useGameStore();
   const { profile, recordAttempt, getAdaptedMissionConfig, startSession, generateLearningPath } = useLearningStore();
+  const { updateProgress } = useProgressTracker();
   
   const [phase, setPhase] = useState<GamePhase>("select");
   const [currentMissionId, setCurrentMissionId] = useState<number | null>(null);
@@ -103,6 +106,24 @@ export default function NeuroQuestPage() {
         neuronsPlaced: placedNeurons.length,
         connectionsCreated: connections.length,
         errorsBeforeSuccess,
+      });
+      
+      // Calculate accuracy based on attempts and hints
+      const accuracy = Math.max(0, Math.min(100, 100 - (errorsBeforeSuccess * 10) - (hintsUsed * 5)));
+      
+      // Update student progress in database (real-time sync)
+      updateProgress({
+        missionId: `mission-${currentMission.id}`,
+        xpEarned: currentMission.xpReward,
+        accuracy,
+        skillsUsed: currentMission.requiredNeurons || [],
+        success: true
+      }).then((saved) => {
+        if (saved) {
+          toast.success('Progress synced to classroom!', {
+            description: `+${currentMission.xpReward} XP earned`
+          });
+        }
       });
       
       setTimeout(() => {
