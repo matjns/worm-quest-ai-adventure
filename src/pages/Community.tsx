@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Users, Github, MessageCircle, Share2, Heart, ExternalLink, 
   Code, BookOpen, Plus, Sparkles, Copy, Check, LogIn, GitFork, Pencil, User, FolderOpen, Eye,
-  Download, FileJson, Image, GitCompare
+  Download, FileJson, Image, GitCompare, Merge
 } from "lucide-react";
 import { exportCircuitAsJSON, exportCircuitAsPNG } from "@/utils/circuitExport";
 import { SocialShareButtons } from "@/components/SocialShareButtons";
@@ -31,6 +31,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { ImportCircuitDialog } from "@/components/ImportCircuitDialog";
 import { CircuitCompareDialog } from "@/components/CircuitCompareDialog";
+import { CircuitMergeDialog } from "@/components/CircuitMergeDialog";
 
 const communityStats = [
   { value: "15K+", label: "Community Members", icon: Users },
@@ -251,6 +252,7 @@ export default function CommunityPage() {
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showPRDialog, setShowPRDialog] = useState(false);
   const [showCompareDialog, setShowCompareDialog] = useState(false);
+  const [showMergeDialog, setShowMergeDialog] = useState(false);
   const [activeTab, setActiveTab] = useState<'featured' | 'my-creations'>('featured');
   const [filteredCircuits, setFilteredCircuits] = useState<SharedCircuit[]>([]);
   const [filteredMyCircuits, setFilteredMyCircuits] = useState<SharedCircuit[]>([]);
@@ -386,14 +388,24 @@ export default function CommunityPage() {
                 {isAuthenticated && (
                   <div className="flex gap-2">
                     {circuits.length >= 2 && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowCompareDialog(true)}
-                      >
-                        <GitCompare className="w-4 h-4 mr-2" />
-                        Compare
-                      </Button>
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowCompareDialog(true)}
+                        >
+                          <GitCompare className="w-4 h-4 mr-2" />
+                          Compare
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowMergeDialog(true)}
+                        >
+                          <Merge className="w-4 h-4 mr-2" />
+                          Merge
+                        </Button>
+                      </>
                     )}
                     <ImportCircuitDialog
                       onImport={async (circuit) => {
@@ -763,6 +775,23 @@ export default function CommunityPage() {
         circuits={circuits}
         open={showCompareDialog}
         onOpenChange={setShowCompareDialog}
+      />
+
+      {/* Circuit Merge Dialog */}
+      <CircuitMergeDialog
+        circuits={circuits}
+        open={showMergeDialog}
+        onOpenChange={setShowMergeDialog}
+        onMerge={async (mergedCircuit) => {
+          await shareCircuit({
+            title: mergedCircuit.title,
+            description: mergedCircuit.description,
+            circuit_data: mergedCircuit.circuit_data,
+            behavior: mergedCircuit.behavior,
+            neurons_used: mergedCircuit.neurons_used,
+            tags: mergedCircuit.tags,
+          });
+        }}
       />
     </div>
   );
