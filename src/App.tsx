@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { CelebrationProvider } from "@/contexts/CelebrationContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import Index from "./pages/Index";
 import Play from "./pages/Play";
 import Learn from "./pages/Learn";
@@ -31,30 +32,32 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <CelebrationProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/play" element={<Play />} />
-              <Route path="/play/pre-k" element={<PreKGame />} />
-              <Route path="/play/k5" element={<K5Game />} />
-              <Route path="/play/middle" element={<MiddleSchoolGame />} />
-              <Route path="/play/high" element={<HighSchoolGame />} />
-              <Route path="/neuroquest" element={<NeuroQuest />} />
-              <Route path="/learn" element={<Learn />} />
-              <Route path="/learn/:lessonId" element={<LessonView />} />
-              <Route path="/leaderboard" element={<Leaderboard />} />
-              <Route path="/community" element={<Community />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/teacher" element={<TeacherDashboard />} />
-              <Route path="/join" element={<JoinClassroomPage />} />
-              <Route path="/progress" element={<StudentDashboard />} />
-              <Route path="/sandbox" element={<Sandbox />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <NotificationProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/play" element={<Play />} />
+                <Route path="/play/pre-k" element={<PreKGame />} />
+                <Route path="/play/k5" element={<K5Game />} />
+                <Route path="/play/middle" element={<MiddleSchoolGame />} />
+                <Route path="/play/high" element={<HighSchoolGame />} />
+                <Route path="/neuroquest" element={<NeuroQuest />} />
+                <Route path="/learn" element={<Learn />} />
+                <Route path="/learn/:lessonId" element={<LessonView />} />
+                <Route path="/leaderboard" element={<Leaderboard />} />
+                <Route path="/community" element={<Community />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/teacher" element={<TeacherDashboard />} />
+                <Route path="/join" element={<JoinClassroomPage />} />
+                <Route path="/progress" element={<StudentDashboard />} />
+                <Route path="/sandbox" element={<Sandbox />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </NotificationProvider>
         </CelebrationProvider>
       </TooltipProvider>
     </QueryClientProvider>
