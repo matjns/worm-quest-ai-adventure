@@ -158,14 +158,14 @@ export default function Index() {
                 Build neural circuits. Train AI. Conquer neuroscience.
               </p>
               <p className="text-sm text-primary font-bold italic mb-4">
-                "Learn from the lowly!"
+                Learn from the lowly!
               </p>
 
               {/* MTP Callout */}
               <div className="bg-muted/50 border-2 border-primary/30 rounded-lg p-3 mb-6 max-w-lg">
                 <p className="text-xs font-bold text-primary mb-1 uppercase tracking-wide">Our Mission</p>
                 <p className="text-sm text-muted-foreground italic">
-                  "Simulate organisms to decode biology."
+                  Simulate organisms to decode biology.
                 </p>
               </div>
 
