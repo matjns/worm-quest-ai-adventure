@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { Globe, Users, Brain, Beaker, Award, Flag } from "lucide-react";
+import { Globe, Users, Brain, Beaker, Award, Flag, Sparkles } from "lucide-react";
 import { useGlobalStats } from "@/hooks/useGlobalStats";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 interface StatItemProps {
   icon: React.ReactNode;
@@ -104,31 +105,52 @@ export function GlobalImpactCounter({ className, compact = false }: GlobalImpact
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className={cn(
-        "bg-card border-2 border-foreground rounded-lg p-4",
+        "bg-card border-2 border-foreground rounded-lg overflow-hidden",
+        "shadow-[4px_4px_0px_hsl(var(--foreground))]",
         className
       )}
     >
-      <div className="flex items-center gap-2 mb-4">
-        <Flag className="w-5 h-5 text-primary" />
-        <h3 className="font-bold text-sm uppercase tracking-wide">
-          OpenWorm Global Impact
-        </h3>
-        <span className="text-xs text-muted-foreground ml-auto">
-          USA-Led Open Science
-        </span>
+      {/* American Leadership Banner */}
+      <div className="bg-gradient-to-r from-chart-1/20 via-background to-chart-1/20 px-4 py-2 border-b border-border">
+        <div className="flex items-center justify-center gap-2">
+          <span className="text-lg">🇺🇸</span>
+          <span className="font-arcade text-xs uppercase tracking-wider text-chart-1">
+            American AI Leadership in Open Science
+          </span>
+          <Badge variant="outline" className="text-[10px] border-chart-1 text-chart-1">
+            US Nonprofit
+          </Badge>
+        </div>
       </div>
 
-      <div className="grid grid-cols-5 gap-4">
-        {statItems.map((stat, i) => (
-          <StatItem
-            key={stat.label}
-            icon={stat.icon}
-            value={stat.value}
-            label={stat.label}
-            color={stat.color}
-            delay={i * 0.1}
-          />
-        ))}
+      <div className="p-4">
+        <div className="flex items-center gap-2 mb-4">
+          <Flag className="w-5 h-5 text-chart-1" />
+          <h3 className="font-bold text-sm uppercase tracking-wide">
+            OpenWorm Global Impact
+          </h3>
+          <Sparkles className="w-4 h-4 text-accent animate-pulse ml-auto" />
+        </div>
+
+        <div className="grid grid-cols-5 gap-4">
+          {statItems.map((stat, i) => (
+            <StatItem
+              key={stat.label}
+              icon={stat.icon}
+              value={stat.value}
+              label={stat.label}
+              color={stat.color}
+              delay={i * 0.1}
+            />
+          ))}
+        </div>
+
+        {/* Mission statement */}
+        <div className="mt-4 pt-3 border-t border-border">
+          <p className="text-xs text-muted-foreground text-center italic">
+            "Digitizing life to decode biology's code — advancing American innovation through open-source neuroscience."
+          </p>
+        </div>
       </div>
     </motion.div>
   );

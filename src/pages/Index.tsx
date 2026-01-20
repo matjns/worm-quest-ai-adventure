@@ -9,6 +9,8 @@ import { WormCanvas } from "@/components/WormCanvas";
 import { AIChallengeBanner } from "@/components/AIChallengeBanner";
 import { GlobalImpactCounter } from "@/components/GlobalImpactCounter";
 import { WormRaceLobby } from "@/components/WormRaceLobby";
+import { ChallengeShowcase } from "@/components/ChallengeShowcase";
+import { DopamineBooster } from "@/components/DopamineBooster";
 import neuroQuestLogo from "@/assets/neuroquest-logo.png";
 import { 
   Brain, 
@@ -22,7 +24,9 @@ import {
   BookOpen,
   Zap,
   Target,
-  Volume2
+  Volume2,
+  Flag,
+  Award
 } from "lucide-react";
 
 const navTabs = [
@@ -351,6 +355,38 @@ export default function Index() {
         </div>
       </section>
 
+      {/* Presidential AI Challenge Showcase */}
+      <section className="py-20 px-4">
+        <div className="container mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <div className="inline-flex items-center gap-2 bg-chart-1/20 text-chart-1 px-4 py-2 rounded-full mb-4">
+              <Flag className="w-4 h-4" />
+              <span className="font-bold text-sm uppercase">Track III Optimized</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-4">
+              Built for the <span className="text-primary">AI Challenge</span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Advancing American AI leadership through innovative neuroscience education.
+            </p>
+          </motion.div>
+
+          <div className="grid lg:grid-cols-3 gap-6 mb-8">
+            <div className="lg:col-span-2">
+              <ChallengeShowcase />
+            </div>
+            <div>
+              <DopamineBooster />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* OpenWorm CTA */}
       <section className="py-20 px-4 bg-foreground text-background">
         <div className="container mx-auto text-center">
@@ -359,13 +395,21 @@ export default function Index() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
           >
-            <Brain className="w-16 h-16 mx-auto mb-6 text-primary" />
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <Flag className="w-8 h-8 text-chart-1" />
+              <Brain className="w-16 h-16 text-primary" />
+              <Award className="w-8 h-8 text-accent" />
+            </div>
             <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-4">
-              Powered by OpenWorm
+              🇺🇸 Powered by OpenWorm
             </h2>
-            <p className="text-lg opacity-80 max-w-2xl mx-auto mb-8">
+            <p className="text-lg opacity-80 max-w-2xl mx-auto mb-4">
               WormQuest is built on open-source neuroscience data from the OpenWorm project — 
-              a global community creating the world's first digital organism.
+              a <strong>US-led nonprofit</strong> creating the world's first digital organism.
+            </p>
+            <p className="text-sm opacity-60 max-w-xl mx-auto mb-8">
+              Supporting American AI dominance through open science, STEM education, and 
+              next-generation workforce development.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href="https://openworm.org" target="_blank" rel="noopener noreferrer">
