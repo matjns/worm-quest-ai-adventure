@@ -372,6 +372,36 @@ export type Database = {
         }
         Relationships: []
       }
+      global_stats: {
+        Row: {
+          countries_represented: number
+          id: string
+          openworm_citations: number
+          total_active_researchers: number
+          total_circuits_shared: number
+          total_simulations_run: number
+          updated_at: string
+        }
+        Insert: {
+          countries_represented?: number
+          id?: string
+          openworm_citations?: number
+          total_active_researchers?: number
+          total_circuits_shared?: number
+          total_simulations_run?: number
+          updated_at?: string
+        }
+        Update: {
+          countries_represented?: number
+          id?: string
+          openworm_citations?: number
+          total_active_researchers?: number
+          total_circuits_shared?: number
+          total_simulations_run?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lesson_plans: {
         Row: {
           ai_generated: boolean | null
@@ -529,6 +559,86 @@ export type Database = {
           total_likes?: number | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      race_participants: {
+        Row: {
+          circuit_data: Json
+          created_at: string
+          finish_rank: number | null
+          finished_at: string | null
+          id: string
+          position: number
+          race_id: string
+          user_id: string
+          worm_name: string
+        }
+        Insert: {
+          circuit_data: Json
+          created_at?: string
+          finish_rank?: number | null
+          finished_at?: string | null
+          id?: string
+          position?: number
+          race_id: string
+          user_id: string
+          worm_name?: string
+        }
+        Update: {
+          circuit_data?: Json
+          created_at?: string
+          finish_rank?: number | null
+          finished_at?: string | null
+          id?: string
+          position?: number
+          race_id?: string
+          user_id?: string
+          worm_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "race_participants_race_id_fkey"
+            columns: ["race_id"]
+            isOneToOne: false
+            referencedRelation: "race_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      race_sessions: {
+        Row: {
+          created_at: string
+          finished_at: string | null
+          host_id: string
+          id: string
+          max_players: number
+          name: string
+          race_distance: number
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          finished_at?: string | null
+          host_id: string
+          id?: string
+          max_players?: number
+          name: string
+          race_distance?: number
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          finished_at?: string | null
+          host_id?: string
+          id?: string
+          max_players?: number
+          name?: string
+          race_distance?: number
+          started_at?: string | null
+          status?: string
         }
         Relationships: []
       }
@@ -724,6 +834,7 @@ export type Database = {
     }
     Functions: {
       generate_join_code: { Args: never; Returns: string }
+      increment_simulation_count: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
