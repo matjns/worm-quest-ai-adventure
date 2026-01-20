@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Users, Github, MessageCircle, Share2, Heart, ExternalLink, 
-  Code, BookOpen, Plus, Sparkles, Copy, Check, LogIn, GitFork, Pencil, User, FolderOpen
+  Code, BookOpen, Plus, Sparkles, Copy, Check, LogIn, GitFork, Pencil, User, FolderOpen, Eye
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCommunity, SharedCircuit } from "@/hooks/useCommunity";
 import { EditCircuitDialog } from "@/components/EditCircuitDialog";
 import { CircuitFilters } from "@/components/CircuitFilters";
+import { CircuitDetailModal } from "@/components/CircuitDetailModal";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -61,6 +62,7 @@ function CircuitCard({
   onFork,
   onUpdate,
   onDelete,
+  onViewDetails,
   isOwnCircuit
 }: { 
   circuit: SharedCircuit; 
@@ -70,6 +72,7 @@ function CircuitCard({
   onFork: () => void;
   onUpdate: (circuitId: string, updates: { title?: string; description?: string; tags?: string[] }) => Promise<{ error: unknown; data: unknown }>;
   onDelete: (circuitId: string) => Promise<{ error: unknown }>;
+  onViewDetails: () => void;
   isOwnCircuit: boolean;
 }) {
   return (
@@ -139,11 +142,11 @@ function CircuitCard({
               <GitFork className="w-4 h-4" />
             </Button>
           )}
-          <Button variant="ghost" size="sm" onClick={onGeneratePR} title="Contribute to OpenWorm">
+          <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); onGeneratePR(); }} title="Contribute to OpenWorm">
             <Github className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="sm" title="View details">
-            <ExternalLink className="w-3 h-3" />
+          <Button variant="ghost" size="sm" onClick={onViewDetails} title="View details">
+            <Eye className="w-4 h-4" />
           </Button>
         </div>
       </div>
@@ -212,12 +215,17 @@ export default function CommunityPage() {
     forkCircuit,
     updateCircuit,
     deleteCircuit,
+    fetchComments,
+    addComment,
     generateGitHubPRTemplate 
   } = useCommunity();
   
   const [selectedCircuit, setSelectedCircuit] = useState<SharedCircuit | null>(null);
+  const [detailCircuit, setDetailCircuit] = useState<SharedCircuit | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [prTemplate, setPrTemplate] = useState("");
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const [showPRDialog, setShowPRDialog] = useState(false);
   const [activeTab, setActiveTab] = useState<'featured' | 'my-creations'>('featured');
   const [filteredCircuits, setFilteredCircuits] = useState<SharedCircuit[]>([]);
   const [filteredMyCircuits, setFilteredMyCircuits] = useState<SharedCircuit[]>([]);
@@ -243,6 +251,12 @@ export default function CommunityPage() {
     const template = generateGitHubPRTemplate(circuit);
     setPrTemplate(template);
     setSelectedCircuit(circuit);
+    setShowPRDialog(true);
+  };
+
+  const handleViewDetails = (circuit: SharedCircuit) => {
+    setDetailCircuit(circuit);
+    setShowDetailModal(true);
   };
 
   return (
@@ -427,25 +441,19 @@ export default function CommunityPage() {
                 ) : (
                   <div className="grid md:grid-cols-3 gap-6">
                     {displayCircuits.map((circuit) => (
-                      <Dialog key={circuit.id}>
-                        <DialogTrigger asChild>
-                          <div>
-                            <CircuitCard
-                              circuit={circuit}
-                              isLiked={userLikes.has(circuit.id)}
-                              onLike={() => likeCircuit(circuit.id)}
-                              onGeneratePR={() => handleGeneratePR(circuit)}
-                              onFork={() => forkCircuit(circuit.id)}
-                              onUpdate={updateCircuit}
-                              onDelete={deleteCircuit}
-                              isOwnCircuit={circuit.user_id === user?.id}
-                            />
-                          </div>
-                        </DialogTrigger>
-                        {selectedCircuit?.id === circuit.id && (
-                          <GitHubPRDialog circuit={circuit} template={prTemplate} />
-                        )}
-                      </Dialog>
+                      <div key={circuit.id}>
+                        <CircuitCard
+                          circuit={circuit}
+                          isLiked={userLikes.has(circuit.id)}
+                          onLike={() => likeCircuit(circuit.id)}
+                          onGeneratePR={() => handleGeneratePR(circuit)}
+                          onFork={() => forkCircuit(circuit.id)}
+                          onUpdate={updateCircuit}
+                          onDelete={deleteCircuit}
+                          onViewDetails={() => handleViewDetails(circuit)}
+                          isOwnCircuit={circuit.user_id === user?.id}
+                        />
+                      </div>
                     ))}
                   </div>
                 )}
@@ -500,25 +508,19 @@ export default function CommunityPage() {
                     </div>
                     <div className="grid md:grid-cols-3 gap-6">
                       {displayMyCircuits.map((circuit) => (
-                        <Dialog key={circuit.id}>
-                          <DialogTrigger asChild>
-                            <div>
-                              <CircuitCard
-                                circuit={circuit}
-                                isLiked={userLikes.has(circuit.id)}
-                                onLike={() => likeCircuit(circuit.id)}
-                                onGeneratePR={() => handleGeneratePR(circuit)}
-                                onFork={() => forkCircuit(circuit.id)}
-                                onUpdate={updateCircuit}
-                                onDelete={deleteCircuit}
-                                isOwnCircuit={true}
-                              />
-                            </div>
-                          </DialogTrigger>
-                          {selectedCircuit?.id === circuit.id && (
-                            <GitHubPRDialog circuit={circuit} template={prTemplate} />
-                          )}
-                        </Dialog>
+                        <div key={circuit.id}>
+                          <CircuitCard
+                            circuit={circuit}
+                            isLiked={userLikes.has(circuit.id)}
+                            onLike={() => likeCircuit(circuit.id)}
+                            onGeneratePR={() => handleGeneratePR(circuit)}
+                            onFork={() => forkCircuit(circuit.id)}
+                            onUpdate={updateCircuit}
+                            onDelete={deleteCircuit}
+                            onViewDetails={() => handleViewDetails(circuit)}
+                            isOwnCircuit={true}
+                          />
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -645,6 +647,26 @@ export default function CommunityPage() {
           </motion.section>
         </div>
       </main>
+
+      {/* PR Dialog */}
+      <Dialog open={showPRDialog} onOpenChange={setShowPRDialog}>
+        {selectedCircuit && (
+          <GitHubPRDialog circuit={selectedCircuit} template={prTemplate} />
+        )}
+      </Dialog>
+
+      {/* Circuit Detail Modal */}
+      <CircuitDetailModal
+        circuit={detailCircuit}
+        open={showDetailModal}
+        onOpenChange={setShowDetailModal}
+        isLiked={detailCircuit ? userLikes.has(detailCircuit.id) : false}
+        onLike={() => detailCircuit && likeCircuit(detailCircuit.id)}
+        onFork={() => detailCircuit && forkCircuit(detailCircuit.id)}
+        onGeneratePR={() => detailCircuit && handleGeneratePR(detailCircuit)}
+        fetchComments={fetchComments}
+        addComment={addComment}
+      />
     </div>
   );
 }
