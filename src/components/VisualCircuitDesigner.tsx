@@ -22,6 +22,8 @@ import { AICircuitCoach } from "@/components/AICircuitCoach";
 import { NeuroMLExportDialog } from "@/components/NeuroMLExportDialog";
 import { ImportMergeDialog } from "@/components/ImportMergeDialog";
 import { BatchImportDialog } from "@/components/BatchImportDialog";
+import { BatchExportDialog } from "@/components/BatchExportDialog";
+import { HistoryTimelinePanel } from "@/components/HistoryTimelinePanel";
 import { useCollaborativeCircuitDesigner } from "@/hooks/useCollaborativeCircuitDesigner";
 import { useCircuitHistory } from "@/hooks/useCircuitHistory";
 import { 
@@ -51,7 +53,9 @@ import {
   FlaskConical,
   Undo2,
   Redo2,
-  FileStack
+  FileStack,
+  History,
+  Package
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -789,7 +793,7 @@ export function VisualCircuitDesigner() {
               }
             />
             
-            {/* Undo/Redo - only show in local mode */}
+            {/* Undo/Redo + History Timeline */}
             {!collabRoomId && (
               <div className="flex gap-1 border-l pl-2 ml-1">
                 <Button 
@@ -810,13 +814,34 @@ export function VisualCircuitDesigner() {
                 >
                   <Redo2 className="w-4 h-4" />
                 </Button>
+                <HistoryTimelinePanel
+                  entries={[]}
+                  onJumpTo={() => {}}
+                  onUndo={handleUndo}
+                  onRedo={handleRedo}
+                  canUndo={history.canUndo}
+                  canRedo={history.canRedo}
+                  trigger={
+                    <Button variant="outline" size="sm" title="History">
+                      <History className="w-4 h-4" />
+                    </Button>
+                  }
+                />
               </div>
             )}
             
-            <Button variant="outline" size="sm" onClick={exportCircuit}>
-              <Download className="w-4 h-4 mr-1" />
-              JSON
-            </Button>
+            {/* Batch Export */}
+            <BatchExportDialog
+              neurons={placedNeurons}
+              connections={connections}
+              trigger={
+                <Button variant="outline" size="sm" className="gap-1">
+                  <Package className="w-4 h-4" />
+                  Export All
+                </Button>
+              }
+            />
+            
             <Button variant="outline" size="sm" onClick={clearCanvas}>
               <Trash2 className="w-4 h-4 mr-1" />
               Clear
