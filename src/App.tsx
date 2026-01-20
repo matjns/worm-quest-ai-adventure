@@ -26,6 +26,7 @@ import StudentDashboard from "./pages/StudentDashboard";
 import Sandbox from "./pages/Sandbox";
 import Race from "./pages/Race";
 import RaceHistory from "./pages/RaceHistory";
+import CollabSandbox from "./pages/CollabSandbox";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,8 @@ const App = () => (
                 <Route path="/join" element={<JoinClassroomPage />} />
                 <Route path="/progress" element={<StudentDashboard />} />
                 <Route path="/sandbox" element={<Sandbox />} />
+                <Route path="/collab" element={<CollabSandbox />} />
+                <Route path="/collab/:roomId" element={<CollabSandbox />} />
                 <Route path="/race" element={<Race />} />
                 <Route path="/race/:raceId" element={<Race />} />
                 <Route path="/race-history" element={<RaceHistory />} />
