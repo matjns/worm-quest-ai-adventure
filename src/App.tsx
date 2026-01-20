@@ -27,6 +27,7 @@ import Sandbox from "./pages/Sandbox";
 import Race from "./pages/Race";
 import RaceHistory from "./pages/RaceHistory";
 import CollabSandbox from "./pages/CollabSandbox";
+import Research from "./pages/Research";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +63,7 @@ const App = () => (
                 <Route path="/race" element={<Race />} />
                 <Route path="/race/:raceId" element={<Race />} />
                 <Route path="/race-history" element={<RaceHistory />} />
+                <Route path="/research" element={<Research />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
