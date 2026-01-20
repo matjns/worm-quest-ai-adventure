@@ -13,6 +13,7 @@ import { SkillDashboard } from '@/components/SkillDashboard';
 import { StudentAssignmentsView } from '@/components/StudentAssignmentsView';
 import { useStudentProgress } from '@/hooks/useStudentProgress';
 import { useAuth } from '@/hooks/useAuth';
+import { useNotificationsData } from '@/hooks/useNotificationsData';
 import { Link } from 'react-router-dom';
 import {
   Brain,
@@ -65,6 +66,12 @@ export default function StudentDashboard() {
     xpInCurrentLevel,
     loading
   } = useStudentProgress();
+  const { notifications } = useNotificationsData();
+  
+  // Count unread assignment notifications
+  const unreadAssignmentCount = notifications.filter(
+    n => n.type === 'assignment' && !n.read
+  ).length;
 
   if (authLoading || loading) {
     return (
@@ -209,9 +216,14 @@ export default function StudentDashboard() {
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Overview</span>
             </TabsTrigger>
-            <TabsTrigger value="assignments" className="gap-2">
+            <TabsTrigger value="assignments" className="gap-2 relative">
               <ClipboardList className="w-4 h-4" />
               <span className="hidden sm:inline">Assignments</span>
+              {unreadAssignmentCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1.5 rounded-full bg-destructive text-destructive-foreground text-xs font-bold flex items-center justify-center">
+                  {unreadAssignmentCount > 9 ? '9+' : unreadAssignmentCount}
+                </span>
+              )}
             </TabsTrigger>
             <TabsTrigger value="skills" className="gap-2">
               <Brain className="w-4 h-4" />
