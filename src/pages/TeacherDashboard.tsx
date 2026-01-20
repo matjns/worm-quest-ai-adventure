@@ -15,6 +15,7 @@ import { useTeacherDashboard, Classroom, LessonPlan, Student } from '@/hooks/use
 import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
 import { WeeklyProgressReport, StudentReportData } from '@/components/WeeklyProgressReport';
+import { ClassroomAnalyticsChart } from '@/components/ClassroomAnalyticsChart';
 import {
   BookOpen,
   Users,
@@ -587,6 +588,42 @@ export default function TeacherDashboard() {
                   )}
                 </CardContent>
               </Card>
+            )}
+
+            {/* Full Analytics Chart for Selected Classroom */}
+            {classrooms.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <Label>Select Classroom:</Label>
+                  <Select
+                    value={selectedClassroom?.id || classrooms[0]?.id || ''}
+                    onValueChange={(id) => setSelectedClassroom(classrooms.find(c => c.id === id) || null)}
+                  >
+                    <SelectTrigger className="w-64">
+                      <SelectValue placeholder="Choose a classroom" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {classrooms.map(c => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <ClassroomAnalyticsChart 
+                  data={analytics
+                    .filter(a => a.classroom_id === (selectedClassroom?.id || classrooms[0]?.id))
+                    .map(a => ({
+                      date: a.date,
+                      active_students: a.active_students,
+                      missions_completed: a.missions_completed,
+                      avg_accuracy: a.avg_accuracy,
+                      total_xp_earned: a.total_xp_earned,
+                      ai_interactions: a.ai_interactions
+                    }))}
+                  className="border-2"
+                />
+              </div>
             )}
 
             <div className="grid md:grid-cols-2 gap-6">
