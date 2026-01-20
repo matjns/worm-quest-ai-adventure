@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { APIPlayground } from "@/components/APIPlayground";
 import { 
   Github, 
   Code2, 
@@ -450,6 +451,11 @@ npm run dev`}
                   Scale your simulations with dedicated infrastructure. 
                   From indie researchers to Fortune 500 R&D departments.
                 </p>
+              </div>
+
+              {/* Interactive API Playground */}
+              <div className="max-w-3xl mx-auto mb-12">
+                <APIPlayground />
               </div>
 
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
