@@ -29,6 +29,7 @@ import RaceHistory from "./pages/RaceHistory";
 import CollabSandbox from "./pages/CollabSandbox";
 import Research from "./pages/Research";
 import EducationHub from "./pages/EducationHub";
+import ChallengeSubmission from "./pages/ChallengeSubmission";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,7 @@ const App = () => (
                 <Route path="/race-history" element={<RaceHistory />} />
                 <Route path="/research" element={<Research />} />
                 <Route path="/education" element={<EducationHub />} />
+                <Route path="/challenge" element={<ChallengeSubmission />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

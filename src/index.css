@@ -539,3 +539,63 @@
     text-wrap: balance;
   }
 }
+
+/* Print styles for PDF export */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .print\\:hidden,
+  header,
+  nav,
+  footer,
+  button:not(.print\\:block),
+  .no-print {
+    display: none !important;
+  }
+  
+  .print\\:p-8 {
+    padding: 2rem !important;
+  }
+  
+  .print\\:border {
+    border: 1px solid #e5e5e5 !important;
+  }
+  
+  .print\\:shadow-none {
+    box-shadow: none !important;
+  }
+  
+  @page {
+    margin: 1cm;
+    size: letter portrait;
+  }
+  
+  /* Ensure cards print properly */
+  .bg-card {
+    background: white !important;
+  }
+  
+  .bg-foreground {
+    background: #1a1a2e !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  .text-background {
+    color: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  /* Keep colors for badges and highlights */
+  [class*="bg-primary"],
+  [class*="bg-muted"],
+  [class*="bg-chart"],
+  [class*="bg-accent"] {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
