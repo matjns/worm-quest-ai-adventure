@@ -5,7 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ActivityFeed } from '@/components/ActivityFeed';
+import { SimulationAccuracyChart } from '@/components/SimulationAccuracyChart';
+import { ExOMetrics } from '@/components/ExOMetrics';
+import { SkillDashboard } from '@/components/SkillDashboard';
 import { useStudentProgress } from '@/hooks/useStudentProgress';
 import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
@@ -25,7 +29,9 @@ import {
   Rocket,
   Crown,
   Award,
-  Loader2
+  Loader2,
+  Activity,
+  BarChart3
 } from 'lucide-react';
 
 const getRankIcon = (rank: number) => {
@@ -193,106 +199,159 @@ export default function StudentDashboard() {
           </Card>
         </motion.div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Left Column - Stats & Skills */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Quick Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  { label: 'Current Streak', value: '3 days', icon: Zap, color: 'text-yellow-500' },
-                  { label: 'Best Streak', value: '7 days', icon: Trophy, color: 'text-primary' },
-                  { label: 'Class Rank', value: `#${rank}`, icon: Medal, color: 'text-accent' },
-                  { label: 'Badges', value: '5', icon: Award, color: 'text-purple-500' },
-                ].map((stat, i) => (
-                  <Card key={stat.label} className="border-2">
-                    <CardContent className="p-4 text-center">
-                      <stat.icon className={`w-6 h-6 mx-auto mb-2 ${stat.color}`} />
-                      <p className="text-xl font-bold">{stat.value}</p>
-                      <p className="text-xs text-muted-foreground">{stat.label}</p>
-                    </CardContent>
-                  </Card>
-                ))}
+        {/* Main Tabs */}
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4 h-12">
+            <TabsTrigger value="overview" className="gap-2">
+              <BarChart3 className="w-4 h-4" />
+              <span className="hidden sm:inline">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="skills" className="gap-2">
+              <Brain className="w-4 h-4" />
+              <span className="hidden sm:inline">Skills</span>
+            </TabsTrigger>
+            <TabsTrigger value="community" className="gap-2">
+              <Users className="w-4 h-4" />
+              <span className="hidden sm:inline">Community</span>
+            </TabsTrigger>
+            <TabsTrigger value="leaderboard" className="gap-2">
+              <Trophy className="w-4 h-4" />
+              <span className="hidden sm:inline">Ranking</span>
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 space-y-6">
+                {/* Quick Stats */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[
+                      { label: 'Current Streak', value: '3 days', icon: Zap, color: 'text-yellow-500' },
+                      { label: 'Best Streak', value: '7 days', icon: Trophy, color: 'text-primary' },
+                      { label: 'Class Rank', value: `#${rank}`, icon: Medal, color: 'text-accent' },
+                      { label: 'Badges', value: '5', icon: Award, color: 'text-purple-500' },
+                    ].map((stat, i) => (
+                      <Card key={stat.label} className="border-2">
+                        <CardContent className="p-4 text-center">
+                          <stat.icon className={`w-6 h-6 mx-auto mb-2 ${stat.color}`} />
+                          <p className="text-xl font-bold">{stat.value}</p>
+                          <p className="text-xs text-muted-foreground">{stat.label}</p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </motion.div>
+
+                {/* Simulation Accuracy Chart */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <SimulationAccuracyChart 
+                    currentAccuracy={progress.accuracy} 
+                    className="border-2"
+                  />
+                </motion.div>
+
+                {/* Strengths & Weaknesses */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <Card className="border-2 border-green-500/30">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          Strengths
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {progress.strengths.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {progress.strengths.map((s, i) => (
+                              <Badge key={i} variant="secondary" className="bg-green-500/10 text-green-600">
+                                {s}
+                              </Badge>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">Complete more missions to discover your strengths!</p>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    <Card className="border-2 border-orange-500/30">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <TrendingUp className="w-5 h-5 text-orange-500" />
+                          Areas to Improve
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {progress.weaknesses.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {progress.weaknesses.map((w, i) => (
+                              <Badge key={i} variant="secondary" className="bg-orange-500/10 text-orange-600">
+                                {w}
+                              </Badge>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">Keep learning to identify areas for growth!</p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+                </motion.div>
               </div>
-            </motion.div>
 
-            {/* Strengths & Weaknesses */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <div className="grid md:grid-cols-2 gap-4">
-                <Card className="border-2 border-green-500/30">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-500" />
-                      Strengths
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {progress.strengths.length > 0 ? (
-                      <div className="flex flex-wrap gap-2">
-                        {progress.strengths.map((s, i) => (
-                          <Badge key={i} variant="secondary" className="bg-green-500/10 text-green-600">
-                            {s}
-                          </Badge>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">Complete more missions to discover your strengths!</p>
-                    )}
-                  </CardContent>
-                </Card>
+              {/* Activity Feed Sidebar */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <ActivityFeed 
+                  classroomId={studentRecord.classroom_id} 
+                  currentUserId={user?.id}
+                />
+              </motion.div>
+            </div>
+          </TabsContent>
 
-                <Card className="border-2 border-orange-500/30">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5 text-orange-500" />
-                      Areas to Improve
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {progress.weaknesses.length > 0 ? (
-                      <div className="flex flex-wrap gap-2">
-                        {progress.weaknesses.map((w, i) => (
-                          <Badge key={i} variant="secondary" className="bg-orange-500/10 text-orange-600">
-                            {w}
-                          </Badge>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">Keep learning to identify areas for growth!</p>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            </motion.div>
-
-            {/* Recent Achievements */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
+          {/* Skills Tab */}
+          <TabsContent value="skills" className="space-y-6">
+            <div className="grid lg:grid-cols-2 gap-6">
+              <SkillDashboard className="border-2" />
+              
+              {/* Recent Achievements */}
               <Card className="border-2">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Star className="w-5 h-5 text-yellow-500" />
-                    Recent Achievements
+                    Achievements
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     {[
                       { name: 'First Steps', desc: 'Complete first mission', unlocked: true },
                       { name: 'Brain Builder', desc: 'Build 5 circuits', unlocked: true },
                       { name: 'Quick Learner', desc: '80% accuracy', unlocked: progress.accuracy >= 80 },
                       { name: 'Neuroscientist', desc: 'Complete 10 missions', unlocked: progress.missions_completed >= 10 },
+                      { name: 'Perfect Score', desc: '100% on any mission', unlocked: false },
+                      { name: 'Week Warrior', desc: '7-day streak', unlocked: false },
+                      { name: 'Circuit Master', desc: 'Build 20 circuits', unlocked: false },
+                      { name: 'Community Star', desc: 'Share a circuit', unlocked: false },
                     ].map((achievement) => (
                       <div 
                         key={achievement.name}
@@ -310,28 +369,59 @@ export default function StudentDashboard() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
+          </TabsContent>
 
-            {/* Live Activity Feed */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-              <ActivityFeed 
-                classroomId={studentRecord.classroom_id} 
-                currentUserId={user?.id}
-              />
-            </motion.div>
-          </div>
+          {/* Community Tab */}
+          <TabsContent value="community" className="space-y-6">
+            <div className="grid lg:grid-cols-2 gap-6">
+              <ExOMetrics className="border-2" />
+              
+              <Card className="border-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    Community Challenges
+                  </CardTitle>
+                  <CardDescription>Weekly community goals</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {[
+                    { name: 'Share 3 Circuits', progress: 1, total: 3, xp: 50 },
+                    { name: 'Give 5 Helpful Comments', progress: 2, total: 5, xp: 30 },
+                    { name: 'Earn 10 Likes', progress: 0, total: 10, xp: 100 },
+                  ].map((challenge) => (
+                    <div key={challenge.name} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">{challenge.name}</span>
+                        <Badge variant="outline">+{challenge.xp} XP</Badge>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Progress 
+                          value={(challenge.progress / challenge.total) * 100} 
+                          className="flex-1 h-2"
+                        />
+                        <span className="text-xs text-muted-foreground">
+                          {challenge.progress}/{challenge.total}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  <Link to="/community">
+                    <Button variant="outline" className="w-full mt-4">
+                      <Users className="w-4 h-4 mr-2" />
+                      Visit Community
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
 
-          {/* Right Column - Leaderboard */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Card className="border-2 sticky top-24">
+          {/* Leaderboard Tab */}
+          <TabsContent value="leaderboard">
+            <Card className="border-2">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2">
@@ -346,10 +436,10 @@ export default function StudentDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {classmates.slice(0, 10).map((classmate, index) => (
+                  {classmates.slice(0, 15).map((classmate, index) => (
                     <div
                       key={index}
-                      className={`flex items-center justify-between p-2 rounded-lg ${
+                      className={`flex items-center justify-between p-3 rounded-lg ${
                         classmate.isCurrentUser 
                           ? 'bg-primary/10 border-2 border-primary/30' 
                           : 'bg-muted/30'
@@ -360,32 +450,31 @@ export default function StudentDashboard() {
                           {getRankIcon(index + 1)}
                         </div>
                         <div>
-                          <p className={`font-medium text-sm ${classmate.isCurrentUser ? 'text-primary' : ''}`}>
+                          <p className={`font-medium ${classmate.isCurrentUser ? 'text-primary' : ''}`}>
                             {classmate.display_name}
                             {classmate.isCurrentUser && <span className="text-xs ml-1">(You)</span>}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {classmate.missions_completed} missions
+                            {classmate.missions_completed} missions • Level {Math.floor(classmate.total_xp / 100) + 1}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-sm">{classmate.total_xp}</p>
-                        <p className="text-xs text-muted-foreground">XP</p>
+                        <p className="font-bold">{classmate.total_xp} XP</p>
                       </div>
                     </div>
                   ))}
                   
-                  {classmates.length > 10 && (
+                  {classmates.length > 15 && (
                     <p className="text-xs text-center text-muted-foreground pt-2">
-                      +{classmates.length - 10} more students
+                      +{classmates.length - 15} more students
                     </p>
                   )}
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
-        </div>
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
