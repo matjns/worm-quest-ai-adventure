@@ -48,6 +48,26 @@ interface SimulationRequest {
   endpoint?: string;
 }
 
+interface BatchRequest {
+  simulations: SimulationRequest[];
+  parallel?: boolean;
+}
+
+interface ParameterSweepRequest {
+  neurons: string[];
+  sweep_type: 'stimulus_intensity' | 'stimulus_type' | 'neuron_ablation' | 'duration' | 'multi_param';
+  base_stimulus: { type: string; value: number };
+  duration_ms: number;
+  include_physics: boolean;
+  sweep_config: {
+    stimulus_range?: { min: number; max: number; steps: number };
+    stimulus_types?: string[];
+    ablation_neurons?: string[];
+    duration_range?: { min: number; max: number; steps: number };
+    multi_params?: Array<{ stimulus_value: number; duration_ms: number }>;
+  };
+}
+
 interface NeuronState {
   membranePotential: number;
   activation: number;
@@ -347,6 +367,264 @@ function optimizeCircuit(request: SimulationRequest) {
   };
 }
 
+// Batch simulation - run multiple simulations at once
+function runBatchSimulations(batchRequest: BatchRequest) {
+  const startTime = Date.now();
+  const results = batchRequest.simulations.map((sim, index) => {
+    const result = simulateNeuralCircuit(sim);
+    return {
+      simulation_index: index,
+      ...result
+    };
+  });
+
+  // Aggregate statistics
+  const totalSpikes = results.reduce((sum, r) => sum + (r.results?.total_spikes || 0), 0);
+  const avgConfidence = results.reduce((sum, r) => sum + (r.results?.confidence || 0), 0) / results.length;
+  const behaviorCounts: Record<string, number> = {};
+  results.forEach(r => {
+    const behavior = r.results?.behavior_prediction || 'unknown';
+    behaviorCounts[behavior] = (behaviorCounts[behavior] || 0) + 1;
+  });
+
+  return {
+    success: true,
+    batch_id: `batch_${Date.now().toString(36)}_${Math.random().toString(36).substr(2, 5)}`,
+    total_simulations: results.length,
+    compute_time_ms: Date.now() - startTime,
+    results,
+    aggregate_stats: {
+      total_spikes: totalSpikes,
+      avg_confidence: parseFloat(avgConfidence.toFixed(3)),
+      behavior_distribution: behaviorCounts,
+      successful_simulations: results.filter(r => r.success).length
+    }
+  };
+}
+
+// Parameter sweep - systematically vary parameters
+function runParameterSweep(sweepRequest: ParameterSweepRequest) {
+  const startTime = Date.now();
+  const { neurons, sweep_type, base_stimulus, duration_ms, include_physics, sweep_config } = sweepRequest;
+  
+  const sweepResults: Array<{
+    parameters: Record<string, unknown>;
+    result: ReturnType<typeof simulateNeuralCircuit>;
+  }> = [];
+
+  switch (sweep_type) {
+    case 'stimulus_intensity': {
+      const { min = 0, max = 1, steps = 10 } = sweep_config.stimulus_range || {};
+      for (let i = 0; i <= steps; i++) {
+        const value = min + (max - min) * (i / steps);
+        const result = simulateNeuralCircuit({
+          neurons,
+          stimulus: { type: base_stimulus.type, value },
+          duration_ms,
+          include_physics
+        });
+        sweepResults.push({
+          parameters: { stimulus_value: parseFloat(value.toFixed(2)) },
+          result
+        });
+      }
+      break;
+    }
+
+    case 'stimulus_type': {
+      const types = sweep_config.stimulus_types || ['chemical', 'mechanical', 'thermal', 'light'];
+      types.forEach(type => {
+        const result = simulateNeuralCircuit({
+          neurons,
+          stimulus: { type, value: base_stimulus.value },
+          duration_ms,
+          include_physics
+        });
+        sweepResults.push({
+          parameters: { stimulus_type: type },
+          result
+        });
+      });
+      break;
+    }
+
+    case 'neuron_ablation': {
+      const ablationNeurons = sweep_config.ablation_neurons || neurons;
+      // Run baseline with all neurons
+      const baseline = simulateNeuralCircuit({
+        neurons,
+        stimulus: base_stimulus,
+        duration_ms,
+        include_physics
+      });
+      sweepResults.push({
+        parameters: { ablated: 'none', circuit: neurons },
+        result: baseline
+      });
+
+      // Run with each neuron ablated
+      ablationNeurons.forEach(ablateNeuron => {
+        if (neurons.includes(ablateNeuron)) {
+          const ablatedCircuit = neurons.filter(n => n !== ablateNeuron);
+          if (ablatedCircuit.length > 0) {
+            const result = simulateNeuralCircuit({
+              neurons: ablatedCircuit,
+              stimulus: base_stimulus,
+              duration_ms,
+              include_physics
+            });
+            sweepResults.push({
+              parameters: { ablated: ablateNeuron, circuit: ablatedCircuit },
+              result
+            });
+          }
+        }
+      });
+      break;
+    }
+
+    case 'duration': {
+      const { min = 100, max = 2000, steps = 10 } = sweep_config.duration_range || {};
+      for (let i = 0; i <= steps; i++) {
+        const dur = Math.floor(min + (max - min) * (i / steps));
+        const result = simulateNeuralCircuit({
+          neurons,
+          stimulus: base_stimulus,
+          duration_ms: dur,
+          include_physics
+        });
+        sweepResults.push({
+          parameters: { duration_ms: dur },
+          result
+        });
+      }
+      break;
+    }
+
+    case 'multi_param': {
+      const params = sweep_config.multi_params || [];
+      params.forEach(param => {
+        const result = simulateNeuralCircuit({
+          neurons,
+          stimulus: { type: base_stimulus.type, value: param.stimulus_value },
+          duration_ms: param.duration_ms,
+          include_physics
+        });
+        sweepResults.push({
+          parameters: param,
+          result
+        });
+      });
+      break;
+    }
+  }
+
+  // Analyze sweep results
+  const analysis = analyzeSweepResults(sweepResults, sweep_type);
+
+  return {
+    success: true,
+    sweep_id: `sweep_${Date.now().toString(36)}_${Math.random().toString(36).substr(2, 5)}`,
+    sweep_type,
+    total_simulations: sweepResults.length,
+    compute_time_ms: Date.now() - startTime,
+    neurons,
+    base_config: { stimulus: base_stimulus, duration_ms },
+    results: sweepResults.map(r => ({
+      parameters: r.parameters,
+      total_spikes: r.result.results?.total_spikes || 0,
+      behavior: r.result.results?.behavior_prediction || 'unknown',
+      confidence: r.result.results?.confidence || 0,
+      neural_summary: r.result.results?.neural_activity?.map(n => ({
+        neuron_id: n.neuron_id,
+        firing_events: n.firing_events,
+        peak_activation: n.peak_activation
+      }))
+    })),
+    analysis
+  };
+}
+
+function analyzeSweepResults(
+  results: Array<{ parameters: Record<string, unknown>; result: ReturnType<typeof simulateNeuralCircuit> }>,
+  sweepType: string
+) {
+  const spikes = results.map(r => r.result.results?.total_spikes || 0);
+  const confidences = results.map(r => r.result.results?.confidence || 0);
+  
+  const minSpikes = Math.min(...spikes);
+  const maxSpikes = Math.max(...spikes);
+  const avgSpikes = spikes.reduce((a, b) => a + b, 0) / spikes.length;
+  
+  const analysis: Record<string, unknown> = {
+    spike_statistics: {
+      min: minSpikes,
+      max: maxSpikes,
+      mean: parseFloat(avgSpikes.toFixed(1)),
+      range: maxSpikes - minSpikes,
+      variance: parseFloat((spikes.reduce((sum, s) => sum + Math.pow(s - avgSpikes, 2), 0) / spikes.length).toFixed(2))
+    },
+    confidence_statistics: {
+      min: parseFloat(Math.min(...confidences).toFixed(3)),
+      max: parseFloat(Math.max(...confidences).toFixed(3)),
+      mean: parseFloat((confidences.reduce((a, b) => a + b, 0) / confidences.length).toFixed(3))
+    },
+    behavior_transitions: [] as Array<{ from_params: unknown; to_params: unknown; behavior_change: string }>
+  };
+
+  // Detect behavior transitions
+  for (let i = 1; i < results.length; i++) {
+    const prevBehavior = results[i - 1].result.results?.behavior_prediction;
+    const currBehavior = results[i].result.results?.behavior_prediction;
+    if (prevBehavior !== currBehavior) {
+      (analysis.behavior_transitions as Array<unknown>).push({
+        from_params: results[i - 1].parameters,
+        to_params: results[i].parameters,
+        behavior_change: `${prevBehavior} → ${currBehavior}`
+      });
+    }
+  }
+
+  // Sweep-specific analysis
+  if (sweepType === 'stimulus_intensity') {
+    // Find threshold where behavior changes
+    const thresholds = (analysis.behavior_transitions as Array<{ to_params: { stimulus_value?: number } }>)
+      .map(t => t.to_params.stimulus_value)
+      .filter(v => v !== undefined);
+    if (thresholds.length > 0) {
+      analysis.behavioral_threshold = thresholds[0];
+    }
+    
+    // Calculate dose-response curve slope
+    if (results.length >= 2) {
+      const firstSpikes = results[0].result.results?.total_spikes || 0;
+      const lastSpikes = results[results.length - 1].result.results?.total_spikes || 0;
+      analysis.dose_response_slope = parseFloat(((lastSpikes - firstSpikes) / results.length).toFixed(2));
+    }
+  }
+
+  if (sweepType === 'neuron_ablation') {
+    // Find critical neurons (ablation causes largest change)
+    const baseline = results[0];
+    const baselineSpikes = baseline.result.results?.total_spikes || 0;
+    
+    const ablationEffects = results.slice(1).map(r => ({
+      ablated: r.parameters.ablated,
+      spike_change: (r.result.results?.total_spikes || 0) - baselineSpikes,
+      behavior_changed: r.result.results?.behavior_prediction !== baseline.result.results?.behavior_prediction
+    }));
+
+    const criticalNeurons = ablationEffects
+      .filter(e => e.behavior_changed || Math.abs(e.spike_change) > baselineSpikes * 0.3)
+      .map(e => e.ablated);
+
+    analysis.ablation_effects = ablationEffects;
+    analysis.critical_neurons = criticalNeurons;
+  }
+
+  return analysis;
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -357,7 +635,7 @@ serve(async (req) => {
     const url = new URL(req.url);
     const endpoint = url.searchParams.get('endpoint') || 'simulate';
     
-    let requestBody: SimulationRequest = {
+    let requestBody: SimulationRequest & { batch?: BatchRequest; sweep?: ParameterSweepRequest } = {
       neurons: ["ASEL", "AIY"],
       stimulus: { type: "chemical", value: 0.5 },
       duration_ms: 1000,
@@ -369,13 +647,27 @@ serve(async (req) => {
       requestBody = { ...requestBody, ...body };
     }
 
-    console.log(`[openworm-simulate] Endpoint: ${endpoint}, Neurons: ${requestBody.neurons.join(',')}`);
+    console.log(`[openworm-simulate] Endpoint: ${endpoint}, Neurons: ${requestBody.neurons?.join(',') || 'batch/sweep'}`);
 
     let result;
 
     switch (endpoint) {
       case 'simulate':
         result = simulateNeuralCircuit(requestBody);
+        break;
+      case 'batch':
+        if (!requestBody.batch?.simulations) {
+          result = { success: false, error: 'Batch request requires simulations array' };
+        } else {
+          result = runBatchSimulations(requestBody.batch);
+        }
+        break;
+      case 'sweep':
+        if (!requestBody.sweep) {
+          result = { success: false, error: 'Sweep request requires sweep configuration' };
+        } else {
+          result = runParameterSweep(requestBody.sweep);
+        }
         break;
       case 'connectome':
         result = getConnectomeInfo();
