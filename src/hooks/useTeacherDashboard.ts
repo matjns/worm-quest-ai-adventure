@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import type { Json } from '@/integrations/supabase/types';
 
 export interface Classroom {
   id: string;
@@ -27,8 +28,6 @@ export interface Student {
   user_id: string | null;
   display_name: string;
   progress_data: StudentProgressData;
-    weaknesses: string[];
-  };
 }
 
 export interface LessonPlan {
@@ -39,7 +38,7 @@ export interface LessonPlan {
   objectives: string[];
   standards: string[];
   duration_minutes: number;
-  lesson_content: Record<string, unknown>;
+  lesson_content: Json;
   ai_generated: boolean;
   status: 'draft' | 'published' | 'archived';
   week_number: number | null;
@@ -248,9 +247,9 @@ export function useTeacherDashboard() {
 
       if (error) throw error;
 
-      setLessonPlans(prev => [savedLesson as LessonPlan, ...prev]);
+      setLessonPlans(prev => [savedLesson as unknown as LessonPlan, ...prev]);
       toast.success('Lesson plan generated!');
-      return savedLesson as LessonPlan;
+      return savedLesson as unknown as LessonPlan;
     } catch (error) {
       console.error('Error generating lesson:', error);
       toast.error('Failed to generate lesson plan');
@@ -293,7 +292,7 @@ export function useTeacherDashboard() {
         objectives: [String(day.objective || '')],
         standards: [] as string[],
         duration_minutes: 45,
-        lesson_content: day as unknown as Record<string, never>,
+        lesson_content: day as Json,
         ai_generated: true,
         status: 'draft',
         week_number: weekNumber,
@@ -307,9 +306,9 @@ export function useTeacherDashboard() {
 
       if (error) throw error;
 
-      setLessonPlans(prev => [...(savedLessons as LessonPlan[]), ...prev]);
+      setLessonPlans(prev => [...(savedLessons as unknown as LessonPlan[]), ...prev]);
       toast.success('Weekly curriculum generated!');
-      return savedLessons as LessonPlan[];
+      return savedLessons as unknown as LessonPlan[];
     } catch (error) {
       console.error('Error generating weekly curriculum:', error);
       toast.error('Failed to generate weekly curriculum');
