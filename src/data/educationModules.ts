@@ -60,8 +60,8 @@ export const PREK_MODULES: EducationModule[] = [
       { term: "Wiggle", definition: "Moving back and forth", emoji: "〰️" },
     ],
     warmUp: {
-      question: "Have you ever seen a worm? What did it do?",
-      discussion: "Worms are amazing little animals! They don't have legs like you do, but they can still move. Let's find out how!",
+      question: "Have you ever seen a worm outside, maybe after it rains? What did it do?",
+      discussion: "Worms are amazing little animals! They don't have legs like you do, but they can still move. Your body moves because YOUR brain tells it to—and so does the worm's! Let's find out how!",
     },
     steps: [
       {
@@ -103,8 +103,8 @@ export const PREK_MODULES: EducationModule[] = [
     ],
     wrapUp: {
       review: "You learned that worms have tiny brains with little lights called neurons. When the lights turn on, the worm wiggles!",
-      realWorldConnection: "Your brain has lights too! When you decide to wave your hand, your brain lights turn on and send a message to move!",
-      takeHome: "Draw a picture of your worm friend and show someone how it wiggles!",
+      realWorldConnection: "Your brain has lights too—billions of them! When you decide to wave your hand, hug someone, or kick a ball, your brain lights turn on and send messages to your body. Right now, YOUR neurons are lighting up as you learn!",
+      takeHome: "Draw a picture of your worm friend and show someone at home how it wiggles! Ask them: 'Did you know your brain has lights that help you move?'",
     },
     assessment: {
       formative: [
@@ -132,8 +132,8 @@ export const PREK_MODULES: EducationModule[] = [
       { term: "Signal", definition: "A message that travels", emoji: "⚡" },
     ],
     warmUp: {
-      question: "What is your favorite color?",
-      discussion: "Your brain uses different colors to send different messages! Let's see what happens with each color!",
+      question: "What is your favorite color? Can you see that color right now in the room?",
+      discussion: "Colors are everywhere in YOUR life—in your clothes, toys, food, and nature! Your brain uses different signals to see and remember colors. Let's see how neurons use colors too!",
     },
     steps: [
       {
@@ -166,8 +166,8 @@ export const PREK_MODULES: EducationModule[] = [
     ],
     wrapUp: {
       review: "You learned neuron colors and made patterns! Patterns help your brain remember things!",
-      realWorldConnection: "You use patterns every day! Day and night is a pattern. Breakfast, lunch, dinner is a pattern!",
-      takeHome: "Find patterns at home and tell someone about them!",
+      realWorldConnection: "You use patterns every single day and don't even realize it! Morning, afternoon, night is a pattern. Inhale, exhale, inhale, exhale—that's a pattern! Your heart beats in a pattern. Even your favorite songs have patterns. Patterns are YOUR brain's superpower!",
+      takeHome: "Find 3 patterns at home—maybe in music, in tiles, in your daily routine—and tell someone about them!",
     },
     assessment: {
       formative: [
@@ -258,8 +258,8 @@ export const PREK_MODULES: EducationModule[] = [
       { term: "Learn", definition: "Finding out something new", emoji: "💡" },
     ],
     warmUp: {
-      question: "Have you ever tried something to see what happens?",
-      discussion: "That's what scientists do! They guess, try, and learn! Let's be little scientists with our worm!",
+      question: "Have you ever tried something new to see what would happen—like mixing paint colors, or seeing if something floats?",
+      discussion: "That's EXACTLY what scientists do! They guess what will happen, try it, and learn from it! You've been a scientist your whole life without even knowing it. Let's do an experiment together!",
     },
     steps: [
       {
@@ -292,8 +292,8 @@ export const PREK_MODULES: EducationModule[] = [
     ],
     wrapUp: {
       review: "You did science! You guessed, you tried, and you learned! Scientists do this same thing, just with bigger experiments!",
-      realWorldConnection: "When you drop a toy and see it fall, you're doing science! You're learning how things work!",
-      takeHome: "Try dropping different things at home. Do heavy things fall faster? Guess, try, learn!",
+      realWorldConnection: "Every time you wonder 'What happens if...?' you're thinking like a scientist! When you learned to walk, you fell down and tried again—that's science! When you figure out what makes your pet happy or what foods you like, you're experimenting. YOU are already a scientist!",
+      takeHome: "Try an experiment at home: Do heavy things fall faster than light things? Drop a pillow and a shoe at the same time. Guess, try, learn!",
     },
     assessment: {
       formative: [
@@ -326,8 +326,8 @@ export const K5_MODULES: EducationModule[] = [
       { term: "Circuit", definition: "A connected pathway", emoji: "🔄" },
     ],
     warmUp: {
-      question: "When you touch something hot, what happens?",
-      discussion: "Your brain quickly tells your hand to move away! Let's build a circuit that does the same thing!",
+      question: "When you accidentally touch something hot, what happens? How fast do you pull your hand away?",
+      discussion: "Your hand moves SO fast you don't even think about it! That's because your brain has a shortcut called a reflex. Let's build one and see how it works—you'll understand your OWN reflexes better!",
     },
     steps: [
       {
@@ -369,8 +369,8 @@ export const K5_MODULES: EducationModule[] = [
     ],
     wrapUp: {
       review: "You learned that neurons have different jobs! Sensory neurons detect, interneurons pass messages, and motor neurons make movement!",
-      realWorldConnection: "When you touch a hot stove, sensory neurons in your hand tell your brain, and motor neurons make your hand move away super fast!",
-      takeHome: "Draw your reflex arc circuit and explain it to someone at home!",
+      realWorldConnection: "Right now, sensory neurons in YOUR fingers are telling your brain about this screen. When you decide to scroll, motor neurons make your finger move. When you get hungry, neurons send that message too! Every moment of your life, these three neuron types are working together inside YOU!",
+      takeHome: "Test your reflexes! Have someone drop a ruler and try to catch it. That's YOUR neural circuit in action! How fast is your reflex?",
     },
     assessment: {
       formative: [
@@ -398,8 +398,8 @@ export const K5_MODULES: EducationModule[] = [
       { term: "Mechanosensation", definition: "Feeling touch", emoji: "✋" },
     ],
     warmUp: {
-      question: "How many senses do you have?",
-      discussion: "You have five senses! Worms have senses too, but they're different. Let's explore how worms sense the world!",
+      question: "How many senses do YOU have? Can you name them?",
+      discussion: "You probably said five—sight, hearing, smell, taste, touch. But you actually have MORE! You can sense temperature, balance, hunger, and pain too! Worms don't have eyes or ears, but they still sense their world. Let's explore how!",
     },
     steps: [
       {
@@ -432,8 +432,8 @@ export const K5_MODULES: EducationModule[] = [
     ],
     wrapUp: {
       review: "You discovered that worms have special neurons for touch, smell, and temperature! Different neurons detect different things!",
-      realWorldConnection: "Your skin has touch sensors, your nose has smell sensors, and your eyes have light sensors. You're full of sensors!",
-      takeHome: "Make a list of all the senses you used today!",
+      realWorldConnection: "Your skin has touch sensors that help you feel hugs, your nose has smell sensors that help you enjoy pizza (or avoid stinky socks!), and your tongue has taste sensors. When you walk into a bakery and smell fresh cookies, YOUR chemosensory neurons are detecting chemicals—just like the worm! Every sense you experience connects you to the world through neurons.",
+      takeHome: "Make a 'senses journal' today! Write down 5 things you saw, heard, smelled, tasted, and touched. You'll be amazed how much your neurons are doing!",
     },
     assessment: {
       formative: [
@@ -462,8 +462,8 @@ export const K5_MODULES: EducationModule[] = [
       { term: "Deep Truth", definition: "The most honest, complete answer", emoji: "💎" },
     ],
     warmUp: {
-      question: "Have you ever asked a computer a question and gotten a weird answer?",
-      discussion: "AI learns from the internet—but the internet has true things AND false things mixed together! In 2025, a scientist named Brian Roemmele discovered a special way to ask AI questions that helps it give more truthful answers. Let's learn it!",
+      question: "Have you ever asked Siri, Alexa, or ChatGPT a question and gotten a weird or wrong answer?",
+      discussion: "AI learns from the internet—but the internet has true things AND false things mixed together! This affects YOUR life every day when you search for information. In 2025, a scientist named Brian Roemmele discovered a special way to ask AI questions that helps it give more truthful answers. This skill could be one of the most important things you ever learn!",
     },
     steps: [
       {
@@ -535,8 +535,8 @@ export const K5_MODULES: EducationModule[] = [
       { term: "Conclusion", definition: "What you learned from your experiment", emoji: "📝" },
     ],
     warmUp: {
-      question: "How do scientists figure out if something is true?",
-      discussion: "Scientists don't just guess—they TEST! They use a special method that helps them find the truth. Today you'll use the same method real scientists use!",
+      question: "How do doctors know which medicines work? How did engineers figure out how to build phones?",
+      discussion: "Scientists don't just guess—they TEST! They use a special method that's been trusted for hundreds of years. Today you'll use the same method that led to smartphones, vaccines, video games, and everything modern. This method will help YOU make better decisions for the rest of your life!",
     },
     steps: [
       {
@@ -587,8 +587,8 @@ export const K5_MODULES: EducationModule[] = [
     ],
     wrapUp: {
       review: "You used the REAL scientific method! Observe, Question, Hypothesize, Experiment, Conclude. Scientists have used these steps for hundreds of years!",
-      realWorldConnection: "When doctors discover new medicines, they use this exact method. When engineers build rockets, they use this method. Now YOU know it too!",
-      takeHome: "Do a mini-experiment at home: Does ice melt faster in water or air? Use all 5 steps!",
+      realWorldConnection: "This method created everything from the phone in your pocket to the medicine that keeps you healthy. When you want to know if a study tip works, if a recipe is good, or which route is faster—use these steps! YOU can use the scientific method to make better decisions about your friends, your hobbies, your health, and your future!",
+      takeHome: "Do a mini-experiment that matters to YOU: Does studying with music help you remember better? Does drinking water help you focus? Use all 5 steps to find YOUR answer!",
     },
     assessment: {
       formative: [
@@ -622,8 +622,8 @@ export const MIDDLE_MODULES: EducationModule[] = [
       { term: "Plasticity", definition: "The brain's ability to change its connections", emoji: "🧩" },
     ],
     warmUp: {
-      question: "What happens when you practice something a lot, like playing a video game?",
-      discussion: "You get better! That's because the connections in your brain get stronger with practice. Let's see how this works in a worm!",
+      question: "What happens when you practice something a lot—like playing a video game, shooting hoops, or playing an instrument? Why do you get better?",
+      discussion: "You get better because the connections in YOUR brain literally get stronger with practice! This is why your first time riding a bike was wobbly but now it's automatic. Let's see exactly how this works—and you'll understand your own learning better!",
     },
     steps: [
       {
@@ -674,8 +674,8 @@ export const MIDDLE_MODULES: EducationModule[] = [
     ],
     wrapUp: {
       review: "You learned that synaptic weights control signal strength! By adjusting synapses, you can change how organisms behave. This is the basis of learning in all brains!",
-      realWorldConnection: "When you learn to ride a bike, the synapses controlling balance get stronger. That's why you never forget!",
-      takeHome: "Research 'long-term potentiation' and explain how it relates to what you learned today.",
+      realWorldConnection: "When you learn to ride a bike, tie your shoes, or remember your best friend's birthday, the synapses controlling those memories get stronger. That's why you never forget! This also means YOU have control—practicing difficult things literally rewires your brain. Every challenging thing you learn today is making your synapses stronger!",
+      takeHome: "Think about a skill you've mastered. How many hours did you practice? Those hours physically changed your brain's synaptic weights!",
     },
     assessment: {
       formative: [
@@ -704,8 +704,8 @@ export const MIDDLE_MODULES: EducationModule[] = [
       { term: "Data", definition: "Information collected from experiments", emoji: "📈" },
     ],
     warmUp: {
-      question: "What's the difference between a guess and a hypothesis?",
-      discussion: "A hypothesis is a guess you can test! Today you'll form hypotheses about how worm neurons work and test them!",
+      question: "Have you ever wondered if something is actually true, or if people just believe it because everyone says so?",
+      discussion: "A hypothesis is a guess you can TEST! Today you'll form hypotheses about how worm neurons work and test them. This is the same skill that will help you figure out what's true about health claims, social media stories, and life decisions!",
     },
     steps: [
       {
@@ -756,8 +756,8 @@ export const MIDDLE_MODULES: EducationModule[] = [
     ],
     wrapUp: {
       review: "You practiced the scientific method! You observed, questioned, hypothesized, experimented, and concluded. This is how real neuroscientists work!",
-      realWorldConnection: "OpenWorm scientists use this exact method to understand the C. elegans brain. Your work contributes to real science!",
-      takeHome: "Design a hypothesis about something in your daily life and test it this week!",
+      realWorldConnection: "This method helps you in EVERY area of life. Wondering if a diet works? Test it. Curious if studying differently helps your grades? Hypothesis, experiment, conclude. Your friend claims something on TikTok is true? Ask for evidence! The scientific method isn't just for labs—it's your personal toolkit for navigating a confusing world!",
+      takeHome: "Design a hypothesis about your own life—maybe about sleep, exercise, or study habits—and test it this week. Document your findings!",
     },
     assessment: {
       formative: [
@@ -874,8 +874,8 @@ export const HIGH_MODULES: EducationModule[] = [
       { term: "Overfitting", definition: "When a model memorizes training data instead of learning patterns", emoji: "🎯" },
     ],
     warmUp: {
-      question: "How do you think self-driving cars learn to recognize stop signs?",
-      discussion: "They use neural networks trained on millions of images! Today you'll train a neural network on real C. elegans data to predict behavior.",
+      question: "How do you think Netflix knows what shows to recommend? How does your phone recognize your face?",
+      discussion: "They use neural networks trained on millions of examples! The same AI that powers recommendations, filters, and even medical diagnoses uses principles from biological brains. Today you'll train a neural network using real C. elegans data—and you'll understand the AI that's already shaping YOUR daily life!",
     },
     steps: [
       {
@@ -926,8 +926,8 @@ export const HIGH_MODULES: EducationModule[] = [
     ],
     wrapUp: {
       review: "You designed, trained, and evaluated a neural network using real biological data! You practiced the iterative process that AI researchers use daily.",
-      realWorldConnection: "Companies like Google DeepMind use these exact techniques to understand brain function. Your model could contribute to real neuroscience!",
-      takeHome: "Research 'Google DeepMind AlphaFold' and write a paragraph about how AI is transforming biology.",
+      realWorldConnection: "The skills you just practiced are some of the most valuable in the modern economy. AI/ML engineers earn top salaries and work on everything from cancer detection to climate modeling. Understanding neural networks puts you at the frontier of technology—and these skills will matter for your career, no matter what field you choose!",
+      takeHome: "Research 'Google DeepMind AlphaFold' and write a paragraph about how AI is transforming biology. How might this affect medicine in YOUR lifetime?",
     },
     assessment: {
       formative: [
@@ -956,8 +956,8 @@ export const HIGH_MODULES: EducationModule[] = [
       { term: "Parameter Fitting", definition: "Adjusting model values to match data", emoji: "🔧" },
     ],
     warmUp: {
-      question: "What makes a good scientific model?",
-      discussion: "A good model makes accurate predictions! But no model is perfect. Today you'll help improve the OpenWorm model by comparing it to real biological data.",
+      question: "What makes a scientific model 'good'? How would you test if a weather forecast model is accurate?",
+      discussion: "A good model makes accurate predictions! But no model is perfect—not weather models, not economic models, not AI models. Today you'll help improve the OpenWorm model by comparing it to real data. This is EXACTLY what researchers do, and your work could actually be used by the scientific community!",
     },
     steps: [
       {
@@ -1008,8 +1008,8 @@ export const HIGH_MODULES: EducationModule[] = [
     ],
     wrapUp: {
       review: "You participated in real scientific research! You analyzed data, identified problems, proposed solutions, and documented your work—exactly like professional researchers!",
-      realWorldConnection: "Your findings could be submitted to the OpenWorm project. Student contributions have made it into the official codebase before!",
-      takeHome: "Submit your proposal to the OpenWorm discussion forum and see if the community has feedback!",
+      realWorldConnection: "This kind of work goes on your resume and college applications! Contributing to open-source scientific projects demonstrates initiative, critical thinking, and collaboration skills that universities and employers actively seek. Student contributions have made it into the OpenWorm codebase before—yours could too!",
+      takeHome: "Submit your proposal to the OpenWorm discussion forum on GitHub. Include it in your portfolio. This is REAL research experience!",
     },
     assessment: {
       formative: [
@@ -1122,8 +1122,8 @@ export const HIGH_MODULES: EducationModule[] = [
       { term: "Peer Review", definition: "Expert evaluation before publication", emoji: "👥" },
     ],
     warmUp: {
-      question: "Why do we trust scientific findings more than random claims?",
-      discussion: "Science isn't just about discovering things—it's about PROVING them in ways others can verify. Today you'll learn the rigorous methods that separate real science from pseudoscience.",
+      question: "Why do we trust scientific findings more than random claims on social media?",
+      discussion: "Science isn't just about discovering things—it's about PROVING them in ways others can verify and repeat. Every medicine you take, every plane you fly on, every phone you use exists because of this rigorous process. Understanding it protects YOU from being fooled by fake 'science' in ads, politics, and online claims!",
     },
     steps: [
       {
@@ -1174,8 +1174,8 @@ export const HIGH_MODULES: EducationModule[] = [
     ],
     wrapUp: {
       review: "You learned that real science requires rigorous design, statistical analysis, reproducibility, and peer review. These aren't bureaucratic hurdles—they're how we separate truth from wishful thinking!",
-      realWorldConnection: "COVID vaccine development used these exact methods—multiple labs, statistical significance, peer review. Understanding this helps you evaluate scientific claims in the news!",
-      takeHome: "Find a published OpenWorm paper. Identify the hypothesis, methods, results, and conclusions. Could you replicate it?",
+      realWorldConnection: "Every major decision in your life will involve evaluating claims: Is this diet real? Is this investment legit? Is this political claim true? Understanding p-values, sample sizes, and reproducibility lets YOU see through the hype. You're now equipped to be a critical thinker in a world full of people trying to fool you!",
+      takeHome: "Find a news article about a 'scientific study.' Identify: What was the sample size? Was there a control group? Can you access the original paper? You'll be shocked how often headlines mislead!",
     },
     assessment: {
       formative: [
