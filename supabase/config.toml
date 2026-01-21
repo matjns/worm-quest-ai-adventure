@@ -8,3 +8,9 @@ verify_jwt = false
 
 [functions.openworm-simulate]
 verify_jwt = false
+
+[functions.glia-analysis]
+verify_jwt = false
+
+[functions.python-executor]
+verify_jwt = false
