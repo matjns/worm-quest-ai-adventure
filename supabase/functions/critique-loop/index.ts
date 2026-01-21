@@ -138,7 +138,7 @@ function calculateEntropy(activities: number[]): number {
 }
 
 // Detect chaos attractors in the simulation
-function detectChaosAttractors(state: SimulationState, perturbation: PerturbationInput): {
+function detectChaosAttractors(state: SimulationState, _perturbation: PerturbationInput): {
   isChaotic: boolean;
   lyapunovExponent: number;
   entropy: number;

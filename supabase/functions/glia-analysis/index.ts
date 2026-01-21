@@ -121,7 +121,7 @@ Respond with a JSON object containing:
       const jsonMatch = content.match(/```json\n?([\s\S]*?)\n?```/) || content.match(/\{[\s\S]*\}/);
       const jsonStr = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : content;
       analysisResult = JSON.parse(jsonStr);
-    } catch (parseError) {
+    } catch (_parseError) {
       console.error("Failed to parse AI response:", content);
       throw new Error("Failed to parse analysis results");
     }
