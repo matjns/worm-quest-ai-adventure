@@ -185,6 +185,12 @@ const ALL_BADGES: Badge[] = [
   { id: "openworm-ally", name: "OpenWorm Ally", description: "Visit the OpenWorm GitHub", icon: "rocket", rarity: "common", category: "special" },
   { id: "science-supporter", name: "Science Supporter", description: "Learn about real C. elegans research", icon: "star", rarity: "common", category: "special" },
   { id: "ai-explorer", name: "AI Explorer", description: "Complete AI-related lessons", icon: "brain", rarity: "rare", category: "special" },
+  
+  // Chaos & Dynamical Systems badges
+  { id: "chaos-tamer", name: "Chaos Tamer", description: "Optimize a supply chain through strange attractors", icon: "target", rarity: "epic", category: "skill" },
+  { id: "chaos-master", name: "Chaos Master", description: "Discover all attractor types", icon: "brain", rarity: "legendary", category: "skill", progress: 0, maxProgress: 3 },
+  { id: "bifurcation-hunter", name: "Bifurcation Hunter", description: "Find 5 bifurcation points", icon: "zap", rarity: "rare", category: "skill", progress: 0, maxProgress: 5 },
+  { id: "dynamical-pioneer", name: "Dynamical Pioneer", description: "Run 100 chaos simulations", icon: "rocket", rarity: "epic", category: "dedication", progress: 0, maxProgress: 100 },
 
   // OpenWorm Ambassador badges
   { id: "ambassador-recruit", name: "Ambassador Recruit", description: "Complete your first research-aligned circuit", icon: "flag", rarity: "common", category: "ambassador" },
