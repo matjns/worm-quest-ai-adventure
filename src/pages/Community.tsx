@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { useCircuitFromUrl } from "@/hooks/useCircuitFromUrl";
 import { updateCircuitMetaTags, resetMetaTags } from "@/utils/metaTags";
+import { useSEO } from "@/hooks/useSEO";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Users, Github, MessageCircle, Share2, Heart, ExternalLink, 
@@ -232,6 +233,10 @@ function GitHubPRDialog({ circuit, template }: { circuit: SharedCircuit; templat
 
 export default function CommunityPage() {
   const { isAuthenticated, user } = useAuth();
+  
+  // Apply community page SEO
+  useSEO();
+  
   const { 
     circuits, 
     featuredCircuits, 

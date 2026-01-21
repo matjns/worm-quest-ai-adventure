@@ -13,6 +13,7 @@ import { WormRaceLobby } from "@/components/WormRaceLobby";
 import { ChallengeShowcase } from "@/components/ChallengeShowcase";
 import { DopamineBooster } from "@/components/DopamineBooster";
 import { SplashIntro, useSplashIntro } from "@/components/SplashIntro";
+import { useSEO } from "@/hooks/useSEO";
 import neuroQuestLogo from "@/assets/neuroquest-logo.png";
 import { 
   Brain, 
@@ -109,6 +110,9 @@ const ghostColors = ["🔴", "🩷", "🩵", "🟠"];
 
 export default function Index() {
   const { showSplash, setShowSplash } = useSplashIntro();
+  
+  // Apply homepage SEO
+  useSEO();
 
   return (
     <>
