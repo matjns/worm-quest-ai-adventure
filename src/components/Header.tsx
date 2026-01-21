@@ -1,13 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Brain, Menu, X, Trophy, BookOpen, Users, Settings, Gamepad2, LogIn, User, GraduationCap, BarChart3, FlaskConical, Award, Code2, Play, Puzzle, FileText, GitBranch, Zap, ChevronDown, Activity, Shield, Presentation, HelpCircle } from "lucide-react";
+import { Brain, Menu, X, Trophy, BookOpen, Users, Settings, Gamepad2, LogIn, User, GraduationCap, BarChart3, FlaskConical, Award, Code2, Play, Puzzle, FileText, GitBranch, Zap, ChevronDown, Activity, Shield, Presentation, HelpCircle, Ticket } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import neuroQuestLogo from "@/assets/neuroquest-logo.png";
 import { useAuth } from "@/hooks/useAuth";
+import { useAdminTicketCount } from "@/hooks/useAdminTicketCount";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { AccessibilityToggle } from "@/components/AccessibilityToggle";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,6 +68,7 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { isAuthenticated, profile, signOut, loading } = useAuth();
+  const { isAdmin, openTicketCount } = useAdminTicketCount();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b-3 border-foreground">
@@ -215,12 +218,21 @@ export function Header() {
                           My Circuits
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to="/admin" className="w-full">
-                          <Shield className="w-4 h-4 mr-2" />
-                          Admin Analytics
-                        </Link>
-                      </DropdownMenuItem>
+                      {isAdmin && (
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin" className="w-full flex items-center justify-between">
+                            <span className="flex items-center">
+                              <Shield className="w-4 h-4 mr-2" />
+                              Admin Analytics
+                            </span>
+                            {openTicketCount > 0 && (
+                              <Badge variant="destructive" className="ml-2 h-5 min-w-5 flex items-center justify-center text-xs">
+                                {openTicketCount}
+                              </Badge>
+                            )}
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem asChild>
                         <Link to="/demo-script" className="w-full">
                           <Presentation className="w-4 h-4 mr-2" />
