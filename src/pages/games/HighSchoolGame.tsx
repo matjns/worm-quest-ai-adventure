@@ -22,6 +22,7 @@ import { EvolutionaryAlgoLab } from "@/components/EvolutionaryAlgoLab";
 import { VRSimPresentation } from "@/components/VRSimPresentation";
 import { CodingChallengeModule } from "@/components/CodingChallengeModule";
 import { SimulationMasteryDashboard } from "@/components/SimulationMasteryDashboard";
+import { DashboardCertSystem } from "@/components/DashboardCertSystem";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface NeuralLayer {
@@ -230,6 +231,9 @@ export default function HighSchoolGame() {
             </TabsList>
 
             <TabsContent value="advanced" className="space-y-6">
+              {/* Knowledge Entropy Tracker & Certification */}
+              <DashboardCertSystem />
+              
               {/* AI Validation Hub - Hallucination Hunter, Critique Loop, Glia Analysis */}
               <SimulationMasteryDashboard />
               

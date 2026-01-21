@@ -19,6 +19,7 @@ import { Link } from 'react-router-dom';
 import { WeeklyProgressReport, StudentReportData } from '@/components/WeeklyProgressReport';
 import { ClassroomAnalyticsChart } from '@/components/ClassroomAnalyticsChart';
 import { AIClassroomTools } from '@/components/AIClassroomTools';
+import { DashboardCertSystem } from '@/components/DashboardCertSystem';
 import {
   BookOpen,
   Users,
@@ -46,7 +47,8 @@ import {
   ClipboardList,
   Send,
   ListTodo,
-  Wand2
+  Wand2,
+  Trophy
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -245,7 +247,7 @@ export default function TeacherDashboard() {
 
         {/* Main Tabs */}
         <Tabs defaultValue="classrooms" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-8 h-12">
+          <TabsList className="grid w-full grid-cols-9 h-12">
             <TabsTrigger value="classrooms" className="gap-2">
               <School className="w-4 h-4" />
               <span className="hidden sm:inline">Classrooms</span>
@@ -269,6 +271,10 @@ export default function TeacherDashboard() {
             <TabsTrigger value="analytics" className="gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Analytics</span>
+            </TabsTrigger>
+            <TabsTrigger value="certs" className="gap-2">
+              <Trophy className="w-4 h-4" />
+              <span className="hidden sm:inline">Certs</span>
             </TabsTrigger>
             <TabsTrigger value="grading" className="gap-2">
               <CheckCircle className="w-4 h-4" />
@@ -1003,6 +1009,14 @@ export default function TeacherDashboard() {
                 )}
               </>
             )}
+          </TabsContent>
+
+          {/* Certifications Tab */}
+          <TabsContent value="certs" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Knowledge Entropy & Certifications</h2>
+            </div>
+            <DashboardCertSystem />
           </TabsContent>
 
           {/* Sponsors Tab */}
