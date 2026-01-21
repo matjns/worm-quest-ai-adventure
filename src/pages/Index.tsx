@@ -17,6 +17,7 @@ import { AnimatedWorm, WormDecoration } from "@/components/AnimatedWorm";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSEO } from "@/hooks/useSEO";
 import neuroQuestLogo from "@/assets/neuroquest-logo.png";
+import wormQuestLogo from "@/assets/wormquest-logo.png";
 import { 
   Brain, 
   Sparkles, 
@@ -143,7 +144,21 @@ export default function Index() {
               transition={{ duration: 0.6 }}
               className="text-center lg:text-left"
             >
-              {/* Logo - smaller on iPhone */}
+              {/* WormQuest by OpenWorm Logo - Large at top */}
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.1, type: "spring" }}
+                className="mb-6 lg:mb-8 flex justify-center lg:justify-start"
+              >
+                <img 
+                  src={wormQuestLogo} 
+                  alt="WormQuest by OpenWorm" 
+                  className="h-20 sm:h-24 md:h-32 lg:h-40 w-auto rounded-xl shadow-lg"
+                />
+              </motion.div>
+
+              {/* NeuroQuest Logo - smaller */}
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -153,7 +168,7 @@ export default function Index() {
                 <img 
                   src={neuroQuestLogo} 
                   alt="NeuroQuest" 
-                  className="h-12 sm:h-16 md:h-20 w-auto"
+                  className="h-10 sm:h-12 md:h-16 w-auto"
                 />
               </motion.div>
 
