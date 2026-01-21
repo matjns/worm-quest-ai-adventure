@@ -20,13 +20,13 @@ export function ArcadeScreen({
       className
     )}>
       {title && (
-        <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-primary via-accent to-primary p-1">
-          <p className="font-arcade text-xs text-center text-primary-foreground uppercase tracking-wider animate-pulse">
+        <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-primary via-accent to-primary px-2 py-1">
+          <p className="text-[10px] sm:text-xs text-center text-primary-foreground uppercase tracking-wide font-semibold truncate">
             {title}
           </p>
         </div>
       )}
-      <div className={cn("p-4", title && "pt-8", showScanlines && "crt-screen")}>
+      <div className={cn("p-3 sm:p-4", title && "pt-7 sm:pt-8", showScanlines && "crt-screen")}>
         {children}
       </div>
     </div>

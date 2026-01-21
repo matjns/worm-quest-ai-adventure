@@ -145,9 +145,9 @@ export default function LearnPage() {
                         animate={{ opacity: 1 }}
                         transition={{ delay: moduleIdx * 0.1 }}
                       >
-                        <div className="flex items-center gap-3 mb-4 pt-2">
+                        <div className="flex items-center gap-2 mb-3 pt-1">
                           {moduleIcons[module]}
-                          <h2 className="text-lg font-arcade uppercase text-primary">
+                          <h2 className="text-sm sm:text-base font-bold uppercase text-primary truncate">
                             {module}
                           </h2>
                         </div>
@@ -163,66 +163,64 @@ export default function LearnPage() {
                                 key={lesson.id} 
                                 to={unlocked ? `/learn/${lesson.id}` : "#"} 
                                 className={cn(
-                                  "group block bg-card/80 backdrop-blur border-2 p-4 rounded-xl transition-all",
-                                  unlocked && "border-foreground shadow-[3px_3px_0px_hsl(var(--foreground))] hover:shadow-[5px_5px_0px_hsl(var(--foreground))] hover:translate-x-[-2px] hover:translate-y-[-2px] cursor-pointer",
+                                  "group block bg-card/80 backdrop-blur border-2 p-3 sm:p-4 rounded-xl transition-all",
+                                  unlocked && "border-foreground shadow-[2px_2px_0px_hsl(var(--foreground))] hover:shadow-[4px_4px_0px_hsl(var(--foreground))] hover:translate-x-[-1px] hover:translate-y-[-1px] cursor-pointer",
                                   completed && "border-accent bg-accent/10",
                                   !unlocked && "opacity-50 pointer-events-none border-muted"
                                 )}
                               >
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-3">
                                   {/* Lesson Icon with Ghost */}
-                                  <div className="relative">
+                                  <div className="relative flex-shrink-0">
                                     <div className={cn(
-                                      "w-12 h-12 flex items-center justify-center border-2 rounded-lg",
+                                      "w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center border-2 rounded-lg",
                                       completed && "bg-accent border-accent",
                                       !completed && unlocked && "bg-primary border-foreground",
                                       !unlocked && "bg-muted border-muted-foreground"
                                     )}>
                                       {completed ? (
-                                        <CheckCircle className="w-6 h-6" />
+                                        <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" />
                                       ) : unlocked ? (
-                                        <Play className="w-6 h-6 group-hover:animate-pulse" />
+                                        <Play className="w-5 h-5 sm:w-6 sm:h-6 group-hover:animate-pulse" />
                                       ) : (
-                                        <Lock className="w-5 h-5" />
+                                        <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
                                       )}
                                     </div>
                                     {unlocked && !completed && (
-                                      <div className="absolute -top-2 -right-2">
-                                        <GhostIcon color={lesson.ghost} className="text-sm" />
+                                      <div className="absolute -top-1 -right-1 text-sm">
+                                        <GhostIcon color={lesson.ghost} />
                                       </div>
                                     )}
                                   </div>
                                   
                                   {/* Lesson Info */}
                                   <div className="flex-1 min-w-0">
-                                    <h3 className="font-bold uppercase text-sm truncate">
+                                    <h3 className="font-bold text-xs sm:text-sm truncate">
                                       {lesson.title}
                                     </h3>
-                                    <p className="text-xs text-muted-foreground line-clamp-1">
+                                    <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-1">
                                       {lesson.description}
                                     </p>
                                   </div>
                                   
-                                  {/* XP Badge - Pac-Man pellet style */}
-                                  <div className="hidden sm:flex flex-col items-end gap-1">
-                                    <div className="flex items-center gap-2">
-                                      <span className="font-mono text-xs text-muted-foreground">
-                                        {lesson.duration}
-                                      </span>
-                                    </div>
+                                  {/* XP Badge */}
+                                  <div className="hidden sm:flex flex-col items-end gap-1 flex-shrink-0">
+                                    <span className="font-mono text-[10px] text-muted-foreground">
+                                      {lesson.duration}
+                                    </span>
                                     <div className={cn(
-                                      "flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-arcade",
+                                      "flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold",
                                       completed 
                                         ? "bg-accent/20 text-accent" 
-                                        : "bg-[hsl(45_100%_50%/0.2)] text-[hsl(45_100%_50%)]"
+                                        : "bg-primary/20 text-primary"
                                     )}>
-                                      <span className="w-2 h-2 rounded-full bg-current" />
+                                      <span className="w-1.5 h-1.5 rounded-full bg-current" />
                                       +{lesson.xp} XP
                                     </div>
                                   </div>
                                   
                                   <ChevronRight className={cn(
-                                    "w-5 h-5 transition-transform",
+                                    "w-4 h-4 sm:w-5 sm:h-5 transition-transform flex-shrink-0",
                                     unlocked && "group-hover:translate-x-1",
                                     !unlocked && "opacity-30"
                                   )} />

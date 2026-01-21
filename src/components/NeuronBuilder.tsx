@@ -32,16 +32,16 @@ interface NeuronBuilderProps {
 // Age-appropriate neuron sets
 const NEURON_SETS: Record<AgeGroup, Neuron[]> = {
   prek: [
-    { id: "touch", name: "Touch", type: "sensory", x: 50, y: 150, color: "hsl(340 100% 60%)", emoji: "👆" },
-    { id: "brain", name: "Brain", type: "inter", x: 200, y: 150, color: "hsl(280 100% 60%)", emoji: "🧠" },
-    { id: "wiggle", name: "Wiggle", type: "motor", x: 350, y: 150, color: "hsl(175 100% 50%)", emoji: "🐛" },
+    { id: "touch", name: "Touch", type: "sensory", x: 80, y: 120, color: "hsl(340 100% 60%)", emoji: "👆" },
+    { id: "brain", name: "Brain", type: "inter", x: 200, y: 120, color: "hsl(280 100% 60%)", emoji: "🧠" },
+    { id: "wiggle", name: "Wiggle", type: "motor", x: 320, y: 120, color: "hsl(175 100% 50%)", emoji: "🐛" },
   ],
   k5: [
-    { id: "see", name: "See", type: "sensory", x: 60, y: 80, color: "hsl(340 100% 60%)", emoji: "👁️" },
-    { id: "smell", name: "Smell", type: "sensory", x: 60, y: 220, color: "hsl(25 100% 55%)", emoji: "👃" },
-    { id: "think1", name: "Think", type: "inter", x: 200, y: 150, color: "hsl(280 100% 60%)", emoji: "💭" },
-    { id: "move", name: "Move", type: "motor", x: 340, y: 100, color: "hsl(175 100% 50%)", emoji: "➡️" },
-    { id: "stop", name: "Stop", type: "motor", x: 340, y: 200, color: "hsl(0 100% 50%)", emoji: "🛑" },
+    { id: "see", name: "See", type: "sensory", x: 70, y: 70, color: "hsl(340 100% 60%)", emoji: "👁️" },
+    { id: "smell", name: "Smell", type: "sensory", x: 70, y: 170, color: "hsl(25 100% 55%)", emoji: "👃" },
+    { id: "think1", name: "Think", type: "inter", x: 190, y: 120, color: "hsl(280 100% 60%)", emoji: "💭" },
+    { id: "move", name: "Move", type: "motor", x: 310, y: 80, color: "hsl(175 100% 50%)", emoji: "➡️" },
+    { id: "stop", name: "Stop", type: "motor", x: 310, y: 160, color: "hsl(0 100% 50%)", emoji: "🛑" },
   ],
   middle: [
     { id: "ASHL", name: "ASHL", type: "sensory", x: 50, y: 60, color: "hsl(340 100% 60%)", emoji: "S" },
@@ -224,9 +224,9 @@ export function NeuronBuilder({ ageGroup, onCircuitComplete, className }: Neuron
     setActiveNeurons(new Set());
   };
 
-  const neuronSize = isSimpleMode ? 50 : 35;
-  const canvasWidth = isSimpleMode ? 420 : 340;
-  const canvasHeight = isSimpleMode ? 300 : 280;
+  const neuronSize = isSimpleMode ? 55 : 35;
+  const canvasWidth = 400;
+  const canvasHeight = isSimpleMode ? 240 : 280;
 
   return (
     <div className={cn("space-y-4", className)}>
