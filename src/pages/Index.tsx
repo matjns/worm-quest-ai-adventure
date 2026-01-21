@@ -158,19 +158,6 @@ export default function Index() {
                 />
               </motion.div>
 
-              {/* NeuroQuest Logo - smaller */}
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.2, type: "spring" }}
-                className="mb-4 lg:mb-6 flex justify-center lg:justify-start"
-              >
-                <img 
-                  src={neuroQuestLogo} 
-                  alt="NeuroQuest" 
-                  className="h-10 sm:h-12 md:h-16 w-auto"
-                />
-              </motion.div>
 
               {/* Menu Bar - hidden on small screens, shown on larger */}
               <div className="mb-4 lg:mb-8 hidden sm:block">
