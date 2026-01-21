@@ -173,7 +173,15 @@ export default function Index() {
                 >
                   LIFE
                 </span>
-                <span className="block text-primary">DECODE BIOLOGY</span>
+                <span 
+                  className="block"
+                  style={{
+                    color: 'hsl(180, 100%, 50%)',
+                    textShadow: '0 0 20px hsla(180, 100%, 50%, 0.6), 0 0 40px hsla(180, 100%, 50%, 0.4)',
+                  }}
+                >
+                  DECODE BIOLOGY
+                </span>
               </h1>
 
               <p className="text-sm sm:text-base md:text-lg text-foreground/90 mb-3 max-w-lg mx-auto lg:mx-0 font-medium">
