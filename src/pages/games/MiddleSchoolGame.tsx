@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { ArrowLeft, FlaskConical, Brain, Zap, BarChart3, Lightbulb, RefreshCw, Download, Save } from "lucide-react";
+import { ArrowLeft, FlaskConical, Brain, Zap, BarChart3, Lightbulb, RefreshCw, Download, Save, Dna, Users, Cpu } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useGameStore } from "@/stores/gameStore";
 import { NeuronSimulator } from "@/components/NeuronSimulator";
@@ -16,6 +16,10 @@ import { toast } from "sonner";
 import { saveMiddleSchoolState, loadMiddleSchoolState, downloadExport, type ExperimentState } from "@/utils/simulationPersistence";
 import { Analytics } from "@/utils/analytics";
 import { withRetry, getResilienceMessage } from "@/utils/apiResilience";
+import { NeuralNetBuilderActivity } from "@/components/NeuralNetBuilderActivity";
+import { MutationMazeGame } from "@/components/MutationMazeGame";
+import { GroupDebateApp } from "@/components/GroupDebateApp";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Hypothesis {
   id: string;
@@ -256,25 +260,43 @@ export default function MiddleSchoolGame() {
             </div>
           </motion.div>
 
-          {/* Activity Tabs */}
-          <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
-            {[
-              { id: "simulate", label: "Simulator", icon: Brain },
-              { id: "experiment", label: "Experiment", icon: FlaskConical },
-              { id: "3d", label: "3D Worm", icon: Zap },
-              { id: "analyze", label: "Analyze", icon: BarChart3 },
-            ].map((tab) => (
-              <Button
-                key={tab.id}
-                variant={currentView === tab.id ? "default" : "outline"}
-                onClick={() => setCurrentView(tab.id as any)}
-                className="flex-shrink-0 gap-2"
-              >
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
-              </Button>
-            ))}
-          </div>
+          {/* Activity Tabs - Enhanced with Batch 2 Features */}
+          <Tabs defaultValue="classic" className="w-full mb-8">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="classic">Classic Lab</TabsTrigger>
+              <TabsTrigger value="advanced">Advanced Builds</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="advanced" className="space-y-6">
+              {/* Neural Net Builder - c302 port with Q-learning */}
+              <NeuralNetBuilderActivity />
+              
+              {/* Mutation Maze - owmeta RDF validation */}
+              <MutationMazeGame />
+              
+              {/* Group Debate - AI Ethics */}
+              <GroupDebateApp />
+            </TabsContent>
+
+            <TabsContent value="classic">
+              <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+                {[
+                  { id: "simulate", label: "Simulator", icon: Brain },
+                  { id: "experiment", label: "Experiment", icon: FlaskConical },
+                  { id: "3d", label: "3D Worm", icon: Zap },
+                  { id: "analyze", label: "Analyze", icon: BarChart3 },
+                ].map((tab) => (
+                  <Button
+                    key={tab.id}
+                    variant={currentView === tab.id ? "default" : "outline"}
+                    onClick={() => setCurrentView(tab.id as any)}
+                    className="flex-shrink-0 gap-2"
+                  >
+                    <tab.icon className="w-4 h-4" />
+                    {tab.label}
+                  </Button>
+                ))}
+              </div>
 
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Main Content */}
@@ -488,6 +510,8 @@ export default function MiddleSchoolGame() {
               </div>
             </div>
           </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
     </div>
