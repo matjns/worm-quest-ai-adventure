@@ -134,90 +134,92 @@ export default function Index() {
           <WormCanvas neuronCount={isMobile ? 30 : 80} />
         </div>
 
-        <div className="container mx-auto relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[70vh]">
+        <div className="container mx-auto relative z-10 px-4 sm:px-6">
+          <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-center min-h-[60vh] lg:min-h-[70vh]">
             {/* Left: Content */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
+              className="text-center lg:text-left"
             >
-              {/* Arcade Logo */}
+              {/* Logo - smaller on iPhone */}
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.2, type: "spring" }}
-                className="mb-6"
+                className="mb-4 lg:mb-6 flex justify-center lg:justify-start"
               >
                 <img 
                   src={neuroQuestLogo} 
                   alt="NeuroQuest" 
-                  className="h-16 md:h-20 w-auto drop-shadow-[0_0_30px_hsl(340_100%_60%/0.5)]"
+                  className="h-12 sm:h-16 md:h-20 w-auto"
                 />
               </motion.div>
 
-              {/* Menu Bar */}
-              <div className="mb-8">
+              {/* Menu Bar - hidden on small screens, shown on larger */}
+              <div className="mb-4 lg:mb-8 hidden sm:block">
                 <ExpandableTabs tabs={navTabs} className="inline-flex" />
               </div>
 
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-4 md:mb-6 leading-tight">
-                <span className="block text-foreground">Unlock the</span>
-                <span className="block text-primary">Brain's Code</span>
-                <span className="block text-accent text-lg sm:text-xl md:text-2xl lg:text-3xl mt-2 font-semibold">World's First In Silico Organism</span>
+              {/* Hero Text - New verbiage */}
+              <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-3 md:mb-4 leading-tight">
+                <span className="block text-foreground">DIGITIZE LIFE</span>
+                <span className="block text-primary">DECODE BIOLOGY</span>
               </h1>
 
-              <p className="text-base md:text-lg text-muted-foreground mb-2 max-w-lg">
-                🐛 302 Neurons. 7,000 Synapses. Infinite Futures.
-              </p>
-              <p className="text-sm md:text-base text-foreground/80 mb-3 max-w-lg leading-relaxed">
-                Dive into OpenWorm's digital C. elegans—simulate neuronal processing, 
-                emergent behaviors, environmental interactions. Master biology, chemistry, 
-                physics, AI, simulations. Pre-K colors to PhD mutagenesis.
-              </p>
-              <p className="text-xs md:text-sm text-primary font-semibold mb-4">
-                Classroom, boardroom, cubicle: Ignite exponential thinking.
+              <p className="text-sm sm:text-base md:text-lg text-foreground/90 mb-3 max-w-lg mx-auto lg:mx-0 font-medium">
+                Empower every American with knowledge and confidence in the age of AI.
               </p>
 
-              {/* MTP Callout - Clean design */}
-              <div className="bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/30 rounded-xl p-4 mb-6 max-w-lg">
-                <p className="text-xs font-semibold text-primary mb-1 tracking-wide flex items-center gap-2">
-                  <Zap className="w-3 h-3" /> Massive Transformative Purpose
+              <p className="text-xs sm:text-sm md:text-base text-muted-foreground mb-4 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                🐛 A tiny worm with 302 neurons unlocks the secrets of the brain. Understand biology, physics, and chemistry. Build neural circuits. Harness simulations and AI to solve problems you never thought you could solve.
+              </p>
+
+              <p className="text-sm sm:text-base text-accent font-bold mb-4 lg:mb-6">
+                Learn from the lowly!
+              </p>
+
+              {/* Mission Callout - Optimized for mobile */}
+              <div className="bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/30 rounded-xl p-3 sm:p-4 mb-4 lg:mb-6 max-w-lg mx-auto lg:mx-0">
+                <p className="text-[10px] sm:text-xs font-semibold text-primary mb-1 tracking-wide flex items-center justify-center lg:justify-start gap-2">
+                  <Zap className="w-3 h-3" /> OUR MISSION
                 </p>
-                <p className="text-sm text-foreground font-medium">
-                  Simulate organisms to decode biology. Learn from the lowly!
+                <p className="text-xs sm:text-sm text-foreground font-medium">
+                  Simulate organisms to decode biology.
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/play">
-                  <Button variant="hero" size="xl" className="w-full sm:w-auto glow-neon-pink">
-                    <Rocket className="w-5 h-5 mr-2" />
-                    Build Your Worm Now
-                    <ArrowRight className="w-5 h-5 ml-2" />
+              {/* CTA Buttons - Stack on iPhone, side by side on larger */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
+                <Link to="/play" className="w-full sm:w-auto">
+                  <Button variant="hero" size={isMobile ? "default" : "xl"} className="w-full">
+                    <Rocket className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                    Start Learning
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
                   </Button>
                 </Link>
-                <Link to="/teacher">
-                  <Button variant="brutal" size="xl" className="w-full sm:w-auto">
-                    <GraduationCap className="w-5 h-5 mr-2" />
-                    Educator Track
+                <Link to="/teacher" className="w-full sm:w-auto">
+                  <Button variant="brutal" size={isMobile ? "default" : "xl"} className="w-full">
+                    <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                    Educators
                   </Button>
                 </Link>
               </div>
 
-              {/* Stats - Clean cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 mt-8 md:mt-12">
+              {/* Stats - Compact on iPhone */}
+              <div className="grid grid-cols-4 gap-2 sm:gap-3 md:gap-4 mt-6 lg:mt-12">
                 {stats.map((stat, i) => (
                   <motion.div
                     key={stat.label}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 + i * 0.1 }}
-                    className="text-center p-3 bg-card/80 backdrop-blur-sm border border-border rounded-xl"
+                    className="text-center p-2 sm:p-3 bg-card/80 backdrop-blur-sm border border-border rounded-lg sm:rounded-xl"
                   >
-                    <stat.icon className="w-5 h-5 mx-auto mb-1 text-primary" />
-                    <p className="text-lg md:text-xl font-bold text-accent">{stat.value}</p>
-                    <p className="text-[10px] md:text-xs text-muted-foreground">{stat.label}</p>
+                    <stat.icon className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1 text-primary" />
+                    <p className="text-sm sm:text-lg md:text-xl font-bold text-accent">{stat.value}</p>
+                    <p className="text-[8px] sm:text-[10px] md:text-xs text-muted-foreground">{stat.label}</p>
                   </motion.div>
                 ))}
               </div>
