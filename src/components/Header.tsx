@@ -1,12 +1,13 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Brain, Menu, X, Trophy, BookOpen, Users, Settings, Gamepad2, LogIn, User, GraduationCap, BarChart3, FlaskConical, Award, Code2, Play, Puzzle, FileText, GitBranch, Zap, ChevronDown, Activity, Shield } from "lucide-react";
+import { Brain, Menu, X, Trophy, BookOpen, Users, Settings, Gamepad2, LogIn, User, GraduationCap, BarChart3, FlaskConical, Award, Code2, Play, Puzzle, FileText, GitBranch, Zap, ChevronDown, Activity, Shield, Presentation } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import neuroQuestLogo from "@/assets/neuroquest-logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
+import { AccessibilityToggle } from "@/components/AccessibilityToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -177,6 +178,7 @@ export function Header() {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
+            <AccessibilityToggle />
             <DarkModeToggle />
             <NotificationCenter />
             
@@ -217,6 +219,12 @@ export function Header() {
                         <Link to="/admin" className="w-full">
                           <Shield className="w-4 h-4 mr-2" />
                           Admin Analytics
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/demo-script" className="w-full">
+                          <Presentation className="w-4 h-4 mr-2" />
+                          Demo Script
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
