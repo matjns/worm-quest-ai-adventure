@@ -11,6 +11,7 @@ import { SimulationAccuracyChart } from '@/components/SimulationAccuracyChart';
 import { ExOMetrics } from '@/components/ExOMetrics';
 import { SkillDashboard } from '@/components/SkillDashboard';
 import { StudentAssignmentsView } from '@/components/StudentAssignmentsView';
+import { DashboardCertSystem } from '@/components/DashboardCertSystem';
 import { useStudentProgress } from '@/hooks/useStudentProgress';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotificationsData } from '@/hooks/useNotificationsData';
@@ -363,7 +364,10 @@ export default function StudentDashboard() {
           {/* Skills Tab */}
           <TabsContent value="skills" className="space-y-6">
             <div className="grid lg:grid-cols-2 gap-6">
-              <SkillDashboard className="border-2" />
+              <div className="space-y-6">
+                <SkillDashboard className="border-2" />
+                <DashboardCertSystem className="border-2" />
+              </div>
               
               {/* Recent Achievements */}
               <Card className="border-2">
