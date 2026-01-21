@@ -850,6 +850,47 @@ export type Database = {
           },
         ]
       }
+      parent_student_links: {
+        Row: {
+          created_at: string
+          id: string
+          invite_code: string | null
+          parent_id: string
+          relationship: string
+          student_id: string
+          updated_at: string
+          verified: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invite_code?: string | null
+          parent_id: string
+          relationship?: string
+          student_id: string
+          updated_at?: string
+          verified?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invite_code?: string | null
+          parent_id?: string
+          relationship?: string
+          student_id?: string
+          updated_at?: string
+          verified?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parent_student_links_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pilot_feedback: {
         Row: {
           additional_notes: string | null
@@ -1457,6 +1498,7 @@ export type Database = {
         Returns: string
       }
       generate_join_code: { Args: never; Returns: string }
+      generate_parent_invite_code: { Args: never; Returns: string }
       get_tier_from_elo: { Args: { elo_rating: number }; Returns: string }
       has_role: {
         Args: {

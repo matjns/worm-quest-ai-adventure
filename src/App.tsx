@@ -39,6 +39,7 @@ import ChaosSimulation from "./pages/ChaosSimulation";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import DemoScriptPage from "./pages/DemoScriptPage";
 import Help from "./pages/Help";
+import ParentPortal from "./pages/ParentPortal";
 
 const queryClient = new QueryClient();
 
@@ -86,6 +87,7 @@ const App = () => (
                 <Route path="/admin" element={<AdminAnalytics />} />
                 <Route path="/demo-script" element={<DemoScriptPage />} />
                 <Route path="/help" element={<Help />} />
+                <Route path="/parent" element={<ParentPortal />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
