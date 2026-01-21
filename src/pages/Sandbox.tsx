@@ -7,9 +7,10 @@ import { NeuralQAPanel } from '@/components/NeuralQAPanel';
 import { ExODashboard } from '@/components/ExODashboard';
 import { MutagenesisMOOC } from '@/components/MutagenesisMOOC';
 import { AIPromptPlayground } from '@/components/AIPromptPlayground';
+import { SimToRealGame } from '@/components/SimToRealGame';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Gamepad2, FlaskConical, Users, Brain, Network, Sparkles } from 'lucide-react';
+import { Gamepad2, FlaskConical, Users, Brain, Network, Sparkles, ArrowRight } from 'lucide-react';
 
 export default function SandboxPage() {
   const [activeTab, setActiveTab] = useState('playground');
@@ -87,8 +88,9 @@ export default function SandboxPage() {
             </Tabs>
           </div>
 
-          {/* Sidebar with ExO Dashboard */}
+          {/* Sidebar */}
           <div className="space-y-6">
+            <SimToRealGame />
             <ExODashboard />
           </div>
         </div>
