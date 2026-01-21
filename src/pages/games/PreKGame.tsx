@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Sparkles, Star, Volume2, CheckCircle2, XCircle, Book, Hand, Palette } from "lucide-react";
+import { ArrowLeft, Sparkles, Star, Volume2, CheckCircle2, XCircle, Book, Hand, Palette, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useGameStore } from "@/stores/gameStore";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,7 @@ import { WormWiggleTouchGame } from "@/components/WormWiggleTouchGame";
 import { ColorConnectQuiz } from "@/components/ColorConnectQuiz";
 import { StorytimeModule } from "@/components/StorytimeModule";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { KidsCertSystem } from "@/components/KidsCertSystem";
 
 const COLORS = [
   { name: "Red", hsl: "0 84% 60%", emoji: "🔴" },
@@ -177,14 +178,18 @@ export default function PreKGame() {
 
           {/* Activity Tabs - Enhanced with Sensory Games */}
           <Tabs defaultValue="sensory" className="w-full mb-8">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsList className="grid w-full grid-cols-3 mb-4">
               <TabsTrigger value="sensory" className="gap-2">
                 <Hand className="w-4 h-4" />
-                Sensory Games
+                Sensory
               </TabsTrigger>
               <TabsTrigger value="classic" className="gap-2">
                 <Star className="w-4 h-4" />
-                Classic Games
+                Classic
+              </TabsTrigger>
+              <TabsTrigger value="stars" className="gap-2">
+                <Award className="w-4 h-4" />
+                My Stars
               </TabsTrigger>
             </TabsList>
 
@@ -329,6 +334,11 @@ export default function PreKGame() {
             </motion.div>
           )}
 
+            </TabsContent>
+
+            {/* Stars/Certs Tab */}
+            <TabsContent value="stars">
+              <KidsCertSystem ageGroup="prek" />
             </TabsContent>
           </Tabs>
 
