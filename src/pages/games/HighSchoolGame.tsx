@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { ArrowLeft, GraduationCap, Brain, Zap, Code2, GitBranch, Network, Play, Pause, RotateCcw, Download } from "lucide-react";
+import { ArrowLeft, GraduationCap, Brain, Zap, Code2, GitBranch, Network, Play, Pause, RotateCcw, Download, FileCode, ClipboardCheck, Github } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useGameStore } from "@/stores/gameStore";
 import { useAIChallenge } from "@/hooks/useAIChallenge";
@@ -15,6 +15,10 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { saveHighSchoolState, loadHighSchoolState, downloadExport } from "@/utils/simulationPersistence";
 import { Analytics } from "@/utils/analytics";
+import { NeuroMLExportPipeline } from "@/components/NeuroMLExportPipeline";
+import { GitHubPRBot } from "@/components/GitHubPRBot";
+import { PeerReviewRubric } from "@/components/PeerReviewRubric";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface NeuralLayer {
   neurons: number;
@@ -213,25 +217,43 @@ export default function HighSchoolGame() {
             </div>
           </motion.div>
 
-          {/* Tabs */}
-          <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
-            {[
-              { id: "network", label: "Architecture", icon: Network },
-              { id: "train", label: "Training", icon: Zap },
-              { id: "visualize", label: "Visualize", icon: Brain },
-              { id: "contribute", label: "OpenWorm", icon: GitBranch },
-            ].map((tab) => (
-              <Button
-                key={tab.id}
-                variant={currentView === tab.id ? "default" : "outline"}
-                onClick={() => setCurrentView(tab.id as any)}
-                className="flex-shrink-0 gap-2"
-              >
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
-              </Button>
-            ))}
-          </div>
+          {/* Tabs - Enhanced with Batch 3 Research Features */}
+          <Tabs defaultValue="classic" className="w-full mb-8">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="classic">Neural Network Lab</TabsTrigger>
+              <TabsTrigger value="research">Research Contributions</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="research" className="space-y-6">
+              {/* NeuroML Export Pipeline */}
+              <NeuroMLExportPipeline />
+              
+              {/* GitHub PR Bot */}
+              <GitHubPRBot />
+              
+              {/* Peer Review Rubric */}
+              <PeerReviewRubric />
+            </TabsContent>
+
+            <TabsContent value="classic">
+              <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+                {[
+                  { id: "network", label: "Architecture", icon: Network },
+                  { id: "train", label: "Training", icon: Zap },
+                  { id: "visualize", label: "Visualize", icon: Brain },
+                  { id: "contribute", label: "OpenWorm", icon: GitBranch },
+                ].map((tab) => (
+                  <Button
+                    key={tab.id}
+                    variant={currentView === tab.id ? "default" : "outline"}
+                    onClick={() => setCurrentView(tab.id as any)}
+                    className="flex-shrink-0 gap-2"
+                  >
+                    <tab.icon className="w-4 h-4" />
+                    {tab.label}
+                  </Button>
+                ))}
+              </div>
 
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Main Content */}
@@ -638,6 +660,8 @@ export default function HighSchoolGame() {
               </div>
             </div>
           </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
     </div>
