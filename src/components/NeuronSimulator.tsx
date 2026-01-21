@@ -38,10 +38,15 @@ const SAMPLE_CONNECTIONS: Connection[] = [
   { from: 4, to: 6, weight: 0.75 },
 ];
 
+// Canvas requires actual color values, not CSS variables
 const typeColors = {
-  sensory: "hsl(var(--primary))",
-  motor: "hsl(var(--accent))",
-  interneuron: "hsl(280 65% 50%)",
+  sensory: { h: 200, s: 98, l: 39 },    // primary blue
+  motor: { h: 142, s: 76, l: 36 },       // accent green
+  interneuron: { h: 280, s: 65, l: 50 }, // purple
+};
+
+const hslToString = (color: { h: number; s: number; l: number }, alpha: number = 1) => {
+  return `hsla(${color.h}, ${color.s}%, ${color.l}%, ${alpha})`;
 };
 
 interface NeuronSimulatorProps {
@@ -116,6 +121,11 @@ export function NeuronSimulator({ className, onScoreChange }: NeuronSimulatorPro
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Canvas-compatible colors for non-themed elements
+    const borderColor = "hsla(240, 5%, 65%, 1)";
+    const mutedColor = "hsla(240, 5%, 65%, 0.5)";
+    const foregroundColor = "hsla(222, 47%, 11%, 1)";
+
     // Draw connections
     connections.forEach((conn) => {
       const from = neurons[conn.from];
@@ -125,8 +135,8 @@ export function NeuronSimulator({ className, onScoreChange }: NeuronSimulatorPro
       ctx.moveTo(from.x, from.y);
       ctx.lineTo(to.x, to.y);
       ctx.strokeStyle = from.active && to.active
-        ? typeColors[from.type]
-        : "hsl(var(--border))";
+        ? hslToString(typeColors[from.type])
+        : borderColor;
       ctx.lineWidth = conn.weight * 4;
       ctx.stroke();
 
@@ -137,7 +147,7 @@ export function NeuronSimulator({ className, onScoreChange }: NeuronSimulatorPro
         
         ctx.beginPath();
         ctx.arc(midX, midY, 4, 0, Math.PI * 2);
-        ctx.fillStyle = typeColors[from.type];
+        ctx.fillStyle = hslToString(typeColors[from.type]);
         ctx.fill();
       }
     });
@@ -152,7 +162,7 @@ export function NeuronSimulator({ className, onScoreChange }: NeuronSimulatorPro
           neuron.x, neuron.y, 0,
           neuron.x, neuron.y, 30
         );
-        gradient.addColorStop(0, typeColors[neuron.type] + "80");
+        gradient.addColorStop(0, hslToString(typeColors[neuron.type], 0.5));
         gradient.addColorStop(1, "transparent");
         
         ctx.beginPath();
@@ -164,15 +174,15 @@ export function NeuronSimulator({ className, onScoreChange }: NeuronSimulatorPro
       // Neuron body
       ctx.beginPath();
       ctx.arc(neuron.x, neuron.y, isSelected ? 18 : 15, 0, Math.PI * 2);
-      ctx.fillStyle = neuron.active ? typeColors[neuron.type] : "hsl(var(--muted))";
+      ctx.fillStyle = neuron.active ? hslToString(typeColors[neuron.type]) : mutedColor;
       ctx.fill();
-      ctx.strokeStyle = isSelected ? typeColors[neuron.type] : "hsl(var(--foreground))";
+      ctx.strokeStyle = isSelected ? hslToString(typeColors[neuron.type]) : foregroundColor;
       ctx.lineWidth = 2;
       ctx.stroke();
 
       // Label
       ctx.font = "bold 10px 'Space Mono'";
-      ctx.fillStyle = "hsl(var(--foreground))";
+      ctx.fillStyle = foregroundColor;
       ctx.textAlign = "center";
       ctx.fillText(neuron.name, neuron.x, neuron.y + 30);
     });
@@ -214,15 +224,15 @@ export function NeuronSimulator({ className, onScoreChange }: NeuronSimulatorPro
         {/* Legend */}
         <div className="absolute top-2 right-2 bg-card/90 border-2 border-foreground p-2 text-xs">
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-3 h-3 rounded-full" style={{ background: typeColors.sensory }} />
+            <div className="w-3 h-3 rounded-full" style={{ background: hslToString(typeColors.sensory) }} />
             <span>Sensory</span>
           </div>
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-3 h-3 rounded-full" style={{ background: typeColors.interneuron }} />
+            <div className="w-3 h-3 rounded-full" style={{ background: hslToString(typeColors.interneuron) }} />
             <span>Interneuron</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full" style={{ background: typeColors.motor }} />
+            <div className="w-3 h-3 rounded-full" style={{ background: hslToString(typeColors.motor) }} />
             <span>Motor</span>
           </div>
         </div>
