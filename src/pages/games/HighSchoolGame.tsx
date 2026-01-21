@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { useGameStore } from "@/stores/gameStore";
 import { useAIChallenge } from "@/hooks/useAIChallenge";
 import { Worm3D } from "@/components/Worm3D";
+import AccessibleWorm3D from "@/components/AccessibleWorm3D";
 import { NeuralQAPanel } from "@/components/NeuralQAPanel";
 import { IterationFeedback } from "@/components/IterationFeedback";
 import { cn } from "@/lib/utils";
@@ -461,7 +462,14 @@ export default function HighSchoolGame() {
                   </div>
                   
                   <Suspense fallback={<div className="h-[300px] flex items-center justify-center">Loading...</div>}>
-                    <Worm3D activeNeurons={activeNeurons} signalStrength={signalStrength} />
+                    <AccessibleWorm3D 
+                      activeNeurons={activeNeurons} 
+                      signalStrength={signalStrength}
+                      wormType="hermaphrodite"
+                      ariaDescription={`High school neural network visualization. ${layers.length} layers configured with learning rate ${learningRate[0]}. Signal shows trained network inference.`}
+                      neuronLabels={["ASE", "AIY", "RIA", "SMD", "RMD"]}
+                      showLabels={true}
+                    />
                   </Suspense>
 
                   <div className="p-4 border-t border-border">

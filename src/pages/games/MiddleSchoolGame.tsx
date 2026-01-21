@@ -10,6 +10,7 @@ import { NeuronSimulator } from "@/components/NeuronSimulator";
 import { QuizCard } from "@/components/QuizCard";
 import { useAIChallenge } from "@/hooks/useAIChallenge";
 import { Worm3D } from "@/components/Worm3D";
+import AccessibleWorm3D from "@/components/AccessibleWorm3D";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { saveMiddleSchoolState, loadMiddleSchoolState, downloadExport, type ExperimentState } from "@/utils/simulationPersistence";
@@ -362,7 +363,14 @@ export default function MiddleSchoolGame() {
                   </div>
                   
                   <Suspense fallback={<div className="h-[300px] flex items-center justify-center">Loading...</div>}>
-                    <Worm3D activeNeurons={activeNeurons} signalStrength={signalStrength} />
+                    <AccessibleWorm3D 
+                      activeNeurons={activeNeurons} 
+                      signalStrength={signalStrength}
+                      wormType="hermaphrodite"
+                      ariaDescription={`Middle school neural experiment visualization. Current synaptic weight: ${currentWeight[0]}%. Signal propagation demonstrates relationship between weight and speed.`}
+                      neuronLabels={["AVAL", "AVAR", "DB1", "VB1"]}
+                      showLabels={true}
+                    />
                   </Suspense>
 
                   <div className="p-4 border-t border-border space-y-4">
