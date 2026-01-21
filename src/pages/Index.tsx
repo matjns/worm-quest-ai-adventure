@@ -160,39 +160,45 @@ export default function Index() {
               </div>
 
               <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-6 leading-[0.9]">
-                <span className="block text-foreground">Digitize</span>
-                <span className="block text-primary text-neon-pink">Life</span>
-                <span className="block text-accent">Decode Biology</span>
+                <span className="block text-foreground">Unlock the</span>
+                <span className="block text-primary text-neon-pink">Brain's Code</span>
+                <span className="block text-accent text-2xl md:text-3xl mt-2">World's First In Silico Organism</span>
               </h1>
 
               <p className="text-lg text-muted-foreground mb-2 max-w-lg font-mono">
-                🐛 A tiny worm with 302 neurons unlocks the secrets of the brain. 
-                Build neural circuits. Train AI. Conquer neuroscience.
+                🐛 302 Neurons. 7,000 Synapses. Infinite Futures.
+              </p>
+              <p className="text-base text-foreground/80 mb-3 max-w-lg">
+                Dive into OpenWorm's digital C. elegans—simulate neuronal processing, 
+                emergent behaviors, environmental interactions. Master biology, chemistry, 
+                physics, AI, simulations. Pre-K colors to PhD mutagenesis.
               </p>
               <p className="text-sm text-primary font-bold italic mb-4">
-                Learn from the lowly!
+                Classroom, boardroom, cubicle: Ignite exponential thinking.
               </p>
 
-              {/* MTP Callout */}
-              <div className="bg-muted/50 border-2 border-primary/30 rounded-lg p-3 mb-6 max-w-lg">
-                <p className="text-xs font-bold text-primary mb-1 uppercase tracking-wide">Our Mission</p>
-                <p className="text-sm text-muted-foreground italic">
-                  Simulate organisms to decode biology.
+              {/* MTP Callout - ExO Style */}
+              <div className="bg-gradient-to-r from-primary/10 to-accent/10 border-2 border-primary/30 rounded-lg p-4 mb-6 max-w-lg backdrop-blur-sm">
+                <p className="text-xs font-bold text-primary mb-1 uppercase tracking-wide flex items-center gap-2">
+                  <Zap className="w-3 h-3" /> Massive Transformative Purpose
+                </p>
+                <p className="text-sm text-foreground font-medium">
+                  Simulate organisms to decode biology. Learn from the lowly!
                 </p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/neuroquest">
+                <Link to="/play">
                   <Button variant="hero" size="xl" className="w-full sm:w-auto glow-neon-pink">
                     <Rocket className="w-5 h-5 mr-2" />
-                    Start Quest
+                    Build Your Worm Now
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </Link>
-                <Link to="/learn">
+                <Link to="/teacher">
                   <Button variant="brutal" size="xl" className="w-full sm:w-auto">
-                    <BookOpen className="w-5 h-5 mr-2" />
-                    Learn First
+                    <GraduationCap className="w-5 h-5 mr-2" />
+                    Educator Track
                   </Button>
                 </Link>
               </div>
@@ -249,18 +255,46 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Bento Grid Features */}
-      <section className="py-20 px-4 bg-muted/30">
+      {/* Profound Impact Section - ExO Messaging */}
+      <section className="py-20 px-4 bg-gradient-to-b from-muted/30 to-background">
         <div className="container mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-4xl mx-auto text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter mb-6">
+              Why This Matters: <span className="text-primary">From Lowly Worm to Human Aspiration</span>
+            </h2>
+            <p className="text-lg text-foreground/80 mb-6 leading-relaxed">
+              Profound irony: A nematode with minimal neurons reveals how thoughts arise—ion channels 
+              firing via <strong className="text-primary">Hodgkin-Huxley dynamics</strong>, synapses weighting info flows. 
+              Harness this for life's simulations: Optimize supply chains via bifurcation analysis, 
+              drug discovery through virtual perturbations.
+            </p>
+            <p className="text-base text-muted-foreground mb-6 leading-relaxed">
+              Amid 12+ stacked Gutenberg moments—exponential tech tsunamis—WormQuest expands minds 
+              for abundance, not victimhood. <strong className="text-accent">Libertarian edge:</strong> Self-directed mastery, 
+              no gatekeepers. <strong className="text-chart-1">Patriotic win:</strong> USA-led OpenWorm nonprofit propels 
+              global bio-AI dominance.
+            </p>
+            <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1"><Flag className="w-4 h-4 text-chart-1" /> American Open-Source</span>
+              <span className="flex items-center gap-1"><Brain className="w-4 h-4 text-primary" /> owmeta RDF Validated</span>
+              <span className="flex items-center gap-1"><Sparkles className="w-4 h-4 text-accent" /> ExO Canvas</span>
+            </div>
+          </motion.div>
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-4">
+            <h3 className="text-2xl md:text-4xl font-black uppercase tracking-tighter mb-4">
               Master the <span className="text-primary">Neural Network</span>
-            </h2>
+            </h3>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               From watching worms wiggle to training AI models — there's a journey for everyone.
             </p>
@@ -402,7 +436,7 @@ export default function Index() {
         </div>
       </section>
 
-      {/* OpenWorm CTA */}
+      {/* OpenWorm CTA - ExO Supremacy */}
       <section className="py-20 px-4 bg-foreground text-background">
         <div className="container mx-auto text-center">
           <motion.div
@@ -416,15 +450,20 @@ export default function Index() {
               <Award className="w-8 h-8 text-accent" />
             </div>
             <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-4">
-              🇺🇸 Powered by OpenWorm
+              🇺🇸 American Open-Source Supremacy
             </h2>
+            <p className="text-xl opacity-90 max-w-3xl mx-auto mb-4 font-medium">
+              In silico C. elegans: World's first virtual organism, decoding neuronal 
+              computation from connectome to cognition.
+            </p>
             <p className="text-lg opacity-80 max-w-2xl mx-auto mb-4">
-              WormQuest is built on open-source neuroscience data from the OpenWorm project — 
-              a <strong>US-led nonprofit</strong> creating the world's first digital organism.
+              WormQuest is built on <strong>OpenWorm</strong>—a US-led nonprofit fusing owmeta RDF 
+              with exponential education. Chairman's dream ignited by the White House AI Challenge: 
+              kids demanding sign-up, educators sparking vibecoding frenzy.
             </p>
             <p className="text-sm opacity-60 max-w-xl mx-auto mb-8">
-              Supporting American AI dominance through open science, STEM education, and 
-              next-generation workforce development.
+              Tsunami of Gutenberg stacks? WormQuest equips millions for synaptic sovereignty 
+              amid exponential flux. Self-directed mastery. No gatekeepers. Bio-AI dominance.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href="https://openworm.org" target="_blank" rel="noopener noreferrer">
