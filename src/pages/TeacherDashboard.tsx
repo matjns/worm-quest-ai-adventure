@@ -22,6 +22,7 @@ import { AIClassroomTools } from '@/components/AIClassroomTools';
 import { DashboardCertSystem } from '@/components/DashboardCertSystem';
 import { ClassroomEntropyLeaderboard } from '@/components/ClassroomEntropyLeaderboard';
 import { InterventionTrackingDashboard } from '@/components/InterventionTrackingDashboard';
+import { ParentInviteManager } from '@/components/ParentInviteManager';
 import {
   BookOpen,
   Users,
@@ -51,7 +52,8 @@ import {
   ListTodo,
   Wand2,
   Trophy,
-  TrendingDown
+  TrendingDown,
+  Heart
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -250,7 +252,7 @@ export default function TeacherDashboard() {
 
         {/* Main Tabs */}
         <Tabs defaultValue="classrooms" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-10 h-12">
+          <TabsList className="grid w-full grid-cols-11 h-12">
             <TabsTrigger value="classrooms" className="gap-2">
               <School className="w-4 h-4" />
               <span className="hidden sm:inline">Classrooms</span>
@@ -278,6 +280,10 @@ export default function TeacherDashboard() {
             <TabsTrigger value="analytics" className="gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Analytics</span>
+            </TabsTrigger>
+            <TabsTrigger value="parents" className="gap-2">
+              <Heart className="w-4 h-4" />
+              <span className="hidden sm:inline">Parents</span>
             </TabsTrigger>
             <TabsTrigger value="certs" className="gap-2">
               <Trophy className="w-4 h-4" />
@@ -853,6 +859,14 @@ export default function TeacherDashboard() {
                 );
               })}
             </div>
+          </TabsContent>
+
+          {/* Parents Tab */}
+          <TabsContent value="parents" className="space-y-6">
+            <ParentInviteManager 
+              classrooms={classrooms.map(c => ({ id: c.id, name: c.name }))}
+              students={students.map(s => ({ id: s.id, display_name: s.display_name, classroom_id: s.classroom_id }))}
+            />
           </TabsContent>
 
           {/* Grading Tab */}
