@@ -20,6 +20,7 @@ import { WeeklyProgressReport, StudentReportData } from '@/components/WeeklyProg
 import { ClassroomAnalyticsChart } from '@/components/ClassroomAnalyticsChart';
 import { AIClassroomTools } from '@/components/AIClassroomTools';
 import { DashboardCertSystem } from '@/components/DashboardCertSystem';
+import { ClassroomEntropyLeaderboard } from '@/components/ClassroomEntropyLeaderboard';
 import {
   BookOpen,
   Users,
@@ -48,7 +49,8 @@ import {
   Send,
   ListTodo,
   Wand2,
-  Trophy
+  Trophy,
+  TrendingDown
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -247,10 +249,14 @@ export default function TeacherDashboard() {
 
         {/* Main Tabs */}
         <Tabs defaultValue="classrooms" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-9 h-12">
+          <TabsList className="grid w-full grid-cols-10 h-12">
             <TabsTrigger value="classrooms" className="gap-2">
               <School className="w-4 h-4" />
               <span className="hidden sm:inline">Classrooms</span>
+            </TabsTrigger>
+            <TabsTrigger value="entropy" className="gap-2">
+              <TrendingDown className="w-4 h-4" />
+              <span className="hidden sm:inline">Entropy</span>
             </TabsTrigger>
             <TabsTrigger value="ai-tools" className="gap-2">
               <Wand2 className="w-4 h-4" />
@@ -514,6 +520,13 @@ export default function TeacherDashboard() {
                 )}
               </div>
             )}
+          </TabsContent>
+
+          {/* Entropy Leaderboard Tab */}
+          <TabsContent value="entropy" className="space-y-6">
+            <ClassroomEntropyLeaderboard 
+              classrooms={classrooms.map(c => ({ id: c.id, name: c.name }))} 
+            />
           </TabsContent>
 
           {/* Assignments Tab */}
