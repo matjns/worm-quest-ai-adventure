@@ -220,12 +220,24 @@ export default function HighSchoolGame() {
             </div>
           </motion.div>
 
-          {/* Tabs - Enhanced with Batch 3 Research Features */}
+          {/* Tabs - Enhanced with All High School Features */}
           <Tabs defaultValue="classic" className="w-full mb-8">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsList className="grid w-full grid-cols-3 mb-4">
               <TabsTrigger value="classic">Neural Network Lab</TabsTrigger>
+              <TabsTrigger value="advanced">Advanced Optimizations</TabsTrigger>
               <TabsTrigger value="research">Research Contributions</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="advanced" className="space-y-6">
+              {/* Evolutionary Algorithm Lab */}
+              <EvolutionaryAlgoLab />
+              
+              {/* VR Simulation Presentation Tool */}
+              <VRSimPresentation />
+              
+              {/* Python Coding Challenges */}
+              <CodingChallengeModule />
+            </TabsContent>
 
             <TabsContent value="research" className="space-y-6">
               {/* NeuroML Export Pipeline */}

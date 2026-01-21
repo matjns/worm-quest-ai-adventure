@@ -11,6 +11,10 @@ import { AchievementBadge } from "@/components/AchievementBadge";
 import { useAIChallenge } from "@/hooks/useAIChallenge";
 import { Worm3D } from "@/components/Worm3D";
 import AccessibleWorm3D from "@/components/AccessibleWorm3D";
+import { WormWiggleTouchGame } from "@/components/WormWiggleTouchGame";
+import { ColorConnectQuiz } from "@/components/ColorConnectQuiz";
+import { StorytimeModule } from "@/components/StorytimeModule";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -167,24 +171,47 @@ export default function K5Game() {
             </div>
           </motion.div>
 
-          {/* Activity Tabs */}
-          <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
-            {[
-              { id: "tutorial", label: "Tutorial 📖", icon: "📖" },
-              { id: "build", label: "Build Brain 🔧", icon: "🔧" },
-              { id: "3d", label: "3D Worm 🐛", icon: "🐛" },
-              { id: "quiz", label: "Quiz Time ❓", icon: "❓" },
-            ].map((tab) => (
-              <Button
-                key={tab.id}
-                variant={currentView === tab.id ? "default" : "outline"}
-                onClick={() => setCurrentView(tab.id as any)}
-                className="flex-shrink-0"
-              >
-                {tab.label}
-              </Button>
-            ))}
-          </div>
+          {/* Main Tabs */}
+          <Tabs defaultValue="classic" className="w-full mb-8">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="classic">Classic Activities</TabsTrigger>
+              <TabsTrigger value="sensory">Sensory Games</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="sensory" className="space-y-6">
+              {/* Worm Wiggle Touch Game */}
+              <WormWiggleTouchGame onComplete={() => {
+                addXp(30);
+                addPoints(50);
+                toast.success("Touch game complete!");
+              }} />
+              
+              {/* Color Connect Quiz */}
+              <ColorConnectQuiz />
+              
+              {/* Storytime Module */}
+              <StorytimeModule />
+            </TabsContent>
+
+            <TabsContent value="classic">
+              {/* Activity Tabs */}
+              <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
+                {[
+                  { id: "tutorial", label: "Tutorial 📖", icon: "📖" },
+                  { id: "build", label: "Build Brain 🔧", icon: "🔧" },
+                  { id: "3d", label: "3D Worm 🐛", icon: "🐛" },
+                  { id: "quiz", label: "Quiz Time ❓", icon: "❓" },
+                ].map((tab) => (
+                  <Button
+                    key={tab.id}
+                    variant={currentView === tab.id ? "default" : "outline"}
+                    onClick={() => setCurrentView(tab.id as any)}
+                    className="flex-shrink-0"
+                  >
+                    {tab.label}
+                  </Button>
+                ))}
+              </div>
 
           {/* Tutorial View */}
           {currentView === "tutorial" && (
@@ -330,6 +357,10 @@ export default function K5Game() {
           )}
 
           {/* Achievements Preview */}
+            </TabsContent>
+          </Tabs>
+
+          {/* Achievements Section */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
