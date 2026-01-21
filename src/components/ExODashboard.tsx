@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useLearningStore } from "@/stores/learningStore";
 import { getEngagementSummary } from "@/utils/analytics";
+import { PilotFeedbackForm } from "@/components/PilotFeedbackForm";
 import {
   Users,
   Lightbulb,
@@ -21,6 +22,7 @@ import {
   BarChart3,
   Sparkles,
   ExternalLink,
+  MessageSquare,
 } from "lucide-react";
 import { shareToTwitter, shareToLinkedIn, getCircuitShareUrl } from "@/utils/socialShare";
 import { cn } from "@/lib/utils";
@@ -161,10 +163,11 @@ export function ExODashboard({ className }: ExODashboardProps) {
 
       <CardContent>
         <Tabs defaultValue="scale">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="scale">SCALE</TabsTrigger>
             <TabsTrigger value="ideas">IDEAS</TabsTrigger>
             <TabsTrigger value="iterations">Iterations</TabsTrigger>
+            <TabsTrigger value="feedback">Feedback</TabsTrigger>
           </TabsList>
 
           <TabsContent value="scale" className="space-y-4 mt-4">
@@ -328,6 +331,19 @@ export function ExODashboard({ className }: ExODashboardProps) {
                   </div>
                 )}
               </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="feedback" className="mt-4">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <MessageSquare className="w-4 h-4" />
+                <span>Help us achieve 95% retention — your feedback matters!</span>
+              </div>
+              <PilotFeedbackForm 
+                experimentName="ExO Dashboard Session"
+                onSubmit={(feedback) => console.log('Feedback submitted:', feedback)}
+              />
             </div>
           </TabsContent>
         </Tabs>
