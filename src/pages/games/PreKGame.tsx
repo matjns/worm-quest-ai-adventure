@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { useGameStore } from "@/stores/gameStore";
 import { cn } from "@/lib/utils";
 import { Analytics } from "@/utils/analytics";
 import { validateAgainstGroundTruth } from "@/utils/apiResilience";
+import AccessibleWorm3D from "@/components/AccessibleWorm3D";
 
 const COLORS = [
   { name: "Red", hsl: "0 84% 60%", emoji: "🔴" },
@@ -266,6 +267,21 @@ export default function PreKGame() {
             >
               <h2 className="text-2xl font-bold mb-6">Tap the worm to make it wiggle!</h2>
               <WiggleWorm />
+              
+              {/* WCAG Accessible 3D Visualization */}
+              <div className="mt-6">
+                <p className="text-sm text-muted-foreground mb-3">Watch the worm in 3D! 🐛✨</p>
+                <Suspense fallback={<div className="h-[200px] flex items-center justify-center">Loading worm...</div>}>
+                  <AccessibleWorm3D 
+                    className="h-[200px]"
+                    activeNeurons={[true, true, false, false, false, false, false, false, false, false]}
+                    signalStrength={0.2}
+                    wormType="hermaphrodite"
+                    ariaDescription="Pre-K friendly C. elegans worm. This tiny worm has 302 neurons that help it wiggle and move! Tap to watch it come alive."
+                    highContrast={false}
+                  />
+                </Suspense>
+              </div>
             </motion.div>
           )}
 

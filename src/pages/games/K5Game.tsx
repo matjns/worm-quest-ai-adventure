@@ -10,6 +10,7 @@ import { TutorialCard } from "@/components/TutorialCard";
 import { AchievementBadge } from "@/components/AchievementBadge";
 import { useAIChallenge } from "@/hooks/useAIChallenge";
 import { Worm3D } from "@/components/Worm3D";
+import AccessibleWorm3D from "@/components/AccessibleWorm3D";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -282,9 +283,12 @@ export default function K5Game() {
               </div>
               
               <Suspense fallback={<div className="h-[300px] flex items-center justify-center">Loading 3D worm...</div>}>
-                <Worm3D 
+                <AccessibleWorm3D 
                   activeNeurons={activeNeurons} 
                   signalStrength={signalStrength}
+                  wormType="hermaphrodite"
+                  ariaDescription="Interactive K-5 C. elegans worm showing how neurons connect to create movement. Active neurons glow to show signal propagation."
+                  neuronLabels={connections.map(c => c.from)}
                 />
               </Suspense>
 
