@@ -14,3 +14,9 @@ verify_jwt = false
 
 [functions.python-executor]
 verify_jwt = false
+
+[functions.critique-loop]
+verify_jwt = false
+
+[functions.hallucination-hunter]
+verify_jwt = false
