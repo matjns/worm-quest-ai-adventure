@@ -685,3 +685,55 @@
   outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
 }
+
+/* AI Simulation Container Styles */
+.ai-sim-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px hsla(var(--foreground) / 0.1);
+}
+
+.ai-sim-overlay {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: hsla(var(--background) / 0.9);
+  backdrop-filter: blur(8px);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: hsl(var(--foreground));
+  border: 1px solid hsla(var(--border) / 0.5);
+}
+
+.ai-sim-overlay-title {
+  font-weight: 600;
+  color: hsl(var(--primary));
+}
+
+.ai-sim-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  background: linear-gradient(135deg, hsla(var(--primary) / 0.05), hsla(var(--accent) / 0.05));
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+  :root {
+    --font-size-base: 14px;
+  }
+  
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.25rem; }
+  
+  .ai-sim-overlay {
+    bottom: 5px;
+    left: 5px;
+    padding: 0.375rem 0.5rem;
+    font-size: 0.75rem;
+  }
+}
