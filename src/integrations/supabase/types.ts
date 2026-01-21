@@ -438,6 +438,66 @@ export type Database = {
         }
         Relationships: []
       }
+      learner_entropy_profiles: {
+        Row: {
+          age_group: string
+          average_completion_time: number
+          calculated_entropy: number | null
+          completed_modules: string[]
+          content_adaptations: string[] | null
+          created_at: string
+          difficulty_adjustment: number | null
+          failed_attempts: Json
+          id: string
+          last_analysis: Json | null
+          learning_style: Json
+          scaffolding_level: string | null
+          skill_metrics: Json
+          skill_variance: number | null
+          streak_data: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          age_group?: string
+          average_completion_time?: number
+          calculated_entropy?: number | null
+          completed_modules?: string[]
+          content_adaptations?: string[] | null
+          created_at?: string
+          difficulty_adjustment?: number | null
+          failed_attempts?: Json
+          id?: string
+          last_analysis?: Json | null
+          learning_style?: Json
+          scaffolding_level?: string | null
+          skill_metrics?: Json
+          skill_variance?: number | null
+          streak_data?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          age_group?: string
+          average_completion_time?: number
+          calculated_entropy?: number | null
+          completed_modules?: string[]
+          content_adaptations?: string[] | null
+          created_at?: string
+          difficulty_adjustment?: number | null
+          failed_attempts?: Json
+          id?: string
+          last_analysis?: Json | null
+          learning_style?: Json
+          scaffolding_level?: string | null
+          skill_metrics?: Json
+          skill_variance?: number | null
+          streak_data?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       lesson_plans: {
         Row: {
           ai_generated: boolean | null
