@@ -162,9 +162,17 @@ export default function Index() {
                 <ExpandableTabs tabs={navTabs} className="inline-flex" />
               </div>
 
-              {/* Hero Text - New verbiage */}
+              {/* Hero Text - Fuzzy glowing LIFE */}
               <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-3 md:mb-4 leading-tight">
-                <span className="block text-foreground">DIGITIZE LIFE</span>
+                <span className="block text-foreground">DIGITIZE</span>
+                <span 
+                  className="block text-primary relative"
+                  style={{
+                    textShadow: '0 0 20px hsl(var(--primary) / 0.8), 0 0 40px hsl(var(--primary) / 0.6), 0 0 60px hsl(var(--primary) / 0.4), 0 0 80px hsl(var(--primary) / 0.2)',
+                  }}
+                >
+                  LIFE
+                </span>
                 <span className="block text-primary">DECODE BIOLOGY</span>
               </h1>
 
