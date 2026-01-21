@@ -119,7 +119,7 @@ function detectHallucinations(build: CircuitBuild): {
   const physicsViolations: string[] = [];
   
   // Check for disconnected components
-  const neuronSet = new Set(build.neurons.map(n => n.id));
+  const _neuronSet = new Set(build.neurons.map(n => n.id));
   const connectedNeurons = new Set<string>();
   build.connections.forEach(c => {
     connectedNeurons.add(c.from);
