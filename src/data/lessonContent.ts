@@ -42,19 +42,19 @@ export const LESSON_CONTENT: LessonContent[] = [
       {
         title: "What is C. elegans?",
         content: "C. elegans (Caenorhabditis elegans) is a tiny, transparent roundworm about 1mm long — roughly the width of a pencil tip. Despite being smaller than a grain of rice, this microscopic creature has taught scientists more about how brains work than almost any other organism on Earth! And here's the amazing part: many of the same genes in this worm are also in YOUR body, controlling similar processes!",
-        videoUrl: "https://www.youtube.com/embed/BAg8d2pNI4k",
+        videoUrl: "https://www.youtube.com/embed/BAg8d2pNI4k?rel=0&modestbranding=1",
         funFact: "C. elegans lives in soil and eats bacteria. You could fit 10 of them on your fingernail! And 60-80% of human genes have a worm equivalent!"
       },
       {
         title: "Why Scientists Love This Worm",
         content: "In the 1960s, scientist Sydney Brenner chose C. elegans as the perfect 'model organism' for studying biology. Why? It's transparent (you can see inside!), reproduces quickly (300 babies every 3 days), and has a simple body with exactly 959 cells in adults. Most importantly, every C. elegans has exactly 302 neurons — and scientists have mapped every single one!",
-        videoUrl: "https://www.youtube.com/embed/o-JHNW7kUCw",
+        videoUrl: "https://www.youtube.com/embed/o-JHNW7c0g8?rel=0&modestbranding=1",
         funFact: "Sydney Brenner won the Nobel Prize in 2002 partly for his work with C. elegans!"
       },
       {
         title: "The Worm's Superpower: Simplicity",
         content: "Your brain has about 86 billion neurons. That's way too many to study one by one! But C. elegans has only 302 neurons, making it the ONLY organism where scientists have mapped every neuron and every connection. This complete 'wiring diagram' is called the connectome. OpenWorm is building the world's first digital version of this worm!",
-        videoUrl: "https://www.youtube.com/embed/vTk-gS5nP_0"
+        funFact: "The OpenWorm project aims to create the first complete digital organism simulation!"
       }
     ],
     questions: [
