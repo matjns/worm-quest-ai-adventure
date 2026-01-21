@@ -1,10 +1,11 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { TeacherScript } from "@/components/TeacherScript";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { BrainActivityOverlay } from "@/components/BrainActivityOverlay";
 import {
   ArrowLeft,
   ArrowRight,
@@ -14,6 +15,7 @@ import {
   Target,
   Award,
   Home,
+  Brain,
 } from "lucide-react";
 import type { EducationModule } from "@/data/educationModules";
 
@@ -34,6 +36,8 @@ export function ModuleLessonPlayer({
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [showHint, setShowHint] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
+  const [showBrainOverlay, setShowBrainOverlay] = useState(true);
+  const [brainActivity, setBrainActivity] = useState<'reading' | 'watching' | 'thinking' | 'answering' | 'learning' | 'building' | 'quiz'>('reading');
 
   const currentStep = module.steps[currentStepIndex];
   const progress =
@@ -70,6 +74,25 @@ export function ModuleLessonPlayer({
     onComplete(module.id);
   }, [module.id, onComplete]);
 
+  // Update brain activity based on current phase and interaction
+  useEffect(() => {
+    if (phase === 'warmup') {
+      setBrainActivity('reading');
+    } else if (phase === 'wrapup') {
+      setBrainActivity('learning');
+    } else if (phase === 'learning' && currentStep) {
+      const activityMap: Record<string, typeof brainActivity> = {
+        observe: 'watching',
+        click: 'answering',
+        drag: 'building',
+        think: 'thinking',
+        read: 'reading',
+        quiz: 'quiz',
+      };
+      setBrainActivity(activityMap[currentStep.interactionType] || 'thinking');
+    }
+  }, [phase, currentStep, brainActivity]);
+
   const getAgeGroupFromGrade = (
     grade: EducationModule["gradeLevel"]
   ): "prek" | "k5" | "middle" | "high" => {
@@ -79,6 +102,14 @@ export function ModuleLessonPlayer({
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Brain Activity Overlay */}
+      <BrainActivityOverlay
+        activity={brainActivity}
+        isVisible={showBrainOverlay}
+        onClose={() => setShowBrainOverlay(false)}
+        ageGroup={getAgeGroupFromGrade(module.gradeLevel)}
+      />
+
       {/* Progress header */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-b border-border">
         <div className="container mx-auto px-4 py-3">
@@ -87,7 +118,18 @@ export function ModuleLessonPlayer({
               <Home className="w-4 h-4 mr-2" />
               Exit Module
             </Button>
-            <Badge variant="outline">{module.title}</Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline">{module.title}</Badge>
+              <Button
+                variant={showBrainOverlay ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowBrainOverlay(!showBrainOverlay)}
+                className="gap-1"
+              >
+                <Brain className="w-4 h-4" />
+                <span className="hidden sm:inline">Brain View</span>
+              </Button>
+            </div>
             <span className="text-sm text-muted-foreground">
               {Math.round(progress)}% complete
             </span>
