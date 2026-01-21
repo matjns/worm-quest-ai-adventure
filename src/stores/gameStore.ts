@@ -79,6 +79,34 @@ const DEFAULT_ACHIEVEMENTS: Achievement[] = [
     progress: 0,
     maxProgress: 100,
   },
+  {
+    id: "truth-seeker",
+    name: "Truth Seeker",
+    description: "Score 70%+ on a Truth Detection Quiz",
+    icon: "target",
+    unlocked: false,
+  },
+  {
+    id: "truth-champion",
+    name: "Truth Champion",
+    description: "Get a perfect score on Truth Detection Quiz",
+    icon: "trophy",
+    unlocked: false,
+  },
+  {
+    id: "steel-man-master",
+    name: "Steel Man Master",
+    description: "Complete all Deep Truth Prompt lessons",
+    icon: "brain",
+    unlocked: false,
+  },
+  {
+    id: "color-master",
+    name: "Color Master",
+    description: "Perfect score on Color-Connect Quiz",
+    icon: "star",
+    unlocked: false,
+  },
 ];
 
 const calculateXpToNext = (level: number) => Math.floor(100 * Math.pow(1.5, level - 1));
