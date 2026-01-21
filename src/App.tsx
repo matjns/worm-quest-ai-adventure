@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { CelebrationProvider } from "@/contexts/CelebrationContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
+import { AccessibilityProvider } from "@/components/AccessibilityProvider";
 import Index from "./pages/Index";
 import Play from "./pages/Play";
 import Learn from "./pages/Learn";
@@ -36,6 +37,7 @@ import Certifications from "./pages/Certifications";
 import OpenPlatform from "./pages/OpenPlatform";
 import ChaosSimulation from "./pages/ChaosSimulation";
 import AdminAnalytics from "./pages/AdminAnalytics";
+import DemoScriptPage from "./pages/DemoScriptPage";
 
 const queryClient = new QueryClient();
 
@@ -43,11 +45,12 @@ const App = () => (
   <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true}>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <CelebrationProvider>
-          <NotificationProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
+        <AccessibilityProvider>
+          <CelebrationProvider>
+            <NotificationProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/play" element={<Play />} />
@@ -80,14 +83,16 @@ const App = () => (
                 <Route path="/open" element={<OpenPlatform />} />
                 <Route path="/chaos" element={<ChaosSimulation />} />
                 <Route path="/admin" element={<AdminAnalytics />} />
+                <Route path="/demo-script" element={<DemoScriptPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
           </NotificationProvider>
         </CelebrationProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ThemeProvider>
+      </AccessibilityProvider>
+    </TooltipProvider>
+  </QueryClientProvider>
+</ThemeProvider>
 );
 
 export default App;
