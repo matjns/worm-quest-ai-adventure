@@ -10,6 +10,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { DashboardCertSystem } from "@/components/DashboardCertSystem";
+import { AdminUserManagement } from "@/components/AdminUserManagement";
+import { AdminTicketSystem } from "@/components/AdminTicketSystem";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
 import {
   Users,
@@ -28,6 +30,7 @@ import {
   BarChart3,
   RefreshCw,
   Trophy,
+  Ticket,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -439,10 +442,18 @@ export default function AdminAnalytics() {
         </div>
 
         <Tabs defaultValue="engagement" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="engagement">Engagement Trends</TabsTrigger>
-            <TabsTrigger value="feedback">Feedback Analysis</TabsTrigger>
-            <TabsTrigger value="distribution">Grade Distribution</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="engagement">Engagement</TabsTrigger>
+            <TabsTrigger value="feedback">Feedback</TabsTrigger>
+            <TabsTrigger value="distribution">Grades</TabsTrigger>
+            <TabsTrigger value="users" className="gap-1">
+              <Users className="w-4 h-4" />
+              Users
+            </TabsTrigger>
+            <TabsTrigger value="tickets" className="gap-1">
+              <Ticket className="w-4 h-4" />
+              Tickets
+            </TabsTrigger>
             <TabsTrigger value="entropy" className="gap-1">
               <Trophy className="w-4 h-4" />
               Entropy
@@ -679,6 +690,17 @@ export default function AdminAnalytics() {
           </TabsContent>
 
           {/* Entropy & Certifications Tab */}
+          {/* User Management Tab */}
+          <TabsContent value="users">
+            <AdminUserManagement />
+          </TabsContent>
+
+          {/* Support Tickets Tab */}
+          <TabsContent value="tickets">
+            <AdminTicketSystem />
+          </TabsContent>
+
+          {/* Entropy Tab */}
           <TabsContent value="entropy">
             <div className="space-y-6">
               <div className="flex items-center gap-2">
