@@ -63,9 +63,9 @@ export function useCircuitSEO(circuit: {
     if (!circuit) return;
 
     const config: SEOConfig = {
-      title: `${circuit.title} | NeuroQuest Circuit`,
+      title: `${circuit.title} | WormQuest Circuit`,
       description: circuit.description || 
-        `A ${circuit.behavior} neural circuit using ${circuit.neurons_used.length} neurons. Built on NeuroQuest.`,
+        `A ${circuit.behavior} neural circuit using ${circuit.neurons_used.length} neurons. Built on WormQuest.`,
       keywords: [
         circuit.behavior,
         'neural circuit',
@@ -109,7 +109,7 @@ export function useLessonSEO(lesson: {
     if (!lesson) return;
 
     const config: SEOConfig = {
-      title: `${lesson.title} | NeuroQuest Lesson`,
+      title: `${lesson.title} | WormQuest Lesson`,
       description: lesson.description,
       keywords: [
         'neuroscience lesson',
