@@ -21,6 +21,7 @@ import { PeerReviewRubric } from "@/components/PeerReviewRubric";
 import { EvolutionaryAlgoLab } from "@/components/EvolutionaryAlgoLab";
 import { VRSimPresentation } from "@/components/VRSimPresentation";
 import { CodingChallengeModule } from "@/components/CodingChallengeModule";
+import { SimulationMasteryDashboard } from "@/components/SimulationMasteryDashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface NeuralLayer {
@@ -229,6 +230,9 @@ export default function HighSchoolGame() {
             </TabsList>
 
             <TabsContent value="advanced" className="space-y-6">
+              {/* AI Validation Hub - Hallucination Hunter, Critique Loop, Glia Analysis */}
+              <SimulationMasteryDashboard />
+              
               {/* Evolutionary Algorithm Lab */}
               <EvolutionaryAlgoLab />
               
