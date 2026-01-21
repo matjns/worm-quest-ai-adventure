@@ -275,9 +275,9 @@ export default function Index() {
             </p>
             <p className="text-base text-muted-foreground mb-6 leading-relaxed">
               Amid 12+ stacked Gutenberg moments—exponential tech tsunamis—WormQuest expands minds 
-              for abundance, not victimhood. <strong className="text-accent">Libertarian edge:</strong> Self-directed mastery, 
-              no gatekeepers. <strong className="text-chart-1">Patriotic win:</strong> USA-led OpenWorm nonprofit propels 
-              global bio-AI dominance.
+              for abundance, not scarcity. <strong className="text-accent">Self-directed mastery</strong>, no gatekeepers. 
+              <strong className="text-chart-1">Global contributors, American nonprofit:</strong> OpenWorm propels 
+              bio-AI leadership through open science.
             </p>
             <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1"><Flag className="w-4 h-4 text-chart-1" /> American Open-Source</span>
