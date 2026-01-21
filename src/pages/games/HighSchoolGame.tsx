@@ -18,6 +18,9 @@ import { Analytics } from "@/utils/analytics";
 import { NeuroMLExportPipeline } from "@/components/NeuroMLExportPipeline";
 import { GitHubPRBot } from "@/components/GitHubPRBot";
 import { PeerReviewRubric } from "@/components/PeerReviewRubric";
+import { EvolutionaryAlgoLab } from "@/components/EvolutionaryAlgoLab";
+import { VRSimPresentation } from "@/components/VRSimPresentation";
+import { CodingChallengeModule } from "@/components/CodingChallengeModule";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface NeuralLayer {
