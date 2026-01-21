@@ -38,6 +38,7 @@ import OpenPlatform from "./pages/OpenPlatform";
 import ChaosSimulation from "./pages/ChaosSimulation";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import DemoScriptPage from "./pages/DemoScriptPage";
+import Help from "./pages/Help";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +85,7 @@ const App = () => (
                 <Route path="/chaos" element={<ChaosSimulation />} />
                 <Route path="/admin" element={<AdminAnalytics />} />
                 <Route path="/demo-script" element={<DemoScriptPage />} />
+                <Route path="/help" element={<Help />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
