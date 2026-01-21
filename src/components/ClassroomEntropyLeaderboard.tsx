@@ -8,9 +8,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useClassroomEntropy, StudentEntropyData } from '@/hooks/useClassroomEntropy';
+import { InterventionPlanner } from '@/components/InterventionPlanner';
 import { 
   TrendingDown, TrendingUp, AlertTriangle, Award, Users, 
-  RefreshCw, Brain, Target, Flame, BookOpen
+  RefreshCw, Brain, Target, Flame, BookOpen, Route
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -26,6 +27,7 @@ export function ClassroomEntropyLeaderboard({ classrooms, className }: Classroom
   );
   const chartRef = useRef<SVGSVGElement>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<StudentEntropyData | null>(null);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -253,13 +255,26 @@ export function ClassroomEntropyLeaderboard({ classrooms, className }: Classroom
                               </div>
                             </div>
 
-                            {/* Entropy Score */}
-                            <div className="text-right">
-                              <div className={cn("flex items-center gap-1 font-semibold", level.color)}>
-                                {level.icon}
-                                {student.calculated_entropy?.toFixed(2) ?? '—'}
+                            {/* Entropy Score & Actions */}
+                            <div className="flex items-center gap-2">
+                              <div className="text-right">
+                                <div className={cn("flex items-center gap-1 font-semibold", level.color)}>
+                                  {level.icon}
+                                  {student.calculated_entropy?.toFixed(2) ?? '—'}
+                                </div>
+                                <div className={cn("text-xs", level.color)}>{level.label}</div>
                               </div>
-                              <div className={cn("text-xs", level.color)}>{level.label}</div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="shrink-0"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedStudent(student);
+                                }}
+                              >
+                                <Route className="w-4 h-4" />
+                              </Button>
                             </div>
                           </div>
 
@@ -292,6 +307,14 @@ export function ClassroomEntropyLeaderboard({ classrooms, className }: Classroom
           </>
         )}
       </CardContent>
+
+      {/* Intervention Planner Dialog */}
+      {selectedStudent && (
+        <InterventionPlanner
+          student={selectedStudent}
+          onClose={() => setSelectedStudent(null)}
+        />
+      )}
     </Card>
   );
 }
