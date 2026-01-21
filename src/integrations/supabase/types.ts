@@ -372,6 +372,42 @@ export type Database = {
         }
         Relationships: []
       }
+      engagement_metrics: {
+        Row: {
+          created_at: string
+          duration_ms: number | null
+          event_data: Json | null
+          event_type: string
+          grade_level: string | null
+          id: string
+          page_path: string | null
+          session_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number | null
+          event_data?: Json | null
+          event_type: string
+          grade_level?: string | null
+          id?: string
+          page_path?: string | null
+          session_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number | null
+          event_data?: Json | null
+          event_type?: string
+          grade_level?: string | null
+          id?: string
+          page_path?: string | null
+          session_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       global_stats: {
         Row: {
           countries_represented: number
@@ -584,6 +620,66 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pilot_feedback: {
+        Row: {
+          additional_notes: string | null
+          bug_reports: string | null
+          categories: string[] | null
+          created_at: string
+          did_achieve_goal: boolean | null
+          ease_of_use: string | null
+          engagement_level: number | null
+          experiment_name: string
+          feature_requests: string | null
+          id: string
+          overall_rating: number
+          scientific_accuracy: number | null
+          session_duration_seconds: number | null
+          user_id: string | null
+          what_could_improve: string | null
+          what_worked_well: string | null
+          would_recommend: boolean | null
+        }
+        Insert: {
+          additional_notes?: string | null
+          bug_reports?: string | null
+          categories?: string[] | null
+          created_at?: string
+          did_achieve_goal?: boolean | null
+          ease_of_use?: string | null
+          engagement_level?: number | null
+          experiment_name: string
+          feature_requests?: string | null
+          id?: string
+          overall_rating: number
+          scientific_accuracy?: number | null
+          session_duration_seconds?: number | null
+          user_id?: string | null
+          what_could_improve?: string | null
+          what_worked_well?: string | null
+          would_recommend?: boolean | null
+        }
+        Update: {
+          additional_notes?: string | null
+          bug_reports?: string | null
+          categories?: string[] | null
+          created_at?: string
+          did_achieve_goal?: boolean | null
+          ease_of_use?: string | null
+          engagement_level?: number | null
+          experiment_name?: string
+          feature_requests?: string | null
+          id?: string
+          overall_rating?: number
+          scientific_accuracy?: number | null
+          session_duration_seconds?: number | null
+          user_id?: string | null
+          what_could_improve?: string | null
+          what_worked_well?: string | null
+          would_recommend?: boolean | null
+        }
+        Relationships: []
       }
       player_ratings: {
         Row: {
@@ -1019,6 +1115,27 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1041,6 +1158,13 @@ export type Database = {
       }
       generate_join_code: { Args: never; Returns: string }
       get_tier_from_elo: { Args: { elo_rating: number }; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       increment_simulation_count: { Args: never; Returns: undefined }
       upsert_classroom_analytics: {
         Args: {
@@ -1056,7 +1180,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1183,6 +1307,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
