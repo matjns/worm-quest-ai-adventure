@@ -2,13 +2,17 @@ import { useState, useEffect, useCallback, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Sparkles, Star, Volume2, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft, Sparkles, Star, Volume2, CheckCircle2, XCircle, Book, Hand, Palette } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useGameStore } from "@/stores/gameStore";
 import { cn } from "@/lib/utils";
 import { Analytics } from "@/utils/analytics";
 import { validateAgainstGroundTruth } from "@/utils/apiResilience";
 import AccessibleWorm3D from "@/components/AccessibleWorm3D";
+import { WormWiggleTouchGame } from "@/components/WormWiggleTouchGame";
+import { ColorConnectQuiz } from "@/components/ColorConnectQuiz";
+import { StorytimeModule } from "@/components/StorytimeModule";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const COLORS = [
   { name: "Red", hsl: "0 84% 60%", emoji: "🔴" },
@@ -171,23 +175,51 @@ export default function PreKGame() {
             </Button>
           </motion.div>
 
-          {/* Activity Tabs */}
-          <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
-            {[
-              { id: "colors", label: "Color Match 🎨", emoji: "🎨" },
-              { id: "wiggle", label: "Make It Wiggle 🐛", emoji: "🐛" },
-              { id: "count", label: "Count Neurons 🔢", emoji: "🔢" },
-            ].map((tab) => (
-              <Button
-                key={tab.id}
-                variant={currentActivity === tab.id ? "default" : "outline"}
-                onClick={() => setCurrentActivity(tab.id as any)}
-                className="flex-shrink-0"
-              >
-                {tab.label}
-              </Button>
-            ))}
-          </div>
+          {/* Activity Tabs - Enhanced with Sensory Games */}
+          <Tabs defaultValue="sensory" className="w-full mb-8">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="sensory" className="gap-2">
+                <Hand className="w-4 h-4" />
+                Sensory Games
+              </TabsTrigger>
+              <TabsTrigger value="classic" className="gap-2">
+                <Star className="w-4 h-4" />
+                Classic Games
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Sensory Games Tab - New Batch 1 Features */}
+            <TabsContent value="sensory" className="space-y-6">
+              <div className="grid gap-6">
+                {/* Worm Wiggle Touch Game */}
+                <WormWiggleTouchGame />
+
+                {/* Color Connect Quiz */}
+                <ColorConnectQuiz />
+
+                {/* Storytime Module */}
+                <StorytimeModule />
+              </div>
+            </TabsContent>
+
+            {/* Classic Games Tab */}
+            <TabsContent value="classic">
+              <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+                {[
+                  { id: "colors", label: "Color Match 🎨", emoji: "🎨" },
+                  { id: "wiggle", label: "Make It Wiggle 🐛", emoji: "🐛" },
+                  { id: "count", label: "Count Neurons 🔢", emoji: "🔢" },
+                ].map((tab) => (
+                  <Button
+                    key={tab.id}
+                    variant={currentActivity === tab.id ? "default" : "outline"}
+                    onClick={() => setCurrentActivity(tab.id as any)}
+                    className="flex-shrink-0"
+                  >
+                    {tab.label}
+                  </Button>
+                ))}
+              </div>
 
           {/* Color Matching Game */}
           {currentActivity === "colors" && (
@@ -296,6 +328,9 @@ export default function PreKGame() {
               <CountingGame onScore={() => { addPoints(10); addXp(5); setScore(s => s + 10); }} />
             </motion.div>
           )}
+
+            </TabsContent>
+          </Tabs>
 
           {/* Fun Fact Display */}
           <motion.div

@@ -35,6 +35,7 @@ import EnterpriseMOOC from "./pages/EnterpriseMOOC";
 import Certifications from "./pages/Certifications";
 import OpenPlatform from "./pages/OpenPlatform";
 import ChaosSimulation from "./pages/ChaosSimulation";
+import AdminAnalytics from "./pages/AdminAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -78,6 +79,7 @@ const App = () => (
                 <Route path="/certifications" element={<Certifications />} />
                 <Route path="/open" element={<OpenPlatform />} />
                 <Route path="/chaos" element={<ChaosSimulation />} />
+                <Route path="/admin" element={<AdminAnalytics />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
