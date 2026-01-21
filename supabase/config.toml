@@ -20,3 +20,21 @@ verify_jwt = false
 
 [functions.hallucination-hunter]
 verify_jwt = false
+
+[functions.neural-qa]
+verify_jwt = false
+
+[functions.adaptive-learning]
+verify_jwt = false
+
+[functions.circuit-coach]
+verify_jwt = false
+
+[functions.experiment-ai]
+verify_jwt = false
+
+[functions.teacher-ai]
+verify_jwt = false
+
+[functions.research-jam]
+verify_jwt = false
