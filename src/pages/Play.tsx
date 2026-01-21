@@ -3,11 +3,12 @@ import { Header } from "@/components/Header";
 import { GameModeCard } from "@/components/GameModeCard";
 import { ProgressTracker } from "@/components/ProgressTracker";
 import { NeuronSimulator } from "@/components/NeuronSimulator";
+import { AutonomousPlayground } from "@/components/AutonomousPlayground";
 import { useGameStore } from "@/stores/gameStore";
 import { motion } from "framer-motion";
-import { Baby, GraduationCap, School, FlaskConical, Globe, ArrowLeft } from "lucide-react";
+import { Baby, GraduationCap, School, FlaskConical, Globe, ArrowLeft, Gamepad2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const gameModes = [
   {
@@ -71,10 +72,15 @@ const gameModes = [
 export default function PlayPage() {
   const { level, xp, xpToNext, totalPoints, achievements, currentMode, setGameMode, addPoints, addXp } = useGameStore();
   const [showSimulator, setShowSimulator] = useState(false);
+  const [activeTab, setActiveTab] = useState<"guided" | "autonomous">("guided");
 
   const handleScoreChange = (score: number) => {
     addPoints(10);
     addXp(5);
+  };
+
+  const handleModeChange = (mode: string) => {
+    setGameMode(mode as any);
   };
 
   return (
@@ -101,7 +107,7 @@ export default function PlayPage() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center mb-12"
+                className="text-center mb-8"
               >
                 <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-4">
                   Choose Your <span className="text-primary">Adventure</span>
@@ -117,7 +123,7 @@ export default function PlayPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="mb-12"
+                className="mb-8"
               >
                 <ProgressTracker
                   level={level}
@@ -128,55 +134,83 @@ export default function PlayPage() {
                 />
               </motion.div>
 
-              {/* Game Mode Cards */}
-              <div className="grid md:grid-cols-2 gap-6 mb-12">
-                {gameModes.map((mode, i) => (
+              {/* Mode Selection Tabs */}
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "guided" | "autonomous")} className="mb-8">
+                <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+                  <TabsTrigger value="guided" className="flex items-center gap-2">
+                    <GraduationCap className="w-4 h-4" />
+                    Guided Learning
+                  </TabsTrigger>
+                  <TabsTrigger value="autonomous" className="flex items-center gap-2">
+                    <Gamepad2 className="w-4 h-4" />
+                    Free Play
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="guided">
+                  {/* Game Mode Cards */}
+                  <div className="grid md:grid-cols-2 gap-6 mb-12">
+                    {gameModes.map((mode, i) => (
+                      <motion.div
+                        key={mode.title}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 + i * 0.1 }}
+                        onClick={() => {
+                          setGameMode(mode.href.split('/').pop() as any);
+                          setShowSimulator(true);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <GameModeCard {...mode} />
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {/* Public Mode */}
                   <motion.div
-                    key={mode.title}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 + i * 0.1 }}
-                    onClick={() => {
-                      setGameMode(mode.href.split('/').pop() as any);
-                      setShowSimulator(true);
-                    }}
-                    className="cursor-pointer"
+                    transition={{ delay: 0.6 }}
+                    className="bg-card border-2 border-foreground p-8 shadow-[4px_4px_0px_hsl(var(--foreground))]"
                   >
-                    <GameModeCard {...mode} />
+                    <div className="flex flex-col md:flex-row items-center gap-6">
+                      <div className="w-20 h-20 bg-foreground flex items-center justify-center border-2 border-foreground">
+                        <Globe className="w-10 h-10 text-background" />
+                      </div>
+                      <div className="flex-1 text-center md:text-left">
+                        <h3 className="text-2xl font-bold uppercase mb-2">Public Explorer</h3>
+                        <p className="text-muted-foreground mb-4">
+                          Free exploration mode — no lessons, no structure, just pure neural playground. 
+                          Build anything, share everything, join community challenges.
+                        </p>
+                      </div>
+                      <Button 
+                        variant="brutal" 
+                        size="lg"
+                        onClick={() => {
+                          setGameMode("public");
+                          setShowSimulator(true);
+                        }}
+                      >
+                        Enter Sandbox
+                      </Button>
+                    </div>
                   </motion.div>
-                ))}
-              </div>
+                </TabsContent>
 
-              {/* Public Mode */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-                className="bg-card border-2 border-foreground p-8 shadow-[4px_4px_0px_hsl(var(--foreground))]"
-              >
-                <div className="flex flex-col md:flex-row items-center gap-6">
-                  <div className="w-20 h-20 bg-foreground flex items-center justify-center border-2 border-foreground">
-                    <Globe className="w-10 h-10 text-background" />
-                  </div>
-                  <div className="flex-1 text-center md:text-left">
-                    <h3 className="text-2xl font-bold uppercase mb-2">Public Explorer</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Free exploration mode — no lessons, no structure, just pure neural playground. 
-                      Build anything, share everything, join community challenges.
-                    </p>
-                  </div>
-                  <Button 
-                    variant="brutal" 
-                    size="lg"
-                    onClick={() => {
-                      setGameMode("public");
-                      setShowSimulator(true);
-                    }}
+                <TabsContent value="autonomous">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                   >
-                    Enter Sandbox
-                  </Button>
-                </div>
-              </motion.div>
+                    <AutonomousPlayground 
+                      initialMode="sandbox"
+                      onModeChange={handleModeChange}
+                    />
+                  </motion.div>
+                </TabsContent>
+              </Tabs>
             </>
           ) : (
             /* Simulator View */
