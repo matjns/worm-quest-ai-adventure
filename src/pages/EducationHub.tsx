@@ -4,10 +4,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Header } from "@/components/Header";
 import { EducationModuleCard } from "@/components/EducationModuleCard";
 import { ModuleLessonPlayer } from "@/components/ModuleLessonPlayer";
+import { KeynoteGenerator } from "@/components/KeynoteGenerator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
@@ -24,6 +25,7 @@ import {
   Sparkles,
   LogIn,
   Cloud,
+  Presentation,
 } from "lucide-react";
 import {
   PREK_MODULES,
@@ -74,6 +76,7 @@ const gradeEmojis: Record<Exclude<GradeFilter, "all">, string> = {
 
 export default function EducationHub() {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("modules");
   const [gradeFilter, setGradeFilter] = useState<GradeFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("default");
@@ -190,7 +193,7 @@ export default function EducationHub() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-8"
         >
           <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-4">
             <GraduationCap className="w-4 h-4" />
@@ -204,6 +207,25 @@ export default function EducationHub() {
             From colorful Pre-K activities to advanced AI optimization.
           </p>
         </motion.div>
+
+        {/* Main Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
+            <TabsTrigger value="modules" className="gap-2">
+              <BookOpen className="w-4 h-4" />
+              Modules
+            </TabsTrigger>
+            <TabsTrigger value="keynote" className="gap-2">
+              <Presentation className="w-4 h-4" />
+              Keynote Generator
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="keynote" className="mt-6">
+            <KeynoteGenerator />
+          </TabsContent>
+
+          <TabsContent value="modules" className="mt-6">
 
         {/* Stats Bar */}
         <motion.div
@@ -446,6 +468,8 @@ export default function EducationHub() {
             </Button>
           </div>
         </motion.div>
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
