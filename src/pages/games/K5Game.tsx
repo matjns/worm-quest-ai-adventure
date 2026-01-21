@@ -2,7 +2,7 @@ import { useState, useEffect, Suspense } from "react";
 import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, School, Sparkles, Brain, Zap, Trophy } from "lucide-react";
+import { ArrowLeft, School, Sparkles, Brain, Zap, Trophy, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useGameStore } from "@/stores/gameStore";
 import { QuizCard } from "@/components/QuizCard";
@@ -17,6 +17,7 @@ import { StorytimeModule } from "@/components/StorytimeModule";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { KidsCertSystem } from "@/components/KidsCertSystem";
 
 const TUTORIAL_STEPS = [
   {
@@ -173,9 +174,13 @@ export default function K5Game() {
 
           {/* Main Tabs */}
           <Tabs defaultValue="classic" className="w-full mb-8">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="classic">Classic Activities</TabsTrigger>
-              <TabsTrigger value="sensory">Sensory Games</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 mb-4">
+              <TabsTrigger value="classic">Activities</TabsTrigger>
+              <TabsTrigger value="sensory">Sensory</TabsTrigger>
+              <TabsTrigger value="stars" className="gap-1">
+                <Award className="w-4 h-4" />
+                Stars
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="sensory" className="space-y-6">
@@ -357,6 +362,11 @@ export default function K5Game() {
           )}
 
           {/* Achievements Preview */}
+            </TabsContent>
+
+            {/* Stars/Certs Tab */}
+            <TabsContent value="stars">
+              <KidsCertSystem ageGroup="k5" />
             </TabsContent>
           </Tabs>
 

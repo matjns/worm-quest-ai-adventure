@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { DashboardCertSystem } from "@/components/DashboardCertSystem";
 import { AdminUserManagement } from "@/components/AdminUserManagement";
 import { AdminTicketSystem } from "@/components/AdminTicketSystem";
+import { useTicketNotifications } from "@/hooks/useTicketNotifications";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
 import {
   Users,
@@ -66,6 +67,9 @@ const CHART_COLORS = ["#ec4899", "#14b8a6", "#8b5cf6", "#f59e0b", "#3b82f6"];
 export default function AdminAnalytics() {
   const { user, isAuthenticated } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
+  
+  // Enable real-time ticket notifications for admins
+  useTicketNotifications();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [metrics, setMetrics] = useState<RetentionMetrics>({
