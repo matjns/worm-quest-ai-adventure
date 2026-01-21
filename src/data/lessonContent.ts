@@ -41,9 +41,9 @@ export const LESSON_CONTENT: LessonContent[] = [
     sections: [
       {
         title: "What is C. elegans?",
-        content: "C. elegans (Caenorhabditis elegans) is a tiny, transparent roundworm about 1mm long — roughly the width of a pencil tip. Despite being smaller than a grain of rice, this microscopic creature has taught scientists more about how brains work than almost any other organism on Earth!",
+        content: "C. elegans (Caenorhabditis elegans) is a tiny, transparent roundworm about 1mm long — roughly the width of a pencil tip. Despite being smaller than a grain of rice, this microscopic creature has taught scientists more about how brains work than almost any other organism on Earth! And here's the amazing part: many of the same genes in this worm are also in YOUR body, controlling similar processes!",
         videoUrl: "https://www.youtube.com/embed/BAg8d2pNI4k",
-        funFact: "C. elegans lives in soil and eats bacteria. You could fit 10 of them on your fingernail!"
+        funFact: "C. elegans lives in soil and eats bacteria. You could fit 10 of them on your fingernail! And 60-80% of human genes have a worm equivalent!"
       },
       {
         title: "Why Scientists Love This Worm",
@@ -110,8 +110,8 @@ export const LESSON_CONTENT: LessonContent[] = [
     sections: [
       {
         title: "Neurons: The Brain's Messengers",
-        content: "Neurons are special cells that carry messages through your body using electricity and chemicals. Think of them like a relay race — one neuron passes a message to the next, then the next, until the message reaches its destination. In C. elegans, just 302 neurons control EVERYTHING: movement, eating, mating, sensing touch, smell, and more!",
-        funFact: "A single neuron can connect to thousands of other neurons!"
+        content: "Neurons are special cells that carry messages through your body using electricity and chemicals. Think of them like a relay race — one neuron passes a message to the next, then the next, until the message reaches its destination. Right now, as you read this sentence, billions of YOUR neurons are firing to process these words, move your eyes, and store memories! In C. elegans, just 302 neurons control EVERYTHING: movement, eating, mating, sensing touch, smell, and more!",
+        funFact: "A single neuron can connect to thousands of other neurons! Your brain fires about 11 million bits of information per second!"
       },
       {
         title: "Types of Neurons in C. elegans",
@@ -188,7 +188,7 @@ export const LESSON_CONTENT: LessonContent[] = [
       },
       {
         title: "From Worm to Human",
-        content: "Scientists study the worm connectome to understand principles that apply to ALL brains, including humans. Many diseases (Alzheimer's, Parkinson's) involve broken neural connections. By understanding how the simple worm brain works, we get clues about fixing human brain disorders!"
+        content: "Scientists study the worm connectome to understand principles that apply to ALL brains, including yours! Many diseases (Alzheimer's, Parkinson's, depression) involve broken neural connections. By understanding how the simple worm brain works, we get clues about fixing human brain disorders. If you or someone you love has ever struggled with a brain-related condition, research on this tiny worm might someday help!"
       }
     ],
     questions: [
@@ -254,7 +254,7 @@ export const LESSON_CONTENT: LessonContent[] = [
       },
       {
         title: "Excitation and Inhibition",
-        content: "Synapses can either excite (activate) or inhibit (quiet down) the next neuron:\n\n• EXCITATORY: 'Wake up! Pass this message!'\n• INHIBITORY: 'Stay calm, don't fire.'\n\nThe worm's brain balances these to produce smooth, controlled movements. Too much excitation = seizures. Too much inhibition = paralysis."
+        content: "Synapses can either excite (activate) or inhibit (quiet down) the next neuron:\n\n• EXCITATORY: 'Wake up! Pass this message!'\n• INHIBITORY: 'Stay calm, don't fire.'\n\nThe worm's brain balances these to produce smooth, controlled movements. Too much excitation = seizures. Too much inhibition = paralysis. YOUR brain does this balancing act every second — it's why you can focus on reading this instead of being distracted by every sound and sensation around you!"
       }
     ],
     questions: [
@@ -310,9 +310,9 @@ export const LESSON_CONTENT: LessonContent[] = [
     sections: [
       {
         title: "The Worm's Senses",
-        content: "C. elegans can detect touch, temperature, chemicals (smell/taste), oxygen levels, and even light — all with just 86 sensory neurons! The worm's 'nose' is at its head, where specialized amphid neurons detect chemicals in the environment. This helps the worm find food and avoid danger.",
+        content: "C. elegans can detect touch, temperature, chemicals (smell/taste), oxygen levels, and even light — all with just 86 sensory neurons! The worm's 'nose' is at its head, where specialized amphid neurons detect chemicals in the environment. This is the same basic principle your nose uses! When you smell cookies baking or notice someone's perfume, you're doing chemosensation just like the worm!",
         videoUrl: "https://www.youtube.com/embed/oE3sD61QPy4",
-        funFact: "C. elegans can smell over 1,000 different odors!"
+        funFact: "C. elegans can smell over 1,000 different odors! Humans can detect over 1 trillion different scents!"
       },
       {
         title: "Touch Neurons: ALM, AVM, PLM",
@@ -378,9 +378,9 @@ export const LESSON_CONTENT: LessonContent[] = [
     sections: [
       {
         title: "The Worm's Movement System",
-        content: "C. elegans moves by creating waves along its body — like a swimming snake. This requires precise coordination of 95 body wall muscles controlled by 113 motor neurons. The worm can move forward, backward, turn, and even swim (when in liquid)!",
+        content: "C. elegans moves by creating waves along its body — like a swimming snake. This requires precise coordination of 95 body wall muscles controlled by 113 motor neurons. The worm can move forward, backward, turn, and even swim (when in liquid)! The same basic principle — motor neurons controlling muscles — is how YOU walk, write, type, and do everything that involves movement!",
         videoUrl: "https://www.youtube.com/embed/xt98n3E9yp4",
-        funFact: "The worm moves faster backward than forward — useful for escape!"
+        funFact: "The worm moves faster backward than forward — useful for escape! Similarly, you can react faster to danger than to planned movement!"
       },
       {
         title: "A-type vs B-type Motor Neurons",
@@ -446,8 +446,8 @@ export const LESSON_CONTENT: LessonContent[] = [
     sections: [
       {
         title: "From Worms to Computers",
-        content: "Artificial Neural Networks (ANNs) are computer programs inspired by biological brains! Just like the worm's neurons pass signals through synapses, artificial neurons pass numbers through weighted connections. The same principles that make C. elegans work are behind ChatGPT, image recognition, and self-driving cars!",
-        funFact: "The first artificial neuron was invented in 1943 — before the first computer!"
+        content: "Artificial Neural Networks (ANNs) are computer programs inspired by biological brains! Just like the worm's neurons pass signals through synapses, artificial neurons pass numbers through weighted connections. The same principles that make C. elegans work are behind ChatGPT, image recognition, self-driving cars, and the recommendation algorithms that suggest your next video or song! Understanding this helps you understand the AI that's already shaping your daily life.",
+        funFact: "The first artificial neuron was invented in 1943 — before the first computer! Now AI affects almost every app you use!"
       },
       {
         title: "How Artificial Neurons Work",
@@ -456,7 +456,7 @@ export const LESSON_CONTENT: LessonContent[] = [
       },
       {
         title: "Learning = Changing Weights",
-        content: "Both biological and artificial networks learn by changing connection weights:\n\n• In REAL brains: Synapses get stronger with use (Hebbian learning)\n• In AI: Weights adjust to reduce errors (backpropagation)\n\nWhen you 'train' an AI, you're adjusting millions of weights until it gives correct answers — just like how the worm's brain was shaped by millions of years of evolution!"
+        content: "Both biological and artificial networks learn by changing connection weights:\n\n• In REAL brains: Synapses get stronger with use (Hebbian learning) — this is why practice makes you better at things!\n• In AI: Weights adjust to reduce errors (backpropagation)\n\nWhen you 'train' an AI, you're adjusting millions of weights until it gives correct answers — just like how the worm's brain was shaped by millions of years of evolution, and how YOUR brain changes every time you learn something new!"
       }
     ],
     questions: [
@@ -523,7 +523,7 @@ export const LESSON_CONTENT: LessonContent[] = [
       },
       {
         title: "The Future: Digital Life",
-        content: "OpenWorm's Mission: 'Simulate organisms to decode biology.' Starting with C. elegans, the goal is to create accurate biological simulations. Why? Because digital organisms can:\n\n• Test drugs without real animals\n• Model diseases like Alzheimer's\n• Accelerate brain-computer interface development\n• Democratize biological knowledge\n\nYou're learning the foundation of a revolution in biology and AI!",
+        content: "OpenWorm's Mission: 'Simulate organisms to decode biology.' Starting with C. elegans, the goal is to create accurate biological simulations. Why does this matter for YOUR life? Because digital organisms can:\n\n• Test drugs without real animals — making new medicines safer and faster\n• Model diseases like Alzheimer's — potentially helping your grandparents or future you\n• Accelerate brain-computer interface development — imagine controlling devices with your thoughts\n• Democratize biological knowledge — anyone anywhere can study biology\n\nYou're learning the foundation of a revolution that will affect medicine, technology, and human potential in YOUR lifetime!",
         videoUrl: "https://www.youtube.com/embed/vTk-gS5nP_0"
       }
     ],
