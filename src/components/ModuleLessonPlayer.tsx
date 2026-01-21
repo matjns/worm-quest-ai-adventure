@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { BrainActivityOverlay } from "@/components/BrainActivityOverlay";
+import { MyStoryJournal } from "@/components/MyStoryJournal";
 import {
   ArrowLeft,
   ArrowRight,
@@ -25,7 +26,7 @@ interface ModuleLessonPlayerProps {
   onExit: () => void;
 }
 
-type Phase = "warmup" | "learning" | "wrapup" | "complete";
+type Phase = "warmup" | "learning" | "wrapup" | "journal" | "complete";
 
 export function ModuleLessonPlayer({
   module,
@@ -363,13 +364,31 @@ export function ModuleLessonPlayer({
                 </div>
 
                 <Button
-                  onClick={handleFinalComplete}
+                  onClick={() => setPhase("journal")}
                   className="w-full"
                   size="lg"
                 >
-                  Complete Module
-                  <CheckCircle2 className="w-4 h-4 ml-2" />
+                  Continue to Journal
+                  <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
+              </motion.div>
+            )}
+
+            {/* Journal Phase */}
+            {phase === "journal" && (
+              <motion.div
+                key="journal"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <MyStoryJournal
+                  moduleId={module.id}
+                  moduleTitle={module.title}
+                  ageGroup={getAgeGroupFromGrade(module.gradeLevel)}
+                  onComplete={handleFinalComplete}
+                  onSkip={handleFinalComplete}
+                />
               </motion.div>
             )}
 
