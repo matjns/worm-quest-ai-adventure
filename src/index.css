@@ -179,10 +179,44 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 1400px;
+    margin: 0 auto;
   }
 
+  /* Hide excessive HR elements - use margins instead */
+  hr {
+    display: none;
+  }
+
+  /* Subtle section divider when needed */
+  .section-divider {
+    border-top: 1px solid hsl(var(--border) / 0.1);
+    margin: 1.5rem 0;
+  }
+
+  /* Headings: Bold, hierarchical with proper spacing */
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold tracking-tight;
+    margin-bottom: 1.5rem;
+  }
+
+  h1 { font-size: 2.5rem; }
+  h2 { font-size: 2rem; }
+  h3 { font-size: 1.5rem; }
+
+  /* Paragraphs: Airy spacing */
+  p {
+    margin-bottom: 1.5rem;
+  }
+
+  /* High-res images: Crisp and polished */
+  img, video {
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 0.5rem;
   }
 }
 
