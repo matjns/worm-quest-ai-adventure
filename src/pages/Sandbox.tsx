@@ -8,9 +8,10 @@ import { ExODashboard } from '@/components/ExODashboard';
 import { MutagenesisMOOC } from '@/components/MutagenesisMOOC';
 import { AIPromptPlayground } from '@/components/AIPromptPlayground';
 import { SimToRealGame } from '@/components/SimToRealGame';
+import { AdaptiveSynapsePanel } from '@/components/AdaptiveSynapsePanel';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Gamepad2, FlaskConical, Users, Brain, Network, Sparkles, ArrowRight } from 'lucide-react';
+import { Gamepad2, FlaskConical, Users, Brain, Network, Sparkles, ArrowRight, Zap } from 'lucide-react';
 
 export default function SandboxPage() {
   const [activeTab, setActiveTab] = useState('playground');
@@ -90,6 +91,7 @@ export default function SandboxPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            <AdaptiveSynapsePanel />
             <SimToRealGame />
             <ExODashboard />
           </div>

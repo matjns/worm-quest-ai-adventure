@@ -41,3 +41,9 @@ verify_jwt = false
 
 [functions.keynote-generator]
 verify_jwt = false
+
+[functions.entropy-analysis]
+verify_jwt = false
+
+[functions.profile-builder]
+verify_jwt = false
