@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Brain, Menu, X, Trophy, BookOpen, Users, Settings, Gamepad2, LogIn, User, GraduationCap, BarChart3, FlaskConical, Award, Code2, Play, Puzzle, FileText, GitBranch, Zap, ChevronDown, Activity, Shield, Presentation, HelpCircle, Ticket } from "lucide-react";
+import { Brain, Menu, X, Trophy, BookOpen, Users, Settings, Gamepad2, LogIn, User, GraduationCap, BarChart3, FlaskConical, Award, Code2, Play, Puzzle, FileText, GitBranch, Zap, ChevronDown, Activity, Shield, Presentation, HelpCircle, Ticket, Heart } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import neuroQuestLogo from "@/assets/neuroquest-logo.png";
@@ -243,6 +243,12 @@ export function Header() {
                         <Link to="/help" className="w-full">
                           <HelpCircle className="w-4 h-4 mr-2" />
                           Help & Support
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/parent" className="w-full">
+                          <Heart className="w-4 h-4 mr-2" />
+                          Parent Portal
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
