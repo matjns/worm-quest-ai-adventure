@@ -6,9 +6,10 @@ import { ExperimentLab } from '@/components/ExperimentLab';
 import { NeuralQAPanel } from '@/components/NeuralQAPanel';
 import { ExODashboard } from '@/components/ExODashboard';
 import { MutagenesisMOOC } from '@/components/MutagenesisMOOC';
+import { AIPromptPlayground } from '@/components/AIPromptPlayground';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Gamepad2, FlaskConical, Users, Brain, Network } from 'lucide-react';
+import { Gamepad2, FlaskConical, Users, Brain, Network, Sparkles } from 'lucide-react';
 
 export default function SandboxPage() {
   const [activeTab, setActiveTab] = useState('playground');
@@ -41,22 +42,26 @@ export default function SandboxPage() {
           {/* Main content area */}
           <div className="lg:col-span-2">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-4 mb-6">
+              <TabsList className="grid w-full grid-cols-5 mb-6">
                 <TabsTrigger value="playground" className="gap-2">
                   <Gamepad2 className="w-4 h-4" />
                   Playground
                 </TabsTrigger>
                 <TabsTrigger value="experiments" className="gap-2">
                   <FlaskConical className="w-4 h-4" />
-                  Experiment Lab
+                  Experiments
                 </TabsTrigger>
                 <TabsTrigger value="connectome" className="gap-2">
                   <Network className="w-4 h-4" />
                   Connectome
                 </TabsTrigger>
+                <TabsTrigger value="prompts" className="gap-2">
+                  <Sparkles className="w-4 h-4" />
+                  AI Prompts
+                </TabsTrigger>
                 <TabsTrigger value="qa" className="gap-2">
                   <Brain className="w-4 h-4" />
-                  Neural Q&A
+                  Q&A
                 </TabsTrigger>
               </TabsList>
               
@@ -70,6 +75,10 @@ export default function SandboxPage() {
 
               <TabsContent value="connectome">
                 <MutagenesisMOOC />
+              </TabsContent>
+
+              <TabsContent value="prompts">
+                <AIPromptPlayground />
               </TabsContent>
 
               <TabsContent value="qa">
