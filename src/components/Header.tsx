@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Brain, Menu, X, Trophy, BookOpen, Users, Settings, Gamepad2, LogIn, User, GraduationCap, BarChart3, FlaskConical, Award, Code2, Play, Puzzle, FileText, GitBranch, Zap, ChevronDown, Activity, Shield, Presentation } from "lucide-react";
+import { Brain, Menu, X, Trophy, BookOpen, Users, Settings, Gamepad2, LogIn, User, GraduationCap, BarChart3, FlaskConical, Award, Code2, Play, Puzzle, FileText, GitBranch, Zap, ChevronDown, Activity, Shield, Presentation, HelpCircle } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import neuroQuestLogo from "@/assets/neuroquest-logo.png";
@@ -227,6 +227,12 @@ export function Header() {
                           Demo Script
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/help" className="w-full">
+                          <HelpCircle className="w-4 h-4 mr-2" />
+                          Help & Support
+                        </Link>
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => signOut()}>
                         <LogIn className="w-4 h-4 mr-2" />
@@ -318,6 +324,12 @@ export function Header() {
                     <Button variant="ghost" className="w-full justify-start">
                       <Settings className="w-4 h-4 mr-2" />
                       Settings
+                    </Button>
+                  </Link>
+                  <Link to="/help" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="ghost" className="w-full justify-start">
+                      <HelpCircle className="w-4 h-4 mr-2" />
+                      Help & Support
                     </Button>
                   </Link>
                   <Button variant="ghost" className="w-full justify-start" onClick={() => { signOut(); setMobileMenuOpen(false); }}>
