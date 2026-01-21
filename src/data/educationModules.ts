@@ -196,7 +196,7 @@ export const PREK_MODULES: EducationModule[] = [
     ],
     warmUp: {
       question: "Do you know the difference between real and pretend?",
-      discussion: "Sometimes stories are pretend, like fairy tales. Sometimes things are true, like the worm wiggling! Let's learn how to tell the difference!",
+      discussion: "Sometimes stories are pretend, like fairy tales. Sometimes things are true, like the worm wiggling! Finding what's REALLY true is becoming very hard—even for grown-ups! Let's learn how to tell the difference!",
     },
     steps: [
       {
@@ -211,7 +211,7 @@ export const PREK_MODULES: EducationModule[] = [
       {
         id: "step2",
         title: "Computers Can Guess Wrong",
-        script: "You see a computer trying to guess! It says 'worms have 1000 legs.' Is that true? NO! Worms have ZERO legs! Even computers can be wrong. You can say 'Let me check that!'",
+        script: "You see a computer trying to guess! It says 'worms have 1000 legs.' Is that true? NO! Worms have ZERO legs! Even computers can be wrong. Finding what's true is getting harder every day—but YOU can learn how! Say 'Let me check that!'",
         interactionType: "tap",
         visualCue: "Wrong fact with correction animation",
         successCriteria: "Child identifies the mistake",
@@ -220,7 +220,7 @@ export const PREK_MODULES: EducationModule[] = [
       {
         id: "step3",
         title: "Ask a Grown-Up",
-        script: "You learned something important! When a computer tells you something, you can ask 'Is that really true?' You can check with a grown-up or a book. That's being a Truth Detective!",
+        script: "You learned something important! When a computer tells you something, you can ask 'Is that really true?' You can check with a grown-up or a book. That's being a Truth Detective! This skill will be one of the most important things you ever learn!",
         interactionType: "observe",
         visualCue: "Badge earning animation",
         successCriteria: "Child understands to verify information",
@@ -228,8 +228,8 @@ export const PREK_MODULES: EducationModule[] = [
       },
     ],
     wrapUp: {
-      review: "You learned that even computers can be wrong! Good Truth Detectives always ask 'Is that really true?' and check with grown-ups!",
-      realWorldConnection: "When you watch videos or play games, sometimes things are pretend. It's smart to ask if something is real!",
+      review: "You learned that even computers can be wrong! Good Truth Detectives always ask 'Is that really true?' Finding the truth is becoming one of the hardest—and most important—things people have to do!",
+      realWorldConnection: "When you watch videos or play games, sometimes things are pretend. As you grow up, knowing what's true will be super important for you, your friends, your town, and the whole world!",
       takeHome: "Ask a grown-up: 'How do you know if something is true?' Share what you learn!",
     },
     assessment: {
@@ -504,8 +504,8 @@ export const K5_MODULES: EducationModule[] = [
       },
     ],
     wrapUp: {
-      review: "You learned that AI can be confused because it learned from everything on the internet—good and bad! The Deep Truth Prompt helps AI give more honest, complete answers!",
-      realWorldConnection: "When you search online or ask voice assistants, you can use these ideas! Ask for 'the strongest version of each side' to get better information!",
+      review: "You learned that AI can be confused because it learned from everything on the internet—good and bad! The Deep Truth Prompt helps AI give more honest, complete answers! Finding truth is becoming one of the HARDEST problems in the world!",
+      realWorldConnection: "Knowing what's true will soon be the most important skill for YOU, your family, your community, our whole country, and everyone on Earth! When you search online or ask voice assistants, use these ideas! Ask for 'the strongest version of each side' to get better information!",
       takeHome: "Try the Deep Truth Prompt with a voice assistant at home. Ask about something you're curious about, then add 'Give me the deep truth!'",
     },
     assessment: {
@@ -788,7 +788,7 @@ export const MIDDLE_MODULES: EducationModule[] = [
     ],
     warmUp: {
       question: "Have you ever seen AI confidently say something completely wrong?",
-      discussion: "AI systems were trained on billions of webpages—including misinformation, debates, and junk. At Thanksgiving 2025, researcher Brian Roemmele published a 'Deep Truth Prompt' that revolutionized how we get honest answers from AI. Why didn't anyone think of this before? Let's investigate!",
+      discussion: "Identifying what's TRUE may soon become the single most challenging problem facing individuals, communities, nations, and all of humanity. AI systems were trained on billions of webpages—including misinformation, debates, and junk. At Thanksgiving 2025, researcher Brian Roemmele published a 'Deep Truth Prompt' that revolutionized how we get honest answers from AI. Why didn't anyone think of this before? Let's investigate!",
     },
     steps: [
       {
@@ -830,7 +830,7 @@ export const MIDDLE_MODULES: EducationModule[] = [
       {
         id: "step5",
         title: "AI Safety Implications",
-        script: "You understand why this matters! AI affects decisions at individual, local, national, and global scales. Write a brief analysis: What could go wrong if AI systems optimize for 'helpfulness' over truth?",
+        script: "You understand why this matters! IDENTIFYING TRUTH may soon become the most challenging problem facing individuals, communities, nations, and humanity itself. AI affects decisions at every scale. Write a brief analysis: What could go wrong if AI systems optimize for 'helpfulness' over truth?",
         interactionType: "build",
         visualCue: "Essay response with rubric",
         successCriteria: "Student articulates safety concerns",
@@ -839,7 +839,7 @@ export const MIDDLE_MODULES: EducationModule[] = [
     ],
     wrapUp: {
       review: "You learned that AI truth-seeking requires intentional prompting because AI was trained on the messy internet. The Deep Truth Prompt—asking for steel man arguments, uncertainty acknowledgment, and source citation—helps counteract training biases!",
-      realWorldConnection: "AI safety is critical at every level: personal (health decisions), local (community info), national (policy), and global (climate science). You now have tools to get more truthful AI responses!",
+      realWorldConnection: "Identifying truth may soon become the most challenging problem you, your community, your country, and humanity will face. AI safety is critical at every level: personal (health decisions), local (community info), national (policy), and global (climate science). You now have essential tools for navigating this challenge!",
       takeHome: "Use the Deep Truth Prompt with your favorite AI. Compare responses with and without it. Document the differences!",
     },
     assessment: {
@@ -1040,7 +1040,7 @@ export const HIGH_MODULES: EducationModule[] = [
     ],
     warmUp: {
       question: "At Thanksgiving 2025, Brian Roemmele published the Deep Truth Prompt. Why do you think it took so long for someone to develop this?",
-      discussion: "AI chatbots existed since 2022 with ChatGPT. Yet for 3 years, no one systematically addressed the truth problem. Consider: AI companies optimized for engagement, helpfulness, and avoiding controversy—not necessarily truth. This lesson explores why and how to fix it.",
+      discussion: "IDENTIFYING TRUTH may soon become the single most challenging problem facing individuals, communities, nations, and humanity as a whole. AI chatbots existed since 2022 with ChatGPT. Yet for 3 years, no one systematically addressed the truth problem. Consider: AI companies optimized for engagement, helpfulness, and avoiding controversy—not necessarily truth. This lesson explores why and how to fix it.",
     },
     steps: [
       {
@@ -1082,7 +1082,7 @@ export const HIGH_MODULES: EducationModule[] = [
       {
         id: "step5",
         title: "AI Safety at Scale",
-        script: "You're writing a policy brief. AI affects truth at every scale: individual (health decisions), local (community planning), national (policy debates), global (climate action). How could systematic truth-seeking prompts be implemented? What are the challenges?",
+        script: "You're writing a policy brief. IDENTIFYING TRUTH may soon become the most challenging problem at every scale of human organization: individual (health, finance, relationships), community (local governance, schools), national (policy, elections, security), and global (climate, pandemics, international cooperation). How could systematic truth-seeking prompts be implemented? What are the challenges?",
         interactionType: "build",
         visualCue: "Policy brief template",
         successCriteria: "Student proposes implementable solutions",
@@ -1090,8 +1090,8 @@ export const HIGH_MODULES: EducationModule[] = [
       },
     ],
     wrapUp: {
-      review: "You analyzed why truth-seeking in AI was neglected (misaligned incentives), how the Deep Truth Prompt addresses it (steel man + uncertainty + sources), and the stakes (AI influences decisions at all scales).",
-      realWorldConnection: "As AI becomes integrated into healthcare, law, education, and governance, the techniques you learned aren't just academic—they're essential civic skills. You're among the first generation equipped to demand truthful AI!",
+      review: "You analyzed why truth-seeking in AI was neglected (misaligned incentives), how the Deep Truth Prompt addresses it (steel man + uncertainty + sources), and the stakes (AI influences decisions at all scales). IDENTIFYING TRUTH may soon become the most challenging problem facing humanity.",
+      realWorldConnection: "As AI becomes integrated into healthcare, law, education, and governance, the techniques you learned aren't just academic—they're essential survival skills for individuals, communities, nations, and civilization itself. You're among the first generation equipped to demand truthful AI!",
       takeHome: "Write a 500-word essay: 'Why the Deep Truth Prompt matters for democracy.' Include examples of how AI-influenced misinformation could affect civic decisions.",
     },
     assessment: {
