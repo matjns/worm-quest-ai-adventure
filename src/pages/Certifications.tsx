@@ -10,9 +10,10 @@ import {
   Award, CheckCircle2, Lock, Star, Trophy, Linkedin,
   Shield, Target, Zap, Brain, BookOpen, GraduationCap,
   BadgeCheck, ExternalLink, Clock, Users, DollarSign,
-  ChevronRight, Sparkles, TrendingUp, FileText
+  ChevronRight, Sparkles, TrendingUp, FileText, BarChart3
 } from "lucide-react";
 import { Header } from "@/components/Header";
+import { DashboardCertSystem } from "@/components/DashboardCertSystem";
 import { toast } from "sonner";
 import { useGameStore } from "@/stores/gameStore";
 
@@ -334,10 +335,14 @@ export default function Certifications() {
         </motion.div>
 
         <Tabs defaultValue="credentials" className="space-y-8">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-3">
+          <TabsList className="grid w-full max-w-lg mx-auto grid-cols-4">
             <TabsTrigger value="credentials">Credentials</TabsTrigger>
             <TabsTrigger value="paths">Career Paths</TabsTrigger>
             <TabsTrigger value="pricing">Pricing</TabsTrigger>
+            <TabsTrigger value="entropy" className="gap-1">
+              <BarChart3 className="w-4 h-4" />
+              Entropy
+            </TabsTrigger>
           </TabsList>
 
           {/* Micro-Credentials Grid */}
@@ -692,6 +697,18 @@ export default function Certifications() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Entropy Tracking Tab */}
+          <TabsContent value="entropy" className="space-y-6">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold mb-2">Knowledge Entropy Tracker</h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Track your learning progress and identify knowledge gaps across all certification domains.
+                Achieve a low entropy score to unlock the Worm Warrior badge!
+              </p>
+            </div>
+            <DashboardCertSystem className="border-2" />
           </TabsContent>
         </Tabs>
 

@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { DashboardCertSystem } from "@/components/DashboardCertSystem";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
 import {
   Users,
@@ -26,6 +27,7 @@ import {
   Shield,
   BarChart3,
   RefreshCw,
+  Trophy,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -437,10 +439,14 @@ export default function AdminAnalytics() {
         </div>
 
         <Tabs defaultValue="engagement" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="engagement">Engagement Trends</TabsTrigger>
             <TabsTrigger value="feedback">Feedback Analysis</TabsTrigger>
             <TabsTrigger value="distribution">Grade Distribution</TabsTrigger>
+            <TabsTrigger value="entropy" className="gap-1">
+              <Trophy className="w-4 h-4" />
+              Entropy
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="engagement">
@@ -669,6 +675,20 @@ export default function AdminAnalytics() {
                   </div>
                 </CardContent>
               </Card>
+            </div>
+          </TabsContent>
+
+          {/* Entropy & Certifications Tab */}
+          <TabsContent value="entropy">
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-primary" />
+                <h2 className="text-xl font-bold">Organization-Wide Entropy Tracking</h2>
+              </div>
+              <p className="text-muted-foreground">
+                Monitor knowledge gaps and certification progress across all learners in the platform.
+              </p>
+              <DashboardCertSystem className="border-2" />
             </div>
           </TabsContent>
         </Tabs>

@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { ArrowLeft, FlaskConical, Brain, Zap, BarChart3, Lightbulb, RefreshCw, Download, Save, Dna, Users, Cpu } from "lucide-react";
+import { ArrowLeft, FlaskConical, Brain, Zap, BarChart3, Lightbulb, RefreshCw, Download, Save, Dna, Users, Cpu, Trophy } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useGameStore } from "@/stores/gameStore";
 import { NeuronSimulator } from "@/components/NeuronSimulator";
@@ -19,6 +19,7 @@ import { withRetry, getResilienceMessage } from "@/utils/apiResilience";
 import { NeuralNetBuilderActivity } from "@/components/NeuralNetBuilderActivity";
 import { MutationMazeGame } from "@/components/MutationMazeGame";
 import { GroupDebateApp } from "@/components/GroupDebateApp";
+import { DashboardCertSystem } from "@/components/DashboardCertSystem";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Hypothesis {
@@ -262,9 +263,13 @@ export default function MiddleSchoolGame() {
 
           {/* Activity Tabs - Enhanced with Batch 2 Features */}
           <Tabs defaultValue="classic" className="w-full mb-8">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsList className="grid w-full grid-cols-3 mb-4">
               <TabsTrigger value="classic">Classic Lab</TabsTrigger>
               <TabsTrigger value="advanced">Advanced Builds</TabsTrigger>
+              <TabsTrigger value="certs" className="gap-1">
+                <Trophy className="w-4 h-4" />
+                Certs
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="advanced" className="space-y-6">
@@ -276,6 +281,11 @@ export default function MiddleSchoolGame() {
               
               {/* Group Debate - AI Ethics */}
               <GroupDebateApp />
+            </TabsContent>
+
+            {/* Certifications Tab */}
+            <TabsContent value="certs" className="space-y-6">
+              <DashboardCertSystem />
             </TabsContent>
 
             <TabsContent value="classic">
