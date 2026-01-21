@@ -7,6 +7,7 @@ import { ThemeProvider } from "next-themes";
 import { CelebrationProvider } from "@/contexts/CelebrationContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { AccessibilityProvider } from "@/components/AccessibilityProvider";
+import { MobileNav } from "@/components/MobileNav";
 import Index from "./pages/Index";
 import Play from "./pages/Play";
 import Learn from "./pages/Learn";
@@ -53,7 +54,8 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
-              <Routes>
+                <MobileNav />
+                <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/play" element={<Play />} />
                 <Route path="/play/pre-k" element={<PreKGame />} />
