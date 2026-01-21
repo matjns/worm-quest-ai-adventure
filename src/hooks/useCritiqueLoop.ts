@@ -60,6 +60,7 @@ export function useCritiqueLoop() {
   const [isValidating, setIsValidating] = useState(false);
   const [result, setResult] = useState<CritiqueResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [validationHistory, setValidationHistory] = useState<CritiqueResult[]>([]);
 
   const validatePerturbation = useCallback(async (
     perturbation: PerturbationInput,
@@ -83,20 +84,62 @@ export function useCritiqueLoop() {
         throw new Error(data.error);
       }
 
-      setResult(data);
+      // Type-safe result mapping
+      const critiqueResult: CritiqueResult = {
+        validation: {
+          score: data.validation?.score ?? 0,
+          biologicalAccuracy: data.validation?.biologicalAccuracy ?? 0,
+          isValid: data.validation?.isValid ?? false,
+          groundTruthReference: data.validation?.groundTruthReference ?? '',
+          warnings: data.validation?.warnings ?? [],
+          deviationScore: data.validation?.deviationScore ?? 0,
+        },
+        chaos: {
+          isChaotic: data.chaos?.isChaotic ?? false,
+          lyapunovExponent: data.chaos?.lyapunovExponent ?? 0,
+          entropy: data.chaos?.entropy ?? 0,
+          attractorType: data.chaos?.attractorType ?? 'stable',
+          riskLevel: data.chaos?.riskLevel ?? 'low',
+          explanation: data.chaos?.explanation ?? '',
+          confidence: data.chaos?.confidence ?? 0,
+        },
+        prediction: {
+          expectedBehavior: data.prediction?.expectedBehavior ?? '',
+          groundTruthAlignment: data.prediction?.groundTruthAlignment ?? '',
+        },
+        recommendations: data.recommendations ?? [],
+        educational: {
+          insight: data.educational?.insight ?? '',
+          citations: data.educational?.citations ?? [],
+        },
+        redAlert: data.redAlert ?? false,
+      };
+
+      setResult(critiqueResult);
+      setValidationHistory(prev => [...prev, critiqueResult]);
       
-      if (data.redAlert) {
-        toast.error('⚠️ Red Alert: Chaos attractor detected!', {
-          description: 'Your perturbation may cause unstable dynamics',
-          duration: 5000,
+      // Enhanced toast notifications based on actual response
+      if (critiqueResult.redAlert) {
+        const riskEmoji = critiqueResult.chaos.riskLevel === 'critical' ? '🚨' : '⚠️';
+        toast.error(`${riskEmoji} Red Alert: ${critiqueResult.chaos.attractorType.replace('_', ' ')} detected!`, {
+          description: `Lyapunov: ${critiqueResult.chaos.lyapunovExponent.toFixed(2)} | Risk: ${critiqueResult.chaos.riskLevel}`,
+          duration: 6000,
         });
-      } else if (data.validation.score >= 80) {
-        toast.success('Validation passed with high accuracy!');
+      } else if (critiqueResult.validation.score >= 80) {
+        toast.success(`✅ High accuracy validation: ${critiqueResult.validation.score}%`, {
+          description: `Biological accuracy: ${critiqueResult.validation.biologicalAccuracy}%`,
+        });
+      } else if (critiqueResult.validation.score >= 50) {
+        toast.warning(`Validation score: ${critiqueResult.validation.score}%`, {
+          description: `${critiqueResult.recommendations.length} recommendations available`,
+        });
       } else {
-        toast.warning('Validation complete - see recommendations');
+        toast.error(`Low validation score: ${critiqueResult.validation.score}%`, {
+          description: critiqueResult.validation.warnings[0] || 'Review recommendations',
+        });
       }
 
-      return data;
+      return critiqueResult;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       setError(message);
@@ -112,11 +155,17 @@ export function useCritiqueLoop() {
     setError(null);
   }, []);
 
+  const clearHistory = useCallback(() => {
+    setValidationHistory([]);
+  }, []);
+
   return {
     validatePerturbation,
     isValidating,
     result,
     error,
     reset,
+    validationHistory,
+    clearHistory,
   };
 }
