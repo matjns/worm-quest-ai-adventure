@@ -181,9 +181,19 @@ export default function Index() {
               <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-3 md:mb-4 leading-tight">
                 <span className="block text-foreground">DIGITIZE</span>
                 <span 
-                  className="block text-primary relative"
+                  className="block relative animate-pulse"
                   style={{
-                    textShadow: '0 0 20px hsl(var(--primary) / 0.8), 0 0 40px hsl(var(--primary) / 0.6), 0 0 60px hsl(var(--primary) / 0.4), 0 0 80px hsl(var(--primary) / 0.2)',
+                    color: 'hsl(340, 100%, 55%)',
+                    textShadow: `
+                      0 0 10px hsl(340, 100%, 55%),
+                      0 0 20px hsl(340, 100%, 55%),
+                      0 0 40px hsl(340, 100%, 50%),
+                      0 0 60px hsl(340, 100%, 45%),
+                      0 0 80px hsl(340, 100%, 40%),
+                      0 0 100px hsl(340, 100%, 35%),
+                      0 0 120px hsl(340, 100%, 30%)
+                    `,
+                    filter: 'blur(0.5px)',
                   }}
                 >
                   LIFE
