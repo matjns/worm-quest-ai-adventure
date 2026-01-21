@@ -3,16 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   AlertTriangle,
   Brain,
-  CheckCircle2,
-  ChevronDown,
-  ChevronRight,
   Crosshair,
   FlaskConical,
-  Gauge,
   Lightbulb,
-  Play,
   RefreshCw,
-  Shield,
   Sparkles,
   Target,
   TrendingUp,
@@ -29,12 +23,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useHallucinationHunter, CircuitBuild, HallucinationResult } from '@/hooks/useHallucinationHunter';
 import { useCritiqueLoop, PerturbationInput, SimulationState, CritiqueResult } from '@/hooks/useCritiqueLoop';
 import { useGliaAnalysis, NeuronInput, GliaAnalysisResponse } from '@/hooks/useGliaAnalysis';
