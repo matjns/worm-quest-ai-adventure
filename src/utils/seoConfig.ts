@@ -15,9 +15,9 @@ export interface SEOConfig {
   noIndex?: boolean;
 }
 
-// Default SEO configuration for NeuroQuest
+// Default SEO configuration for WormQuest
 export const DEFAULT_SEO: SEOConfig = {
-  title: "NeuroQuest - AI Nematode Sim: Decode Biology's Code",
+  title: "WormQuest - AI Nematode Sim: Decode Biology's Code",
   description: "Simulate organisms to decode biology. Learn neuroscience through interactive C. elegans brain simulations. 302 neurons, infinite discoveries. The AI learning platform of choice for educators, corporations, and individuals.",
   keywords: [
     "neuroscience education",
@@ -44,43 +44,43 @@ export const DEFAULT_SEO: SEOConfig = {
 // Page-specific SEO configurations
 export const PAGE_SEO: Record<string, Partial<SEOConfig>> = {
   home: {
-    title: "NeuroQuest - AI Nematode Sim: Decode Biology's Code",
+    title: "WormQuest - AI Nematode Sim: Decode Biology's Code",
     description: "Simulate organisms to decode biology. The first complete brain simulation for K-12 and beyond. 302 neurons, OpenWorm-powered, AI-enhanced learning.",
   },
   play: {
-    title: "Play & Learn | NeuroQuest",
+    title: "Play & Learn | WormQuest",
     description: "Interactive neuroscience games for all ages. From Pre-K color matching to advanced circuit building. Learn from the lowly!",
   },
   learn: {
-    title: "Learn Neuroscience | NeuroQuest",
+    title: "Learn Neuroscience | WormQuest",
     description: "Structured lessons on C. elegans neurobiology. From basic neurons to advanced connectome analysis.",
   },
   chaos: {
-    title: "Chaos Simulation Lab | NeuroQuest",
+    title: "Chaos Simulation Lab | WormQuest",
     description: "Optimize dynamical systems via strange attractors. Worm proxy for supply-chain chaos modeling.",
   },
   race: {
-    title: "Worm Racing | NeuroQuest",
+    title: "Worm Racing | WormQuest",
     description: "Design neural circuits that make worms race! Compete with RL opponents and earn Chaos Tamer badges.",
   },
   community: {
-    title: "Community Gallery | NeuroQuest",
+    title: "Community Gallery | WormQuest",
     description: "Share and discover neural circuit designs. Fork, remix, and contribute to the OpenWorm project.",
   },
   research: {
-    title: "Research Mode | NeuroQuest",
+    title: "Research Mode | WormQuest",
     description: "Contribute to real neuroscience research. Export NeuroML, validate against OpenWorm data.",
   },
   certifications: {
-    title: "Micro-Credentials | NeuroQuest",
+    title: "Micro-Credentials | WormQuest",
     description: "Earn stackable certifications in computational neuroscience. LinkedIn-ready badges, MOOC-enterprise compatible.",
   },
   enterprise: {
-    title: "Enterprise & MOOC | NeuroQuest",
+    title: "Enterprise & MOOC | WormQuest",
     description: "High-fidelity simulation tracks for Cyber Resilience, Drug Discovery, and Org Dynamics. Government and corporate training.",
   },
   teacher: {
-    title: "Teacher Dashboard | NeuroQuest",
+    title: "Teacher Dashboard | WormQuest",
     description: "Manage classrooms, track student progress, assign modules. AI-powered learning analytics.",
   },
 };
@@ -130,7 +130,7 @@ export function applyMetaTags(config: SEOConfig): void {
   setMeta('og:title', config.title, true);
   setMeta('og:description', config.description, true);
   setMeta('og:type', config.ogType || 'website', true);
-  setMeta('og:site_name', 'NeuroQuest', true);
+  setMeta('og:site_name', 'WormQuest', true);
   if (config.ogImage) {
     setMeta('og:image', `${window.location.origin}${config.ogImage}`, true);
   }
@@ -200,8 +200,8 @@ export function generateCircuitStructuredData(circuit: {
     },
     "provider": {
       "@type": "Organization",
-      "name": "NeuroQuest",
-      "url": "https://neuroquest.app",
+      "name": "WormQuest",
+      "url": "https://wormquest.app",
     },
   };
 
@@ -224,8 +224,8 @@ export function generateEducationalStructuredData(lesson: {
     "description": lesson.description,
     "provider": {
       "@type": "Organization",
-      "name": "NeuroQuest",
-      "sameAs": "https://neuroquest.app",
+      "name": "WormQuest",
+      "sameAs": "https://wormquest.app",
     },
     "educationalLevel": lesson.gradeLevel,
     "timeRequired": `PT${lesson.duration}M`,
@@ -246,13 +246,13 @@ export function generateEducationalStructuredData(lesson: {
  */
 export function getViralShareText(circuit?: { title: string; behavior: string }): string {
   const baseTexts = [
-    "🧬 Just simulated a C. elegans brain on @NeuroQuest! 302 neurons, infinite discoveries. #AIEducation #WhiteHouseAIChallenge",
-    "🪱 Decode biology's code with AI-powered worm brain simulations. This is the future of STEM education! #NeuroQuest #OpenWorm",
+    "🧬 Just simulated a C. elegans brain on @WormQuest! 302 neurons, infinite discoveries. #AIEducation #WhiteHouseAIChallenge",
+    "🪱 Decode biology's code with AI-powered worm brain simulations. This is the future of STEM education! #WormQuest #OpenWorm",
     "🧠 From strange attractors to neural circuits—learning neuroscience has never been this fun! @realrealHeidi #AILearning",
   ];
 
   if (circuit) {
-    return `🧠 Check out my "${circuit.title}" circuit on NeuroQuest! It makes the worm ${circuit.behavior}. Build your own AI-powered simulation! #NeuroQuest #OpenWorm`;
+    return `🧠 Check out my "${circuit.title}" circuit on WormQuest! It makes the worm ${circuit.behavior}. Build your own AI-powered simulation! #WormQuest #OpenWorm`;
   }
 
   return baseTexts[Math.floor(Math.random() * baseTexts.length)];
