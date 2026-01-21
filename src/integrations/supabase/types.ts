@@ -468,6 +468,145 @@ export type Database = {
         }
         Relationships: []
       }
+      intervention_plans: {
+        Row: {
+          classroom_id: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          initial_entropy: number | null
+          learning_style: string | null
+          notes: string | null
+          priority: string
+          status: string
+          steps: Json
+          student_id: string
+          target_entropy: number | null
+          teacher_id: string
+          updated_at: string
+        }
+        Insert: {
+          classroom_id: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          initial_entropy?: number | null
+          learning_style?: string | null
+          notes?: string | null
+          priority?: string
+          status?: string
+          steps?: Json
+          student_id: string
+          target_entropy?: number | null
+          teacher_id: string
+          updated_at?: string
+        }
+        Update: {
+          classroom_id?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          initial_entropy?: number | null
+          learning_style?: string | null
+          notes?: string | null
+          priority?: string
+          status?: string
+          steps?: Json
+          student_id?: string
+          target_entropy?: number | null
+          teacher_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      intervention_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          plan_id: string
+          score: number | null
+          started_at: string | null
+          status: string
+          step_index: number
+          teacher_notes: string | null
+          time_spent_seconds: number | null
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          plan_id: string
+          score?: number | null
+          started_at?: string | null
+          status?: string
+          step_index: number
+          teacher_notes?: string | null
+          time_spent_seconds?: number | null
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          plan_id?: string
+          score?: number | null
+          started_at?: string | null
+          status?: string
+          step_index?: number
+          teacher_notes?: string | null
+          time_spent_seconds?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intervention_progress_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "intervention_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      intervention_snapshots: {
+        Row: {
+          created_at: string
+          entropy_value: number
+          id: string
+          notes: string | null
+          plan_id: string
+          snapshot_date: string
+          steps_completed: number
+        }
+        Insert: {
+          created_at?: string
+          entropy_value: number
+          id?: string
+          notes?: string | null
+          plan_id: string
+          snapshot_date?: string
+          steps_completed?: number
+        }
+        Update: {
+          created_at?: string
+          entropy_value?: number
+          id?: string
+          notes?: string | null
+          plan_id?: string
+          snapshot_date?: string
+          steps_completed?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intervention_snapshots_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "intervention_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       learner_entropy_profiles: {
         Row: {
           age_group: string

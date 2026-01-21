@@ -21,6 +21,7 @@ import { ClassroomAnalyticsChart } from '@/components/ClassroomAnalyticsChart';
 import { AIClassroomTools } from '@/components/AIClassroomTools';
 import { DashboardCertSystem } from '@/components/DashboardCertSystem';
 import { ClassroomEntropyLeaderboard } from '@/components/ClassroomEntropyLeaderboard';
+import { InterventionTrackingDashboard } from '@/components/InterventionTrackingDashboard';
 import {
   BookOpen,
   Users,
@@ -524,9 +525,12 @@ export default function TeacherDashboard() {
 
           {/* Entropy Leaderboard Tab */}
           <TabsContent value="entropy" className="space-y-6">
-            <ClassroomEntropyLeaderboard 
-              classrooms={classrooms.map(c => ({ id: c.id, name: c.name }))} 
-            />
+            <div className="grid lg:grid-cols-2 gap-6">
+              <ClassroomEntropyLeaderboard 
+                classrooms={classrooms.map(c => ({ id: c.id, name: c.name }))} 
+              />
+              <InterventionTrackingDashboard />
+            </div>
           </TabsContent>
 
           {/* Assignments Tab */}

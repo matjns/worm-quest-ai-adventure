@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { StudentEntropyData } from '@/hooks/useClassroomEntropy';
+import { useInterventionPlans, LearningPathStep } from '@/hooks/useInterventionPlans';
 import { 
   Route, Brain, Target, Zap, BookOpen, TrendingUp, AlertTriangle,
   Lightbulb, CheckCircle2, Clock, Sparkles, ArrowRight, Play,
@@ -21,20 +22,10 @@ import { toast } from 'sonner';
 interface InterventionPlannerProps {
   student: StudentEntropyData;
   onClose: () => void;
-  onSavePlan?: (plan: InterventionPlan) => void;
+  onSavePlan?: (plan: InterventionPlanLocal) => void;
 }
 
-interface LearningPathStep {
-  id: string;
-  module: string;
-  activity: string;
-  duration: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  scaffolding: string[];
-  objective: string;
-}
-
-interface InterventionPlan {
+interface InterventionPlanLocal {
   studentId: string;
   studentName: string;
   createdAt: string;
@@ -215,28 +206,44 @@ export function InterventionPlanner({ student, onClose, onSavePlan }: Interventi
     return 'low';
   };
 
+  const { createPlan } = useInterventionPlans();
+
   const handleSavePlan = async () => {
     setIsSaving(true);
     
-    const plan: InterventionPlan = {
-      studentId: student.student_id,
-      studentName: student.display_name,
-      createdAt: new Date().toISOString(),
-      priority: getPriorityLevel(),
-      learningStyle,
-      targetEntropy: Math.max(0.3, (student.calculated_entropy || 1) - 0.5),
-      steps: selectedPath.length > 0 ? selectedPath : recommendedPath,
-      notes: planNotes,
-    };
+    const priority = getPriorityLevel();
+    const targetEntropy = Math.max(0.3, (student.calculated_entropy || 1) - 0.5);
+    const steps = selectedPath.length > 0 ? selectedPath : recommendedPath;
 
-    // Simulate saving
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    if (onSavePlan) {
-      onSavePlan(plan);
+    // Save to database
+    const planId = await createPlan(
+      student.student_id,
+      student.classroom_id,
+      priority,
+      learningStyle,
+      student.calculated_entropy,
+      targetEntropy,
+      steps,
+      planNotes
+    );
+
+    if (planId) {
+      const plan: InterventionPlanLocal = {
+        studentId: student.student_id,
+        studentName: student.display_name,
+        createdAt: new Date().toISOString(),
+        priority,
+        learningStyle,
+        targetEntropy,
+        steps,
+        notes: planNotes,
+      };
+
+      if (onSavePlan) {
+        onSavePlan(plan);
+      }
     }
     
-    toast.success(`Intervention plan created for ${student.display_name}`);
     setIsSaving(false);
     onClose();
   };
